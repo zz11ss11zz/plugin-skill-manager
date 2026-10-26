@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 — 2026-10-26
+
+- Simplify the low-use observation area in both English and Chinese; move detailed rules into a collapsed explanation.
+- Replace the primary inventory button with a compact secondary action in the section header.
+- Show observation targets only while gathering records; retain the same data and eligibility rules.
+- Recording remains caller-reported. Existing records are preserved and missing historical activity is not fabricated.
+
 ## 0.3.0 — 2026-10-26
 
 - Rename package, marketplace and MCP identity to `plugin-skill-manager`; preserve existing records, environment variables and legacy release assets.

@@ -3,6 +3,17 @@ export function resolveLocale(host, fallback = 'en') {
   return /^zh(?:[-_]|$)/i.test(value) ? 'zh' : 'en';
 }
 export const english = {
+  "核对清单": "Check inventory",
+  "核对中…": "Checking…",
+  "核对失败，请重试。": "Check failed. Try again.",
+  "待核验": "Needs verification",
+  "观察中": "Observing",
+  "观察 {0}/14 天 · 活跃 {1}/5 天": "Span {0}/14 days · Active {1}/5 days",
+  "观察 {0} 天 · 活跃 {1} 天": "Span {0} days · Active {1} days",
+  "低频 · {0} 项": "Low use · {0}",
+  "无记录 · {0} 项": "No records · {0}",
+  "无记录不代表未使用。": "No records does not mean unused.",
+  "统计说明": "About these counts",
   "核对安装清单": "Check installed inventory",
   "正在核对安装清单…": "Checking installed inventory…",
   "安装清单核对失败，请稍后重试；保留现有结果。": "Inventory check failed. Try again later; existing results are retained.",

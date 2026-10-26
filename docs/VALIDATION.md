@@ -379,3 +379,11 @@
 - Seven isolated legacy 0.2.0 to renamed 0.3.0 lifecycle checks passed. Existing legacy identity blocked simultaneous install; uninstalling the old registration then installing the renamed package retained the synthetic plugin-call ledger across restart and reinstallation.
 - Extended acceptance-distribution.mjs to test legacy identity transitions using the actual previous package name. All test records were synthetic and CODEX_HOME was isolated. Native desktop interaction was not exercised.
 - Official portal observation in Chrome and a fallback in-app browser timed out before form inspection or upload. No official submission occurred; organization eligibility and native review evidence remain open (SUBMISSION.md).
+
+## 2026-10-26 v0.3.1 compact bilingual observation panel
+
+- Collapse detailed observation rules, shorten list labels and place a small secondary inventory action in the section header. English and Chinese share the layout. Counting and candidate selection semantics are unchanged.
+- Windows Node.js 20.18.1: all 62 regression tests passed with SKILL_MANAGER_TEST_CODEX=1 and no skipped tests.
+- Seven isolated real-CLI lifecycle checks passed for the public v0.3.0 distribution upgraded to v0.3.1, including installed-cache MCP/UI startup, explicit source relocation and data retention across restart/uninstall/reinstall. Synthetic data only; native desktop interactions were not exercised.
+- Browser QA of the same UI changes covered plugin/Skill switching, inventory checks, collapsed/expanded explanations and a 360px frame without observation-heading overflow. English translation and language-switch checks passed. This is supporting browser evidence, not native review footage.
+- GitHub distribution is separate from official-directory submission. Local-MCP organization eligibility, reviewer-accessible walkthrough and actual portal review status remain unconfirmed.

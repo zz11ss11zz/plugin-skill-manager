@@ -28,7 +28,7 @@ const manifest = {
     onboardingSkill: './skills/setup/SKILL.md',
     interface: JSON.parse(await readFile('packaging/interface.json', 'utf8')),
     review: { test_cases: JSON.parse(await readFile('packaging/review-cases.json', 'utf8')) },
-    publication: { release_notes: 'Prebuilt installation, recording setup, separate inventory management and a color icon. Native desktop review remains pending.' },
+    publication: { release_notes: 'Compact bilingual observation area and inventory action. Data and counting rules are unchanged. Native desktop review remains pending.' },
   } },
 };
 const mcp = { mcpServers: { 'plugin-skill-manager': { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}' } } };

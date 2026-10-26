@@ -158,27 +158,27 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     }
     const observation = rankingView.observation;
     const review = node('section', undefined, 'usage-observation');
-    review.append(node('h3', t("低频使用观察")));
-    const state = !rankingView.ready ? t("统计暂不可读取") : observation.incomplete ? t("统计不完整") : observation.mature ? t("低频候选") : t("观察积累中");
-    review.append(node('strong', state));
+    const reviewHeading = node('div', undefined, 'observation-heading');
+    reviewHeading.append(node('h3', t("低频使用观察")));
+    review.append(reviewHeading);
+    const state = !rankingView.ready ? t("统计暂不可读取") : observation.incomplete ? t("待核验") : observation.mature ? t("低频候选") : t("观察中");
+    const checkStatus = node('p', '', 'observation-feedback'); checkStatus.setAttribute('role','status');
     if (checkInventory) {
-      const check = node('button', t("核对安装清单")); check.type = 'button';
-      const checkStatus = node('p', '', 'activity-note'); checkStatus.setAttribute('role','status');
+      const check = node('button', t("核对清单"), 'observation-check'); check.type = 'button';
+      check.title = t("核对安装清单");
       check.addEventListener('click', async () => {
-        check.disabled = true; checkStatus.textContent = t("正在核对安装清单…");
+        check.disabled = true; check.textContent = t("核对中…"); checkStatus.textContent = '';
         try {
           const result = await checkInventory();
           if (result.isError || !Array.isArray(result.structuredContent?.skills) || !result.structuredContent?.pluginRegistry) throw new Error('Inventory unavailable');
           current = result.structuredContent; render();
-        } catch { checkStatus.textContent = t("安装清单核对失败，请稍后重试；保留现有结果。"); }
-        finally { check.disabled = false; }
+        } catch { checkStatus.textContent = t("核对失败，请重试。"); }
+        finally { check.disabled = false; check.textContent = t("核对清单"); }
       });
-      review.append(check, checkStatus);
+      reviewHeading.append(check);
     }
-    review.append(node('p', t("所选范围内：观察跨度 {0}/14 天 · 有记录 {1}/5 天 · 已确认清单 {2} 项", observation.observedDays, observation.activeDays, observation.total), 'activity-caption'));
-    if (observation.incomplete) review.append(node('p', t("安装清单未核验或记录不完整，暂不生成低频候选；下方仅列已确认清单中的可查询项目。"), 'activity-note'));
-    else if (!observation.mature) review.append(node('p', t("观察跨度至少 14 天且至少 5 天有记录后，才展示低频候选。"), 'activity-note'));
-    review.append(node('p', t("按所选日期范围统计。候选仅在 1–2 天有记录，首次记录距范围末日不少于 14 天；按最近使用时间从早到晚排序。安装时间未知，近期首次记录的项目继续观察。无记录不等于闲置，记录不保证覆盖所有实际使用。"), 'activity-note'));
+    review.append(checkStatus, node('p', state, 'observation-state'));
+    if (rankingView.ready) review.append(node('p', t(observation.mature ? "观察 {0} 天 · 活跃 {1} 天" : "观察 {0}/14 天 · 活跃 {1}/5 天", observation.observedDays, observation.activeDays), 'activity-caption'));
     const addList = (heading, entries, zero) => {
       const details = node('details'), summary = node('summary', heading);
       const search = node('input'); search.type = 'search'; search.placeholder = t("搜索名称或来源"); search.setAttribute('aria-label', heading + ' · ' + t("搜索名称或来源"));
@@ -198,9 +198,17 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
       search.addEventListener('input',draw); draw();
       details.append(summary, search, list); review.append(details);
     };
-    if (observation.mature) addList(t("查看低频候选（{0} 项）",observation.low.length),observation.low,false);
-    if (rankingView.ready && rankingView.coverage.hasOverlap) addList(t("查看全部无记录项目（{0} 项）",observation.zero.length),observation.zero,true);
+    if (observation.mature) addList(t("低频 · {0} 项",observation.low.length),observation.low,false);
+    if (rankingView.ready && rankingView.coverage.hasOverlap) addList(t("无记录 · {0} 项",observation.zero.length),observation.zero,true);
     else if (rankingView.ready) review.append(node('p',t("所选日期无统计覆盖"),'activity-note'));
+    review.append(node('p', t("无记录不代表未使用。"), 'activity-note'));
+    const rules = node('details', undefined, 'observation-rules');
+    rules.append(node('summary', t("统计说明")));
+    rules.append(node('p', t("所选范围内：观察跨度 {0}/14 天 · 有记录 {1}/5 天 · 已确认清单 {2} 项", observation.observedDays, observation.activeDays, observation.total), 'activity-caption'));
+    if (observation.incomplete) rules.append(node('p', t("安装清单未核验或记录不完整，暂不生成低频候选；下方仅列已确认清单中的可查询项目。"), 'activity-note'));
+    else if (!observation.mature) rules.append(node('p', t("观察跨度至少 14 天且至少 5 天有记录后，才展示低频候选。"), 'activity-note'));
+    rules.append(node('p', t("按所选日期范围统计。候选仅在 1–2 天有记录，首次记录距范围末日不少于 14 天；按最近使用时间从早到晚排序。安装时间未知，近期首次记录的项目继续观察。无记录不等于闲置，记录不保证覆盖所有实际使用。"), 'activity-note'));
+    review.append(rules);
     rankings.append(review);
     note.textContent = t("{0} {1}不代表成功执行次数。零值仅表示该年份与已查询期间交集内未观测到信号，不代表从未使用。{2}", kind === 'plugins' ? t("插件按所属 Skill 信号汇总，尚不包含插件工具调用；未核实安装的缓存不进入零使用列表。") : t("Skill 按文件实例统计；同名副本保留来源区别。"), label, view.excluded ? t(" {0} 条时间或归属不明的信号未进入热力图。", view.excluded) : '');
     if (adopting && !usage?.coverage?.from && view.ready) entityTip.textContent = t("尚未收到 record_skill_use 记录；启用工具不会自动回填历史使用量。");

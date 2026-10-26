@@ -1,6 +1,6 @@
 # Official submission preparation / 官方提交准备
 
-Prepared 2026-10-26 for 0.3.0. **Not submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
+Prepared 2026-10-26 for 0.3.1. **Not submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
 
 ## Package and listing
 
