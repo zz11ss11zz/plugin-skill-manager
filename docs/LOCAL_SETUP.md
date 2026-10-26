@@ -1,10 +1,10 @@
-# v0.1.0 安装、升级与卸载
+# v0.1.1 安装、升级与卸载
 
 需要 Windows、Node.js 20.18+ 和 PATH 中可用的 Codex CLI。无需 API 密钥。网络用于获取源码与 npm 依赖；应用不上传日志。其他平台未验证，详见 [已知限制](KNOWN_LIMITATIONS.md)。
 
 ## 安装
 
-从 [v0.1.0 Release](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.0) 下载源码 ZIP，解压到长期保留的位置，在含 package.json 的目录打开 PowerShell：
+从 [v0.1.1 Release](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.1) 下载源码 ZIP，解压到长期保留的位置，在含 package.json 的目录打开 PowerShell：
 
 ```powershell
 node --version
@@ -22,7 +22,7 @@ npm.cmd run setup:check
 Git 用户可使用：
 
 ```powershell
-git clone --branch v0.1.0 --depth 1 https://github.com/zz11ss11zz/codex-skill-manager.git
+git clone --branch v0.1.1 --depth 1 https://github.com/zz11ss11zz/codex-skill-manager.git
 cd codex-skill-manager
 ```
 

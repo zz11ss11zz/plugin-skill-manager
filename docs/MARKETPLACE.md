@@ -4,7 +4,7 @@ This is an M3 development artifact, not a public release or a verified GitHub ma
 
 ## Distribution acceptance boundary (current)
 
-Local acceptance applies only to the recorded build. Remote M3 distribution is not accepted. Complete the mechanism/route decision, artifact provenance and clean remote lifecycle gates in [M3-B through M3-D](V0.1.0_PLAN.md) first. Prebuilt large-file uploads are paused. Generated runtime bundles and node_modules do not belong in source Git by default; splitting uploads does not resolve distribution design.
+Local acceptance applies only to the recorded build. Remote M3 distribution is not accepted. Complete the mechanism/route decision, artifact provenance and clean remote lifecycle gates in [distribution milestones](PUBLIC_RELEASE_PLAN.md) first. Prebuilt large-file uploads are paused. Generated runtime bundles and node_modules do not belong in source Git by default; splitting uploads does not resolve distribution design.
 
 The official documentation lists npm marketplace sources but explicitly disables lifecycle scripts, so automatic install-time builds cannot be assumed. Downloading a Release package and registering a local marketplace is a candidate multi-step route; direct marketplace consumption of a Release ZIP remains unverified. Validate the selected route without a source checkout or old cache, recording versions, source commit, hashes, notices and actual user steps. The local build commands below do not establish remote acceptance.
 

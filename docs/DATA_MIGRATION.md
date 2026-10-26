@@ -1,6 +1,6 @@
 # M2 持久数据与迁移验收
 
-适用版本：0.1.0。源码安装从仓库根目录运行 `node src/server.mjs --initialize-data`；下文的 `node server/src/server.mjs --initialize-data` 用于生成的独立插件包。迁移前先停止旧服务，核对源目录与目标目录。
+适用版本：0.1.x。源码安装从仓库根目录运行 `node src/server.mjs --initialize-data`；下文的 `node server/src/server.mjs --initialize-data` 用于生成的独立插件包。迁移前先停止旧服务，核对源目录与目标目录。
 
 ## 目录与边界
 
@@ -47,6 +47,6 @@ node server/src/server.mjs --initialize-data
 
 正式版检查覆盖 55 项回归、11 项完整本地市场生命周期，以及从已发布 v0.0.1-alpha.1 到 0.1.0 的实际四类数据迁移。此前 Windows 缓存激活问题已通过打包布局调整解决；一次快照回退启动中断未在带诊断的新配置复验中复现，详见 VALIDATION.md。
 
-复现自动验收：先 `npm run build:plugin`，再 `node scripts/acceptance.mjs dist/plugin-0.1.0`。脚本只创建独立测试配置、技能和日志，结果保存在忽略的 `work/acceptance-*`；正常完成时卸载自己的测试插件。加 `--mcp-only` 可独立验证 MCP 注册路径，不代表市场安装。没有迁移用户真实数据，也不等于原生侧栏视觉检查通过。
+复现自动验收：先 `npm run build:plugin`，再 `node scripts/acceptance.mjs dist/plugin-0.1.1`。脚本只创建独立测试配置、技能和日志，结果保存在忽略的 `work/acceptance-*`；正常完成时卸载自己的测试插件。加 `--mcp-only` 可独立验证 MCP 注册路径，不代表市场安装。没有迁移用户真实数据，也不等于原生侧栏视觉检查通过。
 
 复现浏览器检查：`node scripts/acceptance-panel.mjs <生成的 result.json>`；打开输出的本机 URL，退出时输入 `q`。这是连接实际独立包服务的合成浏览器宿主，所有记录来自隔离样本。

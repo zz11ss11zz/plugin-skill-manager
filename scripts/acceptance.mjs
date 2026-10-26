@@ -16,7 +16,8 @@ import { UsageIndex } from '../src/usage-index.mjs';
 import { listHostSkills } from './host-skills.mjs';
 
 const run = promisify(execFile), repo = fileURLToPath(new URL('..', import.meta.url));
-const packageRoot = path.resolve(process.argv[2] || 'dist/plugin-0.1.0-alpha.0-m2');
+const packageVersion = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).version;
+const packageRoot = path.resolve(process.argv[2] || `dist/plugin-${packageVersion}`);
 await mkdir(path.join(repo, 'work'), { recursive: true });
 const root = await mkdtemp(path.join(repo, 'work', 'acceptance-'));
 const mcpOnly = process.argv.includes('--mcp-only');

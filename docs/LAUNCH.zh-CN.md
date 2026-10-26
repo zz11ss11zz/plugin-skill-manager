@@ -40,7 +40,7 @@ Skills 越装越多后，一个实际问题是：最近的任务里，哪些能�
 
 项目地址：https://github.com/zz11ss11zz/codex-skill-manager
 
-版本下载：https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.0
+版本下载：https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.1
 
 如果你也有大量 Skills，欢迎从自己的工作流程试用，并在 Issues 留下脱敏的错误与建议。尤其想了解：安装步骤是否清晰、采用与调用的区别是否容易理解、现有统计能否帮助你整理能力库。
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 — 2026-10-26
+
+- Match README demonstrations to their English/Chinese language and complete fixed-label translations.
+- Correct the Chinese Skill adoption heading without changing counting semantics.
+- Document companion Skill installation separately from MCP registration, including verified local-source fallback.
+- Correct stale ledger paths and derive the acceptance package path from the release version.
+- Source distribution remains the supported public installation route; native-sidebar and remote-marketplace limits still apply.
+
 ## 0.1.0 — 2026-10-23
 
 First non-prerelease source distribution. Requires Node.js 20.18+ and Codex CLI; Windows is the tested platform.

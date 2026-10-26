@@ -1,4 +1,4 @@
-# v0.1.0 known limitations / 已知限制
+# v0.1.x known limitations / 已知限制
 
 - **Distribution / 分发**: source ZIP → npm dependencies → build/test → MCP registration. Requires Node.js 20.18+ and Codex CLI. No npm release, one-click remote marketplace or official directory listing. MCP registration does not install the companion Skill automatically.
 - **Host UI / 宿主界面**: protocol/resource and browser checks exist; the latest complete native sidebar interaction and desktop language switching are not automated. Service startup does not prove every desktop version displays the entry. Do not modify hidden host settings to force it.
@@ -11,3 +11,5 @@
 - **Windows startup / 启动**: one isolated snapshot-rollback service start closed unexpectedly; direct initialization and a fresh full lifecycle run passed. Its cause was not identified. Preserve diagnostics and original data on failure; do not delete data or disable security controls to retry.
 
 Report issues via [GitHub Issues](https://github.com/zz11ss11zz/codex-skill-manager/issues), including version, OS, Node/Codex versions and redacted errors. Do not upload private logs, credentials or indexes.
+
+- **2026-10-26 marketplace reinstall**: with CLI 0.163.0-alpha.11.2, v0.1.1 installed and passed eight checks through uninstall, but relocated marketplace reinstall failed with Windows cache activation `os error 5`. Source/MCP standalone lifecycle passed all nine checks separately. Do not treat the earlier successful marketplace run as proof this intermittent issue is eliminated.

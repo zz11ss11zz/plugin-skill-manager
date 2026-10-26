@@ -4,7 +4,7 @@
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/LOCAL_SETUP.md) · [Release v0.1.0](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.0) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/LOCAL_SETUP.md) · [Release v0.1.1](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.1) · [Apache-2.0](LICENSE)
 
 ![30-second dashboard walkthrough with synthetic data](docs/media/en/demo.gif)
 
@@ -23,7 +23,7 @@ The complete product combines a **local MCP service, an activity UI, and a compa
 
 Tested on Windows. Requires Node.js 20.18+ and the Codex CLI on PATH. This is an independent project, not an official OpenAI product or an official-directory listing.
 
-Download the [v0.1.0 source ZIP](https://github.com/zz11ss11zz/codex-skill-manager/archive/refs/tags/v0.1.0.zip), extract it to a permanent directory, and open PowerShell in the folder containing package.json:
+Download the [v0.1.0 source ZIP](https://github.com/zz11ss11zz/codex-skill-manager/archive/refs/tags/v0.1.1.zip), extract it to a permanent directory, and open PowerShell in the folder containing package.json:
 
 ```powershell
 npm.cmd ci --ignore-scripts

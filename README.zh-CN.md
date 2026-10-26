@@ -6,7 +6,7 @@
 
 查看日期热力图、按时间筛选排名，分别理解 Skill 采用与插件调用尝试。记录保存在本机。
 
-[下载安装](docs/LOCAL_SETUP.md) · [v0.1.0](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.0) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/codex-skill-manager/issues)
+[下载安装](docs/LOCAL_SETUP.md) · [v0.1.1](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.1) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/codex-skill-manager/issues)
 
 ![30 秒演示：切换类型、筛选日期和查看排名；使用合成记录](docs/media/demo.gif)
 
@@ -25,7 +25,7 @@
 
 已验证环境为 Windows，需要 Node.js 20.18+ 和 PATH 中可用的 Codex CLI。本项目为独立开源项目，不是 OpenAI 官方产品，尚未上架官方插件目录。
 
-下载 [v0.1.0 源码 ZIP](https://github.com/zz11ss11zz/codex-skill-manager/archive/refs/tags/v0.1.0.zip)，解压到长期保留的位置。在含 package.json 的目录打开 PowerShell：
+下载 [v0.1.0 源码 ZIP](https://github.com/zz11ss11zz/codex-skill-manager/archive/refs/tags/v0.1.1.zip)，解压到长期保留的位置。在含 package.json 的目录打开 PowerShell：
 
 ```powershell
 npm.cmd ci --ignore-scripts

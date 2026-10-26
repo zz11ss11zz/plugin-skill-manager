@@ -1,8 +1,8 @@
 # 独立插件工具调用统计
 
-`record_plugin_calls` 与 `record_skill_use` 使用独立文件和统计口径。前者存入 `.local/plugin-calls.json`，后者仍存入 `.local/adoptions.json`。两者不相加，也不互相转换。GitHub 等没有 Skill 的工具型插件可以直接进入调用排名。
+`record_plugin_calls` 与 `record_skill_use` 使用独立文件和统计口径。前者存入持久数据目录的 `plugin-calls.json`，后者存入同目录的 `adoptions.json`。目录默认为 `$CODEX_HOME/skill-manager/data-v1`；未设置 CODEX_HOME 时为 `~/.codex/skill-manager/data-v1`，可由绝对路径 `CODEX_SKILL_MANAGER_DATA_DIR` 覆盖。旧 `.local` 仅作为显式迁移来源。两者不相加，也不互相转换。GitHub 等没有 Skill 的工具型插件可以直接进入调用排名。
 
-首页保留“插件”和“Skill”两个按钮。默认插件视图统计插件工具调用；点击 Skill 显示“Skill工具调用”，计数仍来自 Skill 采用账本。两栏均移除统计口径下拉框，仅保留年份与日期筛选。标题随按钮同步，日历、逐项热力图和排名使用对应账本。只有记录过的插件进入调用清单，不能用此清单判断哪些插件已安装。
+首页保留“插件”和“Skill”两个按钮。默认插件视图统计插件工具调用；点击 Skill 显示“Skill 采用次数”，计数仍来自 Skill 采用账本。两栏均移除统计口径下拉框，仅保留年份与日期筛选。标题随按钮同步，日历、逐项热力图和排名使用对应账本。只有记录过的插件进入调用清单，不能用此清单判断哪些插件已安装。
 
 ## 接入规则
 

@@ -1,9 +1,9 @@
 {
   "name": "codex-skill-manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
-  "description": "Local Codex skill manager: sidebar integration prototype",
+  "description": "Local skill inventory and recorded activity dashboard for Codex",
   "engines": {
     "node": ">=20.18"
   },
