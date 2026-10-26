@@ -1,0 +1,31 @@
+{
+  "steps": [
+    {
+      "name": "activity",
+      "caption": "Separate plugin call attempts"
+    },
+    {
+      "name": "filtered",
+      "caption": "Filter Skill adoptions by date"
+    },
+    {
+      "name": "setup",
+      "caption": "Read-only recording status"
+    },
+    {
+      "name": "manage",
+      "caption": "Search, inspect sources and save a note"
+    },
+    {
+      "name": "preview",
+      "caption": "Review the exact folder move before execution"
+    },
+    {
+      "name": "narrow",
+      "caption": "Manage in a narrow panel"
+    }
+  ],
+  "errors": [],
+  "format": "Video sequence of actual browser UI screenshots, four seconds per state; not native Codex",
+  "data": "synthetic, local paths shown with C:\\demo\\skill-manager alias"
+}

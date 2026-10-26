@@ -1,6 +1,6 @@
 {
   "name": "codex-skill-manager",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Local skill inventory and recorded activity dashboard for Codex",
@@ -15,7 +15,8 @@
     "setup:install": "node scripts/setup.mjs install",
     "setup:uninstall": "node scripts/setup.mjs uninstall",
     "build:plugin": "npm run build && node scripts/build-plugin.mjs",
-    "build:marketplace": "npm run build && node scripts/build-marketplace.mjs"
+    "build:marketplace": "npm run build && node scripts/build-marketplace.mjs",
+    "build:distribution": "npm run build && node scripts/build-distribution.mjs"
   },
   "files": [
     "src",

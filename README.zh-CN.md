@@ -6,18 +6,21 @@
 
 查看日期热力图、按时间筛选排名，分别理解 Skill 采用与插件调用尝试。记录保存在本机。
 
-[下载安装](docs/LOCAL_SETUP.md) · [v0.1.1](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.1) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/codex-skill-manager/issues)
+[下载安装](docs/DISTRIBUTION.md) · [v0.2.0](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.2.0) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/codex-skill-manager/issues)
 
 ![30 秒演示：切换类型、筛选日期和查看排名；使用合成记录](docs/media/demo.gif)
 
 演示使用真实界面与合成记录，运行在浏览器演示宿主中，不是 Codex 原生侧栏录屏，也不是真实用户统计。中文标题包含 v0.1.0 发布后的一处口径文字修正。[静态图](docs/media/dashboard-skills.png) · [素材说明与复现](docs/media/README.md)。
+
+v0.2 新增管理与接入页面：[中文演示视频](docs/media/v020/zh/walkthrough.webm) · [管理页截图](docs/media/v020/zh/manage.png)。视频由真实浏览器界面状态组成，数据和显示路径均为示例。
 
 ## 能帮你做什么
 
 - 查看一年中已记录的活动，检查单日数量。
 - 在插件调用与 Skill 采用之间切换，避免混算。
 - 按日期筛选排名，区分没有覆盖和已记录为零。
-- 通过 MCP 工具查询本机清单、备注、重复候选，以及预览和执行 Windows 用户技能的可逆归档。当前活动页面没有这些管理控件。
+- 在独立“管理”页搜索本机清单、核对来源、保存备注，预览并执行 Windows 用户技能的可逆归档与恢复。
+- 在“接入”页查看最近收到的记录，不写入假测试事件，也不自动改写个人规则。
 
 完整产品由 **本地 MCP 服务＋活动界面＋配套 Skill** 组成。单独安装 Skill 不会安装服务；采用记录需要助手按约定主动写入，插件调用也需要调用方记录。它不会自动监听所有操作，不会补造历史。
 
@@ -25,22 +28,20 @@
 
 已验证环境为 Windows，需要 Node.js 20.18+ 和 PATH 中可用的 Codex CLI。本项目为独立开源项目，不是 OpenAI 官方产品，尚未上架官方插件目录。
 
-下载 [v0.1.0 源码 ZIP](https://github.com/zz11ss11zz/codex-skill-manager/archive/refs/tags/v0.1.1.zip)，解压到长期保留的位置。在含 package.json 的目录打开 PowerShell：
+下载 [v0.2.0 完整插件 ZIP](https://github.com/zz11ss11zz/codex-skill-manager/releases/download/v0.2.0/codex-skill-manager-0.2.0-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
 
 ```powershell
-npm.cmd ci --ignore-scripts
-npm.cmd test
-npm.cmd run setup:install
-npm.cmd run setup:check
+node install.mjs install
+node install.mjs check
 ```
 
-最后 registered、matches、enabled 应均为 true。重载 MCP 服务或重开 Codex，再让助手调用 `open_skill_manager`。不要移动或删除源码目录；`npm start` 启动 stdio 服务，不会打开网页。
+检查结果应显示已安装并启用的 0.2.0 插件，且注册来源匹配。重开 Codex，再让助手打开能力管理器或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
-源码安装已通过 55 项回归和 6 项隔离服务生命周期检查；最新版桌面原生侧栏交互仍未完成验收。详见 [安装与恢复](docs/LOCAL_SETUP.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。
+60 项回归与 7 项隔离插件生命周期检查通过，包括 0.1.1 → 0.2.0 换路径升级。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
 ## 安装配套 Skill（可选）
 
-先完成服务安装。配套 Skill 提供查询和解释这些记录的操作约定，不会自动开启后台采集。
+完整插件已包含配套 Skill，无需重复安装。本节仅适用于源码/MCP 安装路径；配套 Skill 提供查询和解释记录的操作约定，不会自动开启后台采集。
 
 固定版本的 skills CLI 需要 **Node.js 22.20+**，高于管理器自身要求。进入希望使用该 Skill 的项目目录，替换下方路径为实际解压的源码目录：
 
@@ -65,13 +66,13 @@ Skill 按文件实例统计，同名副本保留身份。相同批次或调用 I
 
 ## 本地数据与卸载
 
-数据默认位于 CODEX_HOME 下的 skill-manager/data-v1；未设置时使用用户目录的 .codex/skill-manager/data-v1。应用不增加遥测、上传或额外模型服务，不保存完整聊天正文。安装需要联网获取源码和依赖；显式核对插件状态可能访问配置的市场。第三方 skills CLI 的遥测政策独立于本应用，详见其官方说明。
+记录与备注默认位于 CODEX_HOME 下的 skill-manager/data-v1，归档另存于 skill-manager-archive。应用自身没有遥测或上传接口，但 MCP 工具结果会交给宿主，可能按宿主政策用于模型上下文。显式核对插件状态可能访问配置的市场。详见[隐私与数据流](docs/PRIVACY.md)、[项目使用说明](docs/TERMS.md)和[支持](docs/SUPPORT.md)。
 
 ```powershell
-npm.cmd run setup:uninstall
+node install.mjs uninstall
 ```
 
-卸载脚本只移除匹配的 MCP 注册，保留源码和本地数据；配套 Skill 单独管理。[升级、备份与恢复](docs/DATA_MIGRATION.md)。
+完整包卸载脚本只移除本插件及专属市场注册，保留本地数据和归档。[升级、备份与恢复](docs/DATA_MIGRATION.md)。源码安装则仍用 `npm.cmd run setup:uninstall` 移除独立 MCP 注册。
 
 ## 演示、反馈和开发
 

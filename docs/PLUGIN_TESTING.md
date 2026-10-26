@@ -1,7 +1,8 @@
-# Local development plugin package
+# Standalone desktop plugin package
 
-Version: read plugin.json. The v0.1.0 release uses source installation;
-this locally built plugin is an additional developer workflow.
+Version: read plugin.json. The 0.2 release provides a complete installation
+distribution containing this standalone package, a local catalog and install.mjs.
+Use the distribution's top-level installation guide for normal installation.
 Requires Node.js 20.18+ on PATH. Runtime JavaScript dependencies are bundled;
 do not run npm install inside this package.
 
@@ -19,8 +20,9 @@ opens, the panel loads, and errors are understandable. If local loading is not
 available, record that limitation. M3 provides a companion Skill and a buildable
 development marketplace. The current package embeds the exact dashboard HTML
 in its server bundle and includes readable THIRD_PARTY_NOTICES.md. This layout
-passed Windows marketplace installation and the full 11-check lifecycle on the
-tested host; the earlier loose-HTML layout failed cache activation. See
+passed Windows marketplace installation; 0.2 also passed the packaged installer's
+seven lifecycle checks including a 0.1.1 upgrade. A known intermittent Windows
+cache activation denial remains bounded by installer recovery, not claimed fixed. See
 docs/MARKETPLACE.md in the source repository or the marketplace artifact's
 top-level README. Installing the Skill alone does not install MCP.
 

@@ -58,6 +58,6 @@ node scripts/diagnose-install.mjs <已构建插件包的绝对路径>
 
 配套 Skill 说明工具、计数口径和排错边界，不是自动运行的记录钩子。只有任务或长期指令已启用记录且工具可用时，才记录实际采用/调用；重试记录沿用 ID，新事件使用新 ID。缺失记录不代表从未使用。仅安装 Skill 不会安装 MCP 服务。
 
-v0.1.0 采用源码安装和 Apache-2.0 许可证。本地市场保留为开发工具，远程市场分发不纳入本版；原生侧栏限制见 KNOWN_LIMITATIONS.md。构建目录不代表发布市场或修改真实配置。
+本页开发目录与 v0.2.0 [完整安装分发包](DISTRIBUTION.md)分开，后者使用 `codex-skill-manager` 作为市场名称。托管远程市场不纳入本版；原生侧栏限制见 KNOWN_LIMITATIONS.md。构建目录不代表发布市场或修改真实配置。
 
 格式依据（2026-10-23 核查）：https://developers.openai.com/plugins/build/plugins

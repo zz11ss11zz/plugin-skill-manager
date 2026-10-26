@@ -60,6 +60,6 @@ The diagnostic creates an isolated profile under ignored `work/`, writes synthet
 
 The companion Skill explains available tools and counting semantics. It is not an always-on hook: adoption and call recording require the user's task or standing recording instruction and actual tool availability. Copying the Skill alone does not install the service. Record retries retain IDs; new actual events receive new IDs; missing records are unknown history.
 
-The v0.1.0 release uses source installation under Apache-2.0. This local marketplace remains a developer workflow; remote catalog distribution is outside the release scope. Native-sidebar acceptance remains limited as documented in KNOWN_LIMITATIONS.md. Building this directory does not publish a marketplace or change user configuration.
+This development catalog is separate from the 0.2 [complete installation distribution](DISTRIBUTION.md), whose catalog is named `codex-skill-manager`. A hosted remote catalog remains outside release scope. Native-sidebar acceptance remains limited as documented in KNOWN_LIMITATIONS.md. Building either directory does not publish a marketplace or change user configuration.
 
 Format reference, checked 2026-10-23: https://developers.openai.com/plugins/build/plugins

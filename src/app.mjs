@@ -4,9 +4,11 @@ let locale = resolveLocale(undefined, navigator.language);
 let t = translator(locale);
 import { App } from '@modelcontextprotocol/ext-apps';
 import { createActivityPanel } from './activity-ui.mjs';
+import { createManagementPanel } from './management-ui.mjs';
 const updateActivity = createActivityPanel(document.querySelector('#activity-panel'), locale);
 const status = document.querySelector('#status');
 const app = new App({ name: 'codex-skill-manager', version: packageInfo.version }, {});
+const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), args => app.callServerTool(args), receive, locale);
 let connected = false, hasData = false, lastRefresh = 0, pending = null;
 function receive(result) {
   const data = result.structuredContent;
@@ -16,6 +18,7 @@ function receive(result) {
     return;
   }
   updateActivity(data);
+  updateManagement(data);
   hasData = true;
   lastRefresh = Date.now();
   status.hidden = true;
@@ -30,6 +33,7 @@ function setLocale(context = {}) {
   document.querySelector('header p').textContent = t('查看本地技能文件与来源证据。');
   document.querySelector('#activity-panel').setAttribute('aria-label', t('使用活动热力图与排名'));
   updateActivity.setLocale(locale);
+  updateManagement.setLocale(locale);
   if (!status.hidden) status.textContent = t(statusKey);
 }
 let statusKey = '正在读取统计…';

@@ -23,11 +23,17 @@ const bundle = await build({
 const manifest = {
   $schema: 'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json',
   name: pkg.name, version: pkg.version, description: 'Local skill inventory and adoption records for Codex.',
-  extensions: { 'com.openai': { interface: { displayName: 'Codex Skill Manager', shortDescription: 'Local skill inventory and adoption records', composerIcon: './assets/icon.png' } } },
+  license: 'Apache-2.0', repository: 'https://github.com/zz11ss11zz/codex-skill-manager',
+  extensions: { 'com.openai': {
+    onboardingSkill: './skills/setup/SKILL.md',
+    interface: JSON.parse(await readFile('packaging/interface.json', 'utf8')),
+    review: { test_cases: JSON.parse(await readFile('packaging/review-cases.json', 'utf8')) },
+    publication: { release_notes: 'Prebuilt installation, recording setup, separate inventory management and a color icon. Native desktop review remains pending.' },
+  } },
 };
 const mcp = { mcpServers: { 'codex-skill-manager': { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}' } } };
 for (const [name, data] of [['plugin.json', manifest], ['mcp.json', mcp]]) await writeFile(path.join(root, name), JSON.stringify(data, null, 2) + '\n');
-for (const dest of ['assets/icon.png', 'server/src/assets/orbit-planet.png']) await copyFile('src/assets/orbit-planet.png', path.join(root, dest));
+for (const dest of ['assets/icon.png', 'server/src/assets/orbit-color.png']) await copyFile('src/assets/orbit-color.png', path.join(root, dest));
 const dependencies = new Set(Object.keys(bundle.metafile.inputs).flatMap(file => {
   const match = file.replaceAll('\\', '/').match(/^(.*node_modules\/(?:@[^/]+\/)?[^/]+)\//);
   return match ? [match[1]] : [];
@@ -44,4 +50,5 @@ for (const name of ['LICENSE', 'NOTICE']) await copyFile(name, path.join(root, n
 await copyFile('docs/PLUGIN_TESTING.md', path.join(root, 'README.md'));
 await copyFile('docs/DATA_MIGRATION.md', path.join(root, 'DATA_MIGRATION.md'));
 await cp('skills/skill-manager', path.join(root, 'skills/skill-manager'), { recursive: true });
+await cp('skills/setup', path.join(root, 'skills/setup'), { recursive: true });
 console.log(`Built ${root}`);

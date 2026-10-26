@@ -4,18 +4,21 @@
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/LOCAL_SETUP.md) · [Release v0.1.1](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.1) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.2.0](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.2.0) · [Apache-2.0](LICENSE)
 
 ![30-second dashboard walkthrough with synthetic data](docs/media/en/demo.gif)
 
 *Actual dashboard UI in a browser demonstration host, using synthetic records. This is not a native Codex recording or real user activity. [Static screenshot](docs/media/en/dashboard-skills.png) · [Demo provenance](docs/media/README.md). The demo includes localization corrections made after v0.1.0.*
+
+The 0.2 Manage and Setup views: [English walkthrough video](docs/media/v020/en/walkthrough.webm) · [Management screenshot](docs/media/v020/en/manage.png). These use synthetic browser UI states, with example paths.
 
 ## What it helps you do
 
 - See recorded activity over a year and inspect individual dates.
 - Switch between Skill adoptions and plugin tool-call attempts without mixing the metrics.
 - Filter rankings by date and distinguish missing coverage from zero activity.
-- Ask the connected MCP tools about local inventory, notes, duplicate candidates, or reversible Windows user-skill archives. These management controls are not currently in the dashboard.
+- Use the separate Manage view to search local inventory, inspect sources, save notes, and preview reversible Windows user-skill archives and restores.
+- Check the latest received records in Setup without creating synthetic events or changing personal instructions.
 
 The complete product combines a **local MCP service, an activity UI, and a companion Skill**. Installing the Skill alone does not install the service. Recording requires explicit caller participation; this is not an automatic host monitor. Missing records do not mean a Skill was never used.
 
@@ -23,22 +26,20 @@ The complete product combines a **local MCP service, an activity UI, and a compa
 
 Tested on Windows. Requires Node.js 20.18+ and the Codex CLI on PATH. This is an independent project, not an official OpenAI product or an official-directory listing.
 
-Download the [v0.1.0 source ZIP](https://github.com/zz11ss11zz/codex-skill-manager/archive/refs/tags/v0.1.1.zip), extract it to a permanent directory, and open PowerShell in the folder containing package.json:
+Download the [v0.2.0 complete plugin ZIP](https://github.com/zz11ss11zz/codex-skill-manager/releases/download/v0.2.0/codex-skill-manager-0.2.0-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
 
 ```powershell
-npm.cmd ci --ignore-scripts
-npm.cmd test
-npm.cmd run setup:install
-npm.cmd run setup:check
+node install.mjs install
+node install.mjs check
 ```
 
-The check should report registered, matches, and enabled as true. Reload the MCP service or reopen Codex, then ask it to call `open_skill_manager`. Keep the source directory in place. `npm start` runs a stdio service; it does not open a browser.
+The check should show the installed 0.2.0 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
 
-The source-install path has passed 55 regression tests and six isolated service lifecycle checks. Native-sidebar interaction in the latest desktop host remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [setup/recovery](docs/LOCAL_SETUP.md).
+60 regression tests and seven isolated plugin lifecycle checks have passed, including a 0.1.1 → 0.2.0 source relocation upgrade. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
 
 ## Optional: companion Skill
 
-After setting up the service, install the companion instructions from your downloaded source into your chosen project. The pinned skills CLI requires **Node.js 22.20+**, independently of the manager's Node requirement:
+The complete plugin already includes these Skills. For the alternative source/MCP route, install the companion instructions from your downloaded source into your chosen project. The pinned skills CLI requires **Node.js 22.20+**, independently of the manager's Node requirement:
 
 ```powershell
 # Run in the project where you want to use the Skill.
@@ -50,10 +51,10 @@ This local-source route was tested in an isolated project. A direct GitHub route
 
 Start with: “Open Skill Manager and explain the difference between adoption and call counts.” To collect new records, follow [adoption recording](docs/ADOPTION_RECORDING.md) or [plugin-call recording](docs/PLUGIN_CALLS.md). The companion Skill alone does not enable background collection.
 
-Unregister the service, preserving its local data:
+Uninstall the complete plugin, preserving its local data:
 
 ```powershell
-npm.cmd run setup:uninstall
+node install.mjs uninstall
 ```
 
 ## Demo and feedback
@@ -87,7 +88,7 @@ Recording details: [Skill adoptions (Chinese)](docs/ADOPTION_RECORDING.md) · [P
 
 ## Privacy
 
-Runtime records stay on the local machine under `$CODEX_HOME/skill-manager/data-v1` (default `~/.codex/skill-manager/data-v1`); see [migration and rollback](docs/DATA_MIGRATION.md). The application adds no telemetry, uploads, or external model service. Statistical indexes retain required references and timestamps, not full chat transcripts. Explicit plugin-installation verification can invoke `codex plugin list --json`, which may contact configured marketplaces.
+Runtime records are stored locally under `$CODEX_HOME/skill-manager/data-v1` (default `~/.codex/skill-manager/data-v1`); archives are separately kept under `$CODEX_HOME/skill-manager-archive`. The application adds no telemetry or upload endpoint, but MCP tool results are returned to the host and may be used in its model context under the host's policies. Explicit plugin-installation checks may contact configured marketplaces. See [privacy and data flow](docs/PRIVACY.md), [project terms](docs/TERMS.md), [support](docs/SUPPORT.md), and [migration](docs/DATA_MIGRATION.md).
 
 The repository contains code, documentation, and synthetic test data. README badges load from Shields.io when viewing this page; they are not part of the dashboard.
 

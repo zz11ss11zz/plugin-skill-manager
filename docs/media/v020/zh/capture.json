@@ -1,0 +1,31 @@
+{
+  "steps": [
+    {
+      "name": "activity",
+      "caption": "独立统计插件调用尝试"
+    },
+    {
+      "name": "filtered",
+      "caption": "按日期筛选 Skill 采用"
+    },
+    {
+      "name": "setup",
+      "caption": "只读检查记录接入"
+    },
+    {
+      "name": "manage",
+      "caption": "搜索、核对来源与保存备注"
+    },
+    {
+      "name": "preview",
+      "caption": "执行前核对具体移动范围"
+    },
+    {
+      "name": "narrow",
+      "caption": "窄面板管理"
+    }
+  ],
+  "errors": [],
+  "format": "Video sequence of actual browser UI screenshots, four seconds per state; not native Codex",
+  "data": "synthetic, local paths shown with C:\\demo\\skill-manager alias"
+}

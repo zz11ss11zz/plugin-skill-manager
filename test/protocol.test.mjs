@@ -25,7 +25,7 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     await client.connect(transport);
     assert.match(client.getServerVersion().icons[0].src, /^data:image\/png;base64,iVBOR/);
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 11);
+    assert.equal(tools.length, 12);
     assert.deepEqual(tools[0]._meta['openai/ui'].entrypoints, [{ type: 'global' }]);
     const uri = tools[0]._meta.ui.resourceUri;
     const { contents } = await client.readResource({ uri });
@@ -42,6 +42,9 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     assert.equal(result.structuredContent.usage, null);
     assert.equal(result.structuredContent.skills.length, 1);
     assert.equal(result.structuredContent.skills[0].name, 'example');
+    const initialStatus = await client.callTool({ name: 'check_recording_status', arguments: {} });
+    assert.equal(initialStatus.structuredContent.adoptions.state, 'empty');
+    assert.equal(initialStatus.structuredContent.hostWideCoverage, 'unknown');
     const callArgs={calls:[{id:'protocol-call-00001',plugin:'github',tool:'mcp__codex_apps__github_get_repo'}]};
     assert.equal((await client.callTool({name:'record_plugin_calls',arguments:callArgs})).isError,undefined);
     await client.callTool({name:'record_plugin_calls',arguments:callArgs});
@@ -56,6 +59,10 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     assert.equal(recorded.structuredContent,undefined);
     await client.callTool({name:'record_skill_use',arguments:recordArgs});
     assert.equal((await client.callTool({name:'open_skill_manager',arguments:{}})).structuredContent.adoptions.total,2);
+    const recordedStatus = (await client.callTool({ name: 'check_recording_status', arguments: {} })).structuredContent;
+    assert.equal(recordedStatus.adoptions.count, 2);
+    assert.equal(recordedStatus.pluginCalls.count, 1);
+    assert.ok(recordedStatus.adoptions.latestReceivedAt);
     const noteArgs = { id: skill.id, fingerprint: skill.fingerprint, note: 'synthetic retention reason', retain: true, expectedRevision: 0 };
     const noted = await client.callTool({ name: 'save_skill_note', arguments: noteArgs });
     assert.equal(noted.structuredContent.skills[0].annotation.note, noteArgs.note);

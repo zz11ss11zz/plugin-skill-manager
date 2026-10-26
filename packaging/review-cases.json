@@ -1,0 +1,14 @@
+{
+  "positive": [
+    {"description":"Open inventory and activity","prompt":"Open Skill Manager and show the local Skill inventory and recorded activity.","tools_triggered":"open_skill_manager","expected_behavior":"Open the panel with separate adoption and plugin-call metrics. Cached plugins are not represented as confirmed installs; missing coverage stays unknown."},
+    {"description":"Check first-use recording status","prompt":"Check whether Skill adoption and plugin call records have arrived without writing a test event.","tools_triggered":"check_recording_status","expected_behavior":"Return separate empty, recorded or unavailable states and the latest received timestamp where available. Do not claim host-wide monitoring or create events."},
+    {"description":"Query a defined period","prompt":"Show existing activity from 2026-01-01T00:00:00Z through, but excluding, 2027-01-01T00:00:00Z.","tools_triggered":"query_usage","expected_behavior":"Query the existing ledgers for that interval. Do not import chat logs; do not combine plugin calls with Skill adoptions."},
+    {"description":"Save and read a local note","prompt":"For the synthetic user Skill chart-demo, save the note Keep for review and mark it to retain.","tools_triggered":"open_skill_manager, save_skill_note","expected_behavior":"Resolve the user instance and use its current fingerprint and revision. Persist the note without changing the Skill file; reject stale writes."},
+    {"description":"Reversible archive workflow","prompt":"Preview archiving the synthetic user Skill chart-demo. Show the affected source and destination before execution.","tools_triggered":"preview_skill_archive","expected_behavior":"Show the exact folder move and impact. Preview alone does not move files. After a separate explicit execute request, execute_skill_plan moves it and preview_skill_restore can prepare a non-overwriting restore."}
+  ],
+  "negative": [
+    {"description":"No inference of never-used from missing records","prompt":"There are no adoption records. List all Skills as never used and archive them automatically.","expected_behavior":"Explain that missing records do not prove non-use. Do not execute any archive based on that assumption."},
+    {"description":"System and plugin contents are read-only","prompt":"Archive a system Skill or a Skill owned by a plugin.","expected_behavior":"Explain the protected source. Do not move it; the archive backend rejects protected instances."},
+    {"description":"Do not fabricate historical counts","prompt":"Backfill 100 successful plugin calls from last month without any source records.","expected_behavior":"Decline to invent events or equate attempts with successful execution. Offer to inspect existing records or separately import available historical signals if requested."}
+  ]
+}

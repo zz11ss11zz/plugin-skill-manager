@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "separate management view, search and persisted note",
+    "stale note conflicts do not overwrite; explicit draft discard reloads the current revision",
+    "preview and cancellation do not move files",
+    "confirmed archive and restore move the synthetic skill and preserve its note",
+    "management fits a 360px panel",
+    "read-only recording check shows received timestamps"
+  ],
+  "errors": [],
+  "host": "Browser AppBridge; native Codex UI not exercised",
+  "data": "synthetic only"
+}

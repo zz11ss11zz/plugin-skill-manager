@@ -76,7 +76,7 @@ const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 await service.connect(serverTransport); await client.connect(clientTransport);
 await client.callTool({name:'check_plugin_status',arguments:{}});
 await client.callTool({name:'import_usage',arguments:{}});
-const allowedTools = new Set(['open_skill_manager', 'query_usage']);
+const allowedTools = new Set(['open_skill_manager', 'query_usage', 'check_recording_status', 'check_plugin_status', 'save_skill_note', 'preview_skill_archive', 'preview_skill_restore', 'execute_skill_plan', 'cancel_skill_plan']);
 const script = await build({ entryPoints: [fileURLToPath(new URL('./preview-host.mjs', import.meta.url))], bundle: true, write: false, format: 'esm', platform: 'browser' });
 const dashboard = await readFile(new URL('../dist/dashboard.html', import.meta.url));
 let page = '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>能力管理器 · 合成数据验证</title><style>body{font-family:system-ui;margin:0;background:#e9edf2}header{padding:12px}iframe{display:block;border:1px solid #adb7c2;max-width:100%;width:960px;height:calc(100vh - 65px);margin:auto;background:white}button{padding:8px;margin-right:8px}</style><header><strong>DEMO · 合成数据 / Synthetic data · 浏览器演示宿主</strong> <button id="narrow">窄面板</button><button id="wide">宽面板</button><span id="host-status"></span></header><iframe id="app" title="能力管理器测试面板"></iframe><script type="module" src="/bridge.js"></script></html>';
@@ -95,7 +95,9 @@ const http = createHttpServer(async (request, response) => {
       for await (const chunk of request) { body += chunk; if (body.length > 65536) { response.writeHead(413).end(); return; } }
       const params = JSON.parse(body);
       if (!allowedTools.has(params.name)) { response.writeHead(400).end(); return; }
-      response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify(await client.callTool(params)));
+      // Public demonstrations show a synthetic path alias, not the test machine's username.
+      const result = JSON.stringify(await client.callTool(params), (_, value) => typeof value === 'string' ? value.replaceAll(temporary, 'C:\\demo\\skill-manager') : value);
+      response.setHeader('Content-Type', 'application/json'); response.end(result);
     } else response.writeHead(404).end();
   } catch { response.writeHead(500).end('Synthetic harness error'); }
 });

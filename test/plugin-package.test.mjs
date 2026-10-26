@@ -24,8 +24,14 @@ test('standalone package builds and serves MCP resources outside the source tree
     assert.equal(await readFile(path.join(root, 'LICENSE'), 'utf8'), await readFile(path.join(source, 'LICENSE'), 'utf8'));
     assert.deepEqual((await readdir(root)).sort(), ['DATA_MIGRATION.md', 'LICENSE', 'NOTICE', 'README.md', 'THIRD_PARTY_NOTICES.md', 'assets', 'mcp.json', 'plugin.json', 'server', 'skills']);
     const inventory = await scanInventory({ skills: path.join(root, 'skills'), agentSkills: path.join(temporary, 'absent-agent-skills'), cache: path.join(temporary, 'absent-cache') });
-    assert.equal(inventory.skills.length, 1);
-    assert.equal(inventory.skills[0].name, 'skill-manager');
+    assert.deepEqual(inventory.skills.map(s => s.name).sort(), ['setup', 'skill-manager']);
+    assert.ok(await readFile(path.join(root, manifest.extensions['com.openai'].onboardingSkill)));
+    const listing = manifest.extensions['com.openai'].interface;
+    assert.ok(listing.displayName.length <= 30 && listing.shortDescription.length <= 30);
+    assert.ok(listing.longDescription.length <= 4000);
+    assert.ok(await readFile(path.join(root, listing.logo)));
+    assert.equal(manifest.extensions['com.openai'].review.test_cases.positive.length, 5);
+    assert.equal(manifest.extensions['com.openai'].review.test_cases.negative.length, 3);
     assert.ok((await readFile(path.join(root, manifest.extensions['com.openai'].interface.composerIcon))).length > 0);
     const config = JSON.parse(await readFile(path.join(root, 'mcp.json'))).mcpServers[pkg.name];
     assert.equal(config.command, 'node');
@@ -35,7 +41,7 @@ test('standalone package builds and serves MCP resources outside the source tree
     await client.connect(transport);
     assert.equal(client.getServerVersion().version, pkg.version);
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 11);
+    assert.equal(tools.length, 12);
     const uri = tools[0]._meta.ui.resourceUri;
     const { contents } = await client.readResource({ uri });
     assert.match(contents[0].text, /id="activity-panel"/);

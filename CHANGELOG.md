@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 — 2026-10-26
+
+- Ship a complete prebuilt plugin distribution with integrity checks and an installer for install, check, explicit source relocation and uninstall. Keep local records and archives on uninstall.
+- Bound recovery of the known Windows cache activation denial after checking actual install state; stop on ambiguous outcomes and unrelated errors.
+- Add a packaged setup Skill, read-only recording status and a separate Setup view. No fake test events or automatic personal-instruction changes.
+- Add a separate Manage view with source/search filters, guarded notes, archive previews, cancellation and restoration; keep Activity as the homepage.
+- Add the color orbital icon, listing metadata, privacy/data-flow and support documentation, and five positive/three negative review scenarios.
+- Validate 60 regression tests, real CLI 0.1.1 → 0.2.0 package upgrades, and browser management interactions. Native desktop UI and official submission eligibility remain unverified.
+
 ## 0.1.1 — 2026-10-26
 
 - Match README demonstrations to their English/Chinese language and complete fixed-label translations.

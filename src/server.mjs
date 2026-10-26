@@ -13,6 +13,7 @@ import { PluginCalls } from './plugin-calls.mjs';
 import { registerDashboard } from './dashboard-resource.mjs';
 import { initializeData } from './data-migration.mjs';
 import { appIcon } from './app-icon.mjs';
+import { recordingStatus } from './recording-status.mjs';
 
 export function createServer(roots, { queryPlugins = loadPluginStatus, usageIndex = new UsageIndex(), archiveManager = new ArchiveManager({ roots }), skillNotes = new SkillNotes(), adoptions = new Adoptions(), pluginCalls = new PluginCalls() } = {}) {
 let pluginSnapshot = null, usageSnapshot = null;
@@ -57,6 +58,12 @@ server.registerTool('open_skill_manager', {
   const inventory = await inventoryWithArchives();
   return { content: [{ type: 'text', text: `发现 ${inventory.skills.length} 个技能文件实例；${inventory.issues.length} 个扫描问题。安装和使用信号按各自核对时间展示。` }], structuredContent: inventory };
 });
+server.registerTool('check_recording_status', {
+  title: '检查记录接入状态',
+  description: '只读检查已有采用和插件调用账本，返回总数与最近接收时间。不写测试事件、不读取聊天、不证明其他会话已经接入；空账本不等于没有实际活动。',
+  inputSchema: {},
+  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+}, async () => ({ content: [{ type: 'text', text: '已检查本地记录。接入范围由调用方的记录约定决定，无法从账本确认宿主全量采集。' }], structuredContent: { mode: 'recording-status', ...await recordingStatus(adoptions, pluginCalls) } }));
 server.registerTool('check_plugin_status', {
   title: '核对插件安装状态',
   description: '显式调用官方 codex plugin list --json 核对插件安装版本和启用状态；CLI 可能查询已配置的插件市场。不上传技能文件或聊天。',

@@ -27,10 +27,10 @@ test('marketplace artifact resolves to a complete portable package and companion
     const server = mcp.mcpServers[entry.name];
     assert.ok((await stat(server.args[0].replaceAll('${PLUGIN_ROOT}', plugin))).isFile());
     const skills = await readdir(path.join(plugin, 'skills'));
-    assert.deepEqual(skills, ['skill-manager']);
+    assert.deepEqual(skills.sort(), ['setup', 'skill-manager']);
     const text = await readFile(path.join(plugin, 'skills/skill-manager/SKILL.md'), 'utf8');
     const metadata = parse(text.split('---')[1]);
-    assert.equal(metadata.name, skills[0]);
+    assert.equal(metadata.name, 'skill-manager');
     assert.equal(typeof metadata.description, 'string');
     // A second build must refuse an existing directory and preserve its contents.
     assert.throws(() => execFileSync(process.execPath, ['scripts/build-marketplace.mjs', root], { cwd: source, stdio: 'pipe' }));
