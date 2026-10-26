@@ -5,7 +5,7 @@ let t = translator(locale);
 import { App } from '@modelcontextprotocol/ext-apps';
 import { createActivityPanel } from './activity-ui.mjs';
 import { createManagementPanel } from './management-ui.mjs';
-const updateActivity = createActivityPanel(document.querySelector('#activity-panel'), locale);
+const updateActivity = createActivityPanel(document.querySelector('#activity-panel'), locale, () => app.callServerTool({name:'check_plugin_status',arguments:{}}));
 const status = document.querySelector('#status');
 const app = new App({ name: 'plugin-skill-manager', version: packageInfo.version }, {});
 const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), args => app.callServerTool(args), receive, locale);

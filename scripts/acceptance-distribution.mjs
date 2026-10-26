@@ -1,6 +1,6 @@
 // Real CLI lifecycle using only synthetic data and an isolated Codex home.
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, cp, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, cp, readFile, writeFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -33,14 +33,16 @@ const manage = async (folder, action, replaceSource = false) => {
   return JSON.parse(result.stdout);
 };
 console.log(`ACCEPTANCE_ROOT ${root}`);
+const firstName = (await readdir(path.join(first, 'plugins')))[0];
+let activeName = firstName;
 const installed = await manage(first, 'install');
 checks.push('install from extracted complete distribution');
 const discovered = await listHostSkills({ cwd: root, env, cli: process.env.CODEX_SKILL_MANAGER_CLI || 'codex' });
-assert.ok(discovered.data.flatMap(d => d.skills).some(s => s.pluginId === pluginId && s.enabled));
+assert.ok(discovered.data.flatMap(d => d.skills).some(s => s.pluginId === `${firstName}@${firstName}` && s.enabled));
 checks.push('real app-server discovers companion skill');
 let activeVersion = installed.version;
 async function query(record = false) {
-  const packagePath = path.join(home, 'plugins/cache/plugin-skill-manager/plugin-skill-manager', activeVersion);
+  const packagePath = path.join(home, 'plugins/cache', activeName, activeName, activeVersion);
   const client = new Client({ name: 'distribution-acceptance', version: '1' });
   const transport = new StdioClientTransport({ command: process.execPath, args: [path.join(packagePath, 'server/src/server.mjs')], env, stderr: 'pipe' });
   try {
@@ -57,8 +59,15 @@ async function query(record = false) {
 }
 await query(true); await query();
 checks.push('installed cache starts, serves UI and retains records across restart');
-await assert.rejects(manage(next, 'install'), /another path/);
-checks.push('changed source requires explicit replacement');
+if (firstName !== 'plugin-skill-manager') {
+  await assert.rejects(manage(next, 'install'), /legacy|codex-skill-manager/i);
+  await manage(first, 'uninstall');
+  activeName = 'plugin-skill-manager';
+  checks.push('legacy identity blocks duplicate install; uninstall old registration before rename');
+} else {
+  await assert.rejects(manage(next, 'install'), /another path/);
+  checks.push('changed source requires explicit replacement');
+}
 const upgraded = await manage(next, 'install', true); activeVersion = upgraded.version; await query();
 checks.push(`explicit relocated source replacement ${installed.version} to ${upgraded.version} retains records`);
 const ledger = path.join(home, 'skill-manager/data-v1/plugin-calls.json');

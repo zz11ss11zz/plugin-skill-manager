@@ -1,6 +1,6 @@
 # Official submission preparation / 官方提交准备
 
-Prepared 2026-10-26 for 0.2.0. **Not submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
+Prepared 2026-10-26 for 0.3.0. **Not submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
 
 ## Package and listing
 
@@ -31,3 +31,7 @@ No upload, submission, organization message, policy attestation or directory pub
 ## Official references
 
 Checked 2026-10-26: [desktop-only submissions](https://developers.openai.com/plugins/deploy/desktop-only), [package structure and onboarding](https://developers.openai.com/plugins/build/plugins), [metadata and review requirements](https://developers.openai.com/plugins/deploy/submission). Local stdio follows the desktop-only route. Do not replace it with a fictitious hosted endpoint or omit the MCP server to bypass eligibility.
+
+## 2026-10-26 portal attempt
+
+Attempted to inspect the existing Chrome tab at `https://platform.openai.com/plugins`; browser acquisition and page observation timed out. A fallback in-app browser attempt also timed out. No form was read and no ZIP was uploaded or submitted. Account permissions, identity verification and local-MCP allowlisting remain unknown. The prepared 0.3.0 desktop package is available for a later portal retry; native review evidence remains outstanding.

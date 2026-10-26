@@ -12,14 +12,15 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
     append(...items){for(const item of items) item.parentNode=this;this.children.push(...items);}
     get firstChild(){return this;}
     replaceChildren(...items){this.children=items;}
-    setAttribute(){}
+    setAttribute(name,value){(this.attributes ||= {})[name]=value;}
     addEventListener(event,fn){this.listeners[event]=fn;}
     checkValidity(){return true;}
   }
   const source=(await readFile(new URL('../src/activity-ui.mjs',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace('export function','function');
   const context=vm.createContext({document:{createElement:tag=>new Element(tag)},activityView,calendarDays,translator});
   vm.runInContext(source+'\nglobalThis.createPanel=createActivityPanel;',context);
-  const render=context.createPanel(new Element('root'));
+  let checkedInventory;
+  const render=context.createPanel(new Element('root'),'zh',async()=>checkedInventory || {isError:true});
   const date=new Date().toISOString().slice(0,10);
   const summary={catalog:[{id:'github',name:'github',detail:'独立插件工具调用记录'}],activity:{timeZone:'UTC',days:[{date,entries:[{id:'github',calls:2}]}]},coverage:{from:date+'T00:00:00Z',to:new Date().toISOString()},period:{}};
   render({skills:[{id:'skill-a',name:'example',source:'test'}],pluginCalls:summary,adoptions:{...summary,catalog:[],activity:{timeZone:'UTC',days:[{date,entries:[{id:'skill-a',adoptions:1}]}]}}});
@@ -35,7 +36,19 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   assert.equal(caption.hidden,true);
   assert.equal(caption.textContent,'');
   assert.ok(elements.some(e=>e.tag==='p'&&e.textContent?.includes('1 次采用')));
+  const daily=elements.find(e=>e.className==='daily-ranking');
+  assert.equal(daily.hidden,true);
+  const calendarCells=()=>elements.find(e=>e.className==='activity-calendar').children[1].children;
+  calendarCells().find(e=>e.title?.startsWith(date)).listeners.mouseenter();
+  assert.equal(daily.hidden,false);
+  assert.equal(daily.children[0].children.length,1);
+  assert.match(daily.children[0].children[0].title,/example.*1 次采用/);
+  daily.children[0].children[0].listeners.focus();
+  assert.match(daily.children[1].textContent,/example.*1 次采用/);
   elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
+  assert.equal(daily.hidden,true,'Switching metrics clears stale daily rankings');
+  calendarCells().find(e=>e.title?.startsWith(date)).listeners.click();
+  assert.match(daily.children[0].children[0].title,/github.*2 次工具调用尝试/);
   assert.equal(elements.filter(e=>e.tag==='select').length,1);
   assert.ok(elements.some(e=>e.tag==='h2'&&e.textContent==='插件工具调用'));
   assert.ok(elements.some(e=>e.tag==='p'&&e.textContent?.includes('2 次工具调用尝试')));
@@ -62,4 +75,85 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   assert.equal(caption.hidden,false);
   assert.ok(elements.some(e=>e.textContent==='插件调用记录暂不可读取。'));
   assert.equal(elements.find(e=>e.className==='entity-panel').children[1].textContent,'统计暂不可读取，不将失败当作零。');
+  calendarCells().find(e=>e.title?.startsWith(date)).listeners.focus();
+  assert.equal(daily.children[0].children.length,0);
+  assert.equal(daily.children[1].textContent,'统计暂不可读取，不将失败当作零。');
+
+  const year=date.slice(0,4), dayA=`${year}-01-01`, dayB=`${year}-01-02`;
+  render({skills:[{id:'a',name:'Alpha',source:'test'},{id:'b',name:'Beta',source:'test'}],pluginCalls:summary,
+    adoptions:{catalog:[],coverage:{from:`${dayA}T00:00:00Z`,to:new Date().toISOString()},activity:{timeZone:'UTC',days:[
+      {date:dayA,entries:[{id:'a',adoptions:3},{id:'b',adoptions:1}]},
+      {date:dayB,entries:[{id:'b',adoptions:5}]}
+    ]}}});
+  elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
+  const inputsBefore=[from.value,to.value];
+  calendarCells().find(e=>e.title?.startsWith(dayA)).listeners.mouseenter();
+  assert.match(daily.children[0].children[0].title,/Alpha.*3 次采用/);
+  assert.match(daily.children[0].children[1].title,/Beta.*1 次采用/);
+  calendarCells().find(e=>e.title?.startsWith(dayB)).listeners.focus();
+  assert.equal(daily.children[0].children.length,2,'Changing dates replaces rather than appends cells');
+  assert.match(daily.children[0].children[0].title,/Beta.*5 次采用/);
+  assert.match(daily.children[0].children[1].title,/Alpha.*0 次采用/);
+  assert.deepEqual([from.value,to.value],inputsBefore,'Daily hover leaves the range filter unchanged');
+  calendarCells().find(e=>e.title?.startsWith(`${year}-12-31`)).listeners.mouseenter();
+  assert.ok(daily.children[0].children.every(e=>e.className.includes('heat-unknown')));
+  render.setLocale('en');
+  assert.equal(daily.hidden,true);
+  calendarCells().find(e=>e.title?.startsWith(dayA)).listeners.focus();
+  assert.match(daily.children[0].children[0].title,/3 adoptions/);
+  const dayButton=day=>calendarCells().find(e=>e.title?.startsWith(day));
+  dayButton(dayA).listeners.click();
+  assert.equal(dayButton(dayA).attributes['aria-pressed'],'true');
+  assert.ok(dayButton(dayA).style.boxShadow);
+  dayButton(dayB).listeners.mouseenter();
+  dayButton(dayB).listeners.focus();
+  assert.match(daily.children[0].children[0].title,/Alpha.*3 adoptions/,'Hover and focus cannot replace the pinned date');
+  daily.children[0].children[0].listeners.mouseenter();
+  assert.match(daily.children[1].textContent,/Alpha.*3 adoptions/);
+  from.listeners.change();
+  assert.equal(daily.hidden,false,'Range changes preserve the pinned date');
+  assert.equal(dayButton(dayA).attributes['aria-pressed'],'true');
+  render.setLocale('zh');
+  assert.match(daily.children[0].children[0].title,/Alpha.*3 次采用/);
+  assert.ok(elements.some(e=>e.textContent?.includes('已固定；')));
+  dayButton(dayB).listeners.click();
+  assert.equal(dayButton(dayA).attributes['aria-pressed'],'false');
+  assert.equal(dayButton(dayB).attributes['aria-pressed'],'true');
+  assert.match(daily.children[0].children[0].title,/Beta.*5 次采用/);
+  dayButton(dayB).listeners.click();
+  assert.equal(dayButton(dayB).attributes['aria-pressed'],'false');
+  assert.equal(dayButton(dayB).style.boxShadow,'');
+  dayButton(dayA).listeners.mouseenter();
+  assert.match(daily.children[0].children[0].title,/Alpha.*3 次采用/,'Clicking the pinned date again restores hover');
+  dayButton(dayA).listeners.click();
+  elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
+  assert.equal(daily.hidden,true);
+  assert.ok(calendarCells().filter(e=>e.tag==='button').every(e=>e.attributes['aria-pressed']==='false'));
+  dayButton(dayA).listeners.click();
+  const yearSelect=elements.find(e=>e.tag==='select');
+  yearSelect.value=String(Number(year)-1); yearSelect.listeners.change();
+  assert.equal(daily.hidden,true,'Changing year clears the pin');
+  yearSelect.value=year; yearSelect.listeners.change();
+  const zeroInventory={skills:Array.from({length:9},(_,i)=>({id:`zero-${i}`,name:`zero-${i}`,source:'test'})),adoptions:{coverage:{from:`${year}-01-01T00:00:00Z`,to:`${year}-01-02T23:59:59Z`},activity:{days:[]}},pluginCalls:summary};
+  render(zeroInventory);
+  elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
+  from.value=`${year}-01-01`; to.value=`${year}-12-31`; from.listeners.change();
+  let review=ranking.children.at(-1);
+  assert.match(visibleText(review),/观察积累中/);
+  assert.ok(!visibleText(review).includes('未观测到使用 · 最多 5 项'));
+  let details=review.children.find(e=>e.tag==='details');
+  assert.equal(details.children[0].textContent,'查看全部无记录项目（9 项）');
+  assert.equal(details.children[2].children.length,9);
+  details.children[1].value='zero-8'; details.children[1].listeners.input();
+  assert.equal(details.children[2].children.length,1);
+  assert.match(visibleText(details.children[2]),/zero-8/);
+  details.children[1].value='missing'; details.children[1].listeners.input();
+  assert.match(visibleText(details.children[2]),/没有匹配项目/);
+  await review.children.find(e=>e.tag==='button').listeners.click();
+  assert.match(visibleText(review),/安装清单核对失败/);
+  checkedInventory={structuredContent:{...zeroInventory,pluginRegistry:{plugins:[{id:'unused@market',version:'1'}]}}};
+  await review.children.find(e=>e.tag==='button').listeners.click();
+  elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
+  review=ranking.children.at(-1);
+  assert.match(visibleText(review),/已确认清单 1 项/);
 });

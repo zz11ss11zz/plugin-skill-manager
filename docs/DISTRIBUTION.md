@@ -46,10 +46,10 @@ Windows 缓存激活出现 `os error 5` 时，仅在核实没有成功安装后�
 
 ## Identifier rename / 标识更名
 
-Current source uses `plugin-skill-manager` for the package, plugin, marketplace and MCP registration. The display name is Plugin & Skill Manager. Existing v0.2.0 and earlier Release ZIPs retain their original filenames and internal identifiers; they have not been replaced by renamed builds.
+Version 0.3.0 uses `plugin-skill-manager` for the package, plugin, marketplace and MCP registration. The display name is Plugin & Skill Manager. Existing v0.2.0 and earlier Release ZIPs retain their original filenames and internal identifiers; they have not been replaced by renamed builds.
 
-当前源码的包、插件、市场和 MCP 注册名统一为 `plugin-skill-manager`。已有 v0.2.0 及更早 Release 附件保留旧文件名与内部标识，尚未发布更名后的新分发包。
+当前源码的包、插件、市场和 MCP 注册名统一为 `plugin-skill-manager`。已有 v0.2.0 及更早 Release 附件保留旧文件名与内部标识，v0.3.0 分发包使用新标识。
 
-Before installing renamed source or a future renamed package, inspect the old registration. For a standalone MCP install, retain the original source/data folders and remove only the `codex-skill-manager` registration, then register the renamed entry. For a full plugin install, run `node install.mjs uninstall` from the old package before installing the renamed package. Do not install both identities at once. The installer rejects an existing legacy registration/catalog rather than silently running duplicate services.
+Before installing the renamed v0.3.0 package, inspect the old registration. For a standalone MCP install, retain the original source/data folders and remove only the `codex-skill-manager` registration, then register the renamed entry. For a full plugin install, run `node install.mjs uninstall` from the old package before installing the renamed package. Do not install both identities at once. The installer rejects an existing legacy registration/catalog rather than silently running duplicate services.
 
 升级前先核对旧入口：源码 MCP 安装保留原代码和数据目录，仅移除 `codex-skill-manager` 注册后再注册新入口；完整插件安装先从旧包执行 `node install.mjs uninstall`，再安装新包。安装器会阻止新旧身份并存。保留旧 `CODEX_SKILL_MANAGER_*` 环境变量兼容性、`skill-manager/data-v1` 持久目录和 `skill-manager-archive`；旧源码版的 `.local` 目录也不得因改名移动或删除。

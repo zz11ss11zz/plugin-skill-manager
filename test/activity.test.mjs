@@ -5,6 +5,38 @@ import { aggregateUsage } from '../src/usage.mjs';
 const skill = (id, owner) => ({ id, name: id, path: `/skills/${id}/SKILL.md`, source: '用户技能', owner });
 const coverage = { from: '2026-01-01T00:00:00Z', to: '2026-12-31T23:59:59Z', pendingBytes: 0, issues: [] };
 
+test('low-use observation gates candidates and retains every zero-record item', () => {
+  const inventory={skills:[skill('rare'),skill('recent'),skill('frequent'),...Array.from({length:9},(_,i)=>skill(`zero-${i}`))],usage:{coverage:{...coverage,to:'2026-01-31T23:59:59Z'},activity:{days:[
+    ...[1,2,3,4,5].map(d=>({date:`2026-01-0${d}`,entries:[{id:'frequent',adoptions:1},...(d===1?[{id:'rare',adoptions:2}]:[])]})),
+    {date:'2026-01-30',entries:[{id:'recent',adoptions:1}]}
+  ]}}};
+  const view=activityView(inventory,'skills',2026,'adoptions');
+  assert.equal(view.observation.mature,true);
+  assert.equal(view.observation.activeDays,6);
+  assert.equal(view.observation.zero.length,9);
+  assert.deepEqual(view.observation.low.map(e=>e.id),['rare']);
+  assert.equal(view.observation.low[0].lastUsed,'2026-01-01');
+  const short=activityView(inventory,'skills',2026,'adoptions',{from:'2026-01-01',to:'2026-01-05'});
+  assert.equal(short.observation.mature,false); assert.equal(short.observation.low.length,0);
+  const sparse=activityView({...inventory,usage:{...inventory.usage,activity:{days:inventory.usage.activity.days.slice(0,1)}}},'skills',2026,'adoptions');
+  assert.equal(sparse.observation.mature,false);
+  const broken=activityView({...inventory,usage:{...inventory.usage,coverage:{...inventory.usage.coverage,issues:['broken']}}},'skills',2026,'adoptions');
+  assert.equal(broken.observation.incomplete,true); assert.equal(broken.observation.low.length,0);
+});
+
+test('plugin observation uses confirmed inventory, resolves names and withholds ambiguous attribution',()=>{
+  const inventory={skills:[],pluginRegistry:{plugins:[{id:'google-drive@market',version:'1'},{id:'unused@market',version:'1'}]},usage:{coverage, catalog:[{id:'google_drive',name:'google_drive'}],activity:{days:[{date:'2026-01-01',entries:[{id:'google_drive',calls:3}]}]}}};
+  const view=activityView(inventory,'plugins',2026,'calls');
+  assert.equal(view.total,3); assert.equal(view.observation.total,2);
+  assert.deepEqual(view.observation.zero.map(e=>e.id),['unused@market']);
+  assert.equal(view.all.find(e=>e.id==='google-drive@market').total,3);
+  const missing=activityView({...inventory,pluginRegistry:undefined},'plugins',2026,'calls');
+  assert.equal(missing.observation.incomplete,true); assert.equal(missing.observation.total,0); assert.equal(missing.total,3);
+  const ambiguous=activityView({...inventory,pluginRegistry:{plugins:[...inventory.pluginRegistry.plugins,{id:'google-drive@other',version:'1'}]}},'plugins',2026,'calls');
+  assert.equal(ambiguous.total,3); assert.equal(ambiguous.observation.incomplete,true);
+  assert.deepEqual(ambiguous.observation.zero.map(e=>e.id),['unused@market']);
+});
+
 test('calendar and entity grids share coverage, exclude unknown zeros and respect query bounds', () => {
   const usage={activity:{timeZone:'Asia/Shanghai',days:[]},coverage:{...coverage,from:'2026-10-21T02:00:00Z',to:'2026-10-22T03:00:00Z'},
     period:{from:'2026-10-20T16:00:00Z',to:'2026-10-21T16:00:00Z'}};

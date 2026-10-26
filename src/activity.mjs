@@ -44,9 +44,18 @@ export function activityView(inventory, kind, year, metric = 'reads', range = {}
   const entities = new Map(), instanceEntity = new Map();
   const uncertain = new Set(activity?.uncertainIds || []);
   const registry = inventory.pluginRegistry?.plugins || [];
+  const pluginName = id => id.split('@')[0].replaceAll('-', '_');
+  if (metric === 'calls' && kind === 'plugins') for (const plugin of registry) {
+    entities.set(plugin.id, {id:plugin.id,name:plugin.id.split('@')[0],detail:plugin.id.split('@')[1] || '',total:0,allSignals:0,eligibleZero:true,uncertain:false});
+  }
   if (metric === 'calls' && kind === 'plugins') for (const plugin of inventory.usage?.catalog || []) {
-    entities.set(plugin.id,{...plugin,total:0,allSignals:0,eligibleZero:true,uncertain:false});
-    instanceEntity.set(plugin.id,plugin.id);
+    const matches = registry.filter(p => pluginName(p.id) === pluginName(plugin.id));
+    if (matches.length === 1) instanceEntity.set(plugin.id, matches[0].id);
+    else {
+      entities.set(plugin.id,{...plugin,total:0,allSignals:0,eligibleZero:false,uncertain:false});
+      instanceEntity.set(plugin.id,plugin.id);
+      for (const match of matches) entities.get(match.id).uncertain = true;
+    }
   }
   for (const skill of metric === 'calls' ? [] : inventory.skills) {
     const owner = skill.owner;
@@ -61,6 +70,7 @@ export function activityView(inventory, kind, year, metric = 'reads', range = {}
     instanceEntity.set(skill.id, id);
   }
   const days = new Map();
+  const usedDates = new Map();
   for (const day of activity?.days || []) {
     if (!day.date.startsWith(`${year}-`)) continue;
     if ((range.from && day.date < range.from) || (range.to && day.date > range.to)) continue;
@@ -70,6 +80,10 @@ export function activityView(inventory, kind, year, metric = 'reads', range = {}
       if (!entity) continue;
       const count = metric === 'calls' ? (entry.calls || 0) : metric === 'adoptions' ? (entry.adoptions || 0) : metric === 'explicit' ? (entry.explicit || 0) : (entry.reads || 0);
       entity.total += count; total += count;
+      if (count > 0) {
+        if (!usedDates.has(entity.id)) usedDates.set(entity.id,new Set());
+        usedDates.get(entity.id).add(day.date);
+      }
       entity.allSignals += (entry.explicit || 0) + (entry.reads || 0) + (entry.adoptions || 0) + (entry.calls || 0);
     }
     days.set(day.date, total);
@@ -80,7 +94,22 @@ export function activityView(inventory, kind, year, metric = 'reads', range = {}
   const coverage = activityCoverage(inventory.usage, year, range);
   const covered = coverage.hasOverlap && !coverage.incomplete;
   for (const entry of all) entry.unknown = !entry.total && (!covered || entry.uncertain);
-  return { ready, coverage, days, all: ready ? all : [], total: all.reduce((n, e) => n + e.total, 0), top: ready ? all.filter(e => e.total > 0).slice(0, 5) : [], unused: covered ? all.filter(e => e.allSignals === 0 && e.eligibleZero && !e.uncertain).slice(0, 5) : [], excluded: activity?.excluded || 0 };
+  for (const entry of all) {
+    const dates = [...(usedDates.get(entry.id) || [])].sort();
+    entry.activeDays = dates.length; entry.firstUsed = dates[0] || null; entry.lastUsed = dates.at(-1) || null;
+  }
+  const span = (a,b) => a && b ? Math.max(0,Math.round((Date.parse(b)-Date.parse(a))/86400000)+1) : 0;
+  const observedDays = span(coverage.effectiveFrom,coverage.effectiveTo);
+  const activeDays = [...days].filter(([date,count]) => count > 0 && date >= coverage.effectiveFrom && date <= coverage.effectiveTo).length;
+  const eligible = all.filter(e => e.eligibleZero && !e.uncertain);
+  const inventoryComplete = Boolean(inventory.pluginRegistry) || (kind === 'skills' && !inventory.skills.some(s => s.owner));
+  const incomplete = coverage.incomplete || !inventoryComplete || all.some(e => e.uncertain) || Boolean(activity?.excluded);
+  const mature = covered && !incomplete && observedDays >= 14 && activeDays >= 5;
+  const observation = {observedDays,activeDays,incomplete,mature,total:eligible.length,
+    zero:ready ? eligible.filter(e => e.total === 0) : [],
+    low:mature ? eligible.filter(e => e.total > 0 && e.activeDays <= 2 && span(e.firstUsed,coverage.effectiveTo) > 14)
+      .sort((a,b)=>(a.lastUsed || '').localeCompare(b.lastUsed || '') || a.activeDays-b.activeDays || a.total-b.total || a.name.localeCompare(b.name)) : []};
+  return { ready, coverage, days, observation, all: ready ? all : [], total: all.reduce((n, e) => n + e.total, 0), top: ready ? all.filter(e => e.total > 0).slice(0, 5) : [], unused: covered ? all.filter(e => e.allSignals === 0 && e.eligibleZero && !e.uncertain).slice(0, 5) : [], excluded: activity?.excluded || 0 };
 }
 
 export function calendarDays(year) {

@@ -1,22 +1,27 @@
 import { translator } from './i18n.mjs';
 import { activityView, calendarDays } from './activity.mjs';
 const node = (tag, value, className) => { const el = document.createElement(tag); if (value !== undefined) el.textContent = value; if (className) el.className = className; return el; };
-export function createActivityPanel(root, locale = 'zh') {
+export function createActivityPanel(root, locale = 'zh', checkInventory) {
   let t = translator(locale);
   let current, kind = 'plugins', year = new Date().getFullYear(), metric = 'calls';
+  let pinnedDate = null;
   const heading = node('div', undefined, 'activity-heading');
   const title = node('h2', t("插件工具调用"));
   const tabs = node('div', undefined, 'activity-tabs'); tabs.setAttribute('aria-label', t("活动类型"));
   const skillButton = node('button', 'Skill'), pluginButton = node('button', t("插件"));
   for (const button of [pluginButton, skillButton]) { button.type = 'button'; tabs.append(button); }
-  skillButton.addEventListener('click', () => { kind = 'skills'; metric = 'adoptions'; render(); });
-  pluginButton.addEventListener('click', () => { kind = 'plugins'; metric = 'calls'; render(); });
+  skillButton.addEventListener('click', () => { pinnedDate = null; kind = 'skills'; metric = 'adoptions'; render(); });
+  pluginButton.addEventListener('click', () => { pinnedDate = null; kind = 'plugins'; metric = 'calls'; render(); });
   const yearSelect = node('select'); yearSelect.setAttribute('aria-label', t("活动年份"));
-  yearSelect.addEventListener('change', () => { year = Number(yearSelect.value); dateFrom.value = `${year}-01-01`; dateTo.value = `${year}-12-31`; render(); });
+  yearSelect.addEventListener('change', () => { pinnedDate = null; year = Number(yearSelect.value); dateFrom.value = `${year}-01-01`; dateTo.value = `${year}-12-31`; render(); });
   heading.append(title, tabs, yearSelect);
   const caption = node('p', undefined, 'activity-caption'), scroll = node('div', undefined, 'calendar-scroll');
   const calendar = node('div', undefined, 'activity-calendar'); scroll.append(calendar);
   const tooltip = node('p', t("将鼠标移到日期上，或用键盘选择日期查看使用量。"), 'activity-tooltip'); tooltip.setAttribute('role', 'status');
+  const dailyPanel = node('div', undefined, 'daily-ranking'); dailyPanel.hidden = true;
+  const dailyGrid = node('div', undefined, 'entity-grid');
+  const dailyTip = node('p', undefined, 'activity-tooltip'); dailyTip.setAttribute('role', 'status');
+  dailyPanel.append(dailyGrid, dailyTip);
   const legend = node('div', undefined, 'activity-legend'); legend.append(node('span', t("少")));
   for (let i = 0; i < 5; i++) legend.append(node('span', undefined, `heat-swatch level-${i}`));
   legend.append(node('span', t("多")), node('span', t("斜线：无覆盖 / 未查询")));
@@ -35,7 +40,22 @@ export function createActivityPanel(root, locale = 'zh') {
   const entityTip = node('p', undefined, 'activity-tooltip'); entityTip.setAttribute('role', 'status');
   entityPanel.append(entityHeading, entityCaption, entityGrid, entityTip);
   const note = node('p', undefined, 'activity-note');
-  root.append(heading, caption, scroll, tooltip, legend, entityPanel, rankings, note);
+  root.append(heading, caption, scroll, tooltip, dailyPanel, legend, entityPanel, rankings, note);
+  function renderGrid(grid, tip, ranked, label) {
+    grid.replaceChildren();
+    tip.textContent = t("悬停或聚焦格子查看名称与次数。");
+    const maxCount = Math.max(1, ...ranked.all.map(e => e.total));
+    ranked.all.forEach((entry, index) => {
+      const level = entry.total ? Math.min(4, Math.max(1, Math.ceil(4 * entry.total / maxCount))) : 0;
+      const description = `${entry.name} · ${t(entry.detail)}：${entry.unknown ? t("无覆盖或归属不明，不能判断使用量") : t("{0} 次{1}{2}", entry.total, label, entry.total ? '' : t("（已覆盖期间无记录）"))}`;
+      const cell = node('button', undefined, `heat-cell entity-cell ${entry.unknown ? 'heat-unknown' : `level-${level}`}`); cell.type = 'button';
+      cell.title = description; cell.setAttribute('aria-label', t("第 {0} 名，{1}", index + 1, description));
+      for (const event of ['mouseenter', 'focus', 'click']) cell.addEventListener(event, () => { tip.textContent = description; });
+      grid.append(cell);
+    });
+    if (!ranked.all.length) tip.textContent = ranked.ready ? t("当前没有可展示的项目。") : t("尚无统计数据。");
+    if (!ranked.ready) tip.textContent = t("统计暂不可读取，不将失败当作零。");
+  }
   function render() {
     if (!current) return;
     skillButton.setAttribute('aria-pressed', String(kind === 'skills')); pluginButton.setAttribute('aria-pressed', String(kind === 'plugins'));
@@ -45,6 +65,7 @@ export function createActivityPanel(root, locale = 'zh') {
     const historical = (adopting ? usage?.catalog || [] : []).filter(s => !current.skills.some(p => p.id === s.id)).map(s => ({...s,historical:true,source:t("{0}（已不在当前清单）", s.source)}));
     const view = activityView({...current,skills:[...current.skills,...historical],usage}, kind, year, metric);
     tooltip.textContent = t("将鼠标移到日期上，或用键盘选择日期查看使用量。");
+    dailyPanel.hidden = true; dailyGrid.replaceChildren(); dailyTip.textContent = '';
     const years = [...new Set([year, new Date().getFullYear(), ...(usage?.activity?.days || []).map(d => Number(d.date.slice(0, 4)))])].sort((a, b) => b - a);
     yearSelect.replaceChildren(...years.map(y => { const option = node('option', t("{0} 年", y)); option.value = String(y); return option; })); yearSelect.value = String(year);
     const label = calling ? t("工具调用尝试") : adopting ? t("采用") : metric === 'reads' ? t("读取请求") : t("显式标记");
@@ -62,7 +83,14 @@ export function createActivityPanel(root, locale = 'zh') {
     const cells = node('div', undefined, 'calendar-cells'); cells.setAttribute('aria-label', t("{0} 年每日{1}", year, label));
     const maximum = Math.max(1, ...view.days.values());
     const {start: lower, end: upper, incomplete} = view.coverage;
-    const buttons = [];
+    const buttons = [], dateButtons = new Map();
+    let restorePinned;
+    const markPinned = () => {
+      for (const [date, button] of dateButtons) {
+        button.setAttribute('aria-pressed', String(date === pinnedDate));
+        button.style.boxShadow = date === pinnedDate ? '0 0 0 2px #183b6b' : '';
+      }
+    };
     for (const date of dates) {
       if (!date) { cells.append(node('span', undefined, 'heat-empty')); continue; }
       const count = view.days.get(date) || 0;
@@ -71,8 +99,22 @@ export function createActivityPanel(root, locale = 'zh') {
       const button = node('button', undefined, `heat-cell ${unknown ? 'heat-unknown' : `level-${level}`}`); button.type = 'button'; button.tabIndex = buttons.length ? -1 : 0;
       const description = `${date}：${unknown ? t("无覆盖或未查询，不能判断使用量") : t("{0} 次{1}", count, label)}`;
       button.title = description; button.setAttribute('aria-label', description);
-      const show = () => { tooltip.textContent = description; };
-      button.addEventListener('mouseenter', show); button.addEventListener('focus', show); button.addEventListener('click', show);
+      dateButtons.set(date, button);
+      const show = () => {
+        tooltip.textContent = `${description} · ${pinnedDate === date ? t("已固定；点击其他日期切换，再点当前日期解除固定。") : t("点击日期可固定查看当天排序。")}`;
+        const ranked = activityView({...current, skills: [...current.skills, ...historical], usage}, kind, year, metric, {from: date, to: date});
+        dailyGrid.setAttribute('aria-label', `${date} · ${t("{0}使用量排序", kind === 'plugins' ? t("插件") : 'Skill')}`);
+        renderGrid(dailyGrid, dailyTip, ranked, label);
+        dailyPanel.hidden = false;
+      };
+      const preview = () => { if (!pinnedDate) show(); };
+      button.addEventListener('mouseenter', preview); button.addEventListener('focus', preview);
+      button.addEventListener('click', () => {
+        pinnedDate = pinnedDate === date ? null : date;
+        for (const other of buttons) other.tabIndex = other === button ? 0 : -1;
+        markPinned(); show();
+      });
+      if (pinnedDate === date) restorePinned = show;
       button.addEventListener('keydown', event => {
         const delta = { ArrowRight: 7, ArrowLeft: -7, ArrowDown: 1, ArrowUp: -1 }[event.key];
         if (delta === undefined) return;
@@ -82,6 +124,8 @@ export function createActivityPanel(root, locale = 'zh') {
       buttons.push(button); cells.append(button);
     }
     calendar.append(months, cells);
+    markPinned();
+    if (restorePinned) restorePinned();
     entityTitle.textContent = t("{0}使用量排序", kind === 'plugins' ? t("插件") : 'Skill');
     for (const input of [dateFrom, dateTo]) { input.min = `${year}-01-01`; input.max = `${year}-12-31`; }
     const validRange = dateFrom.value && dateTo.value && dateFrom.value <= dateTo.value && dateFrom.checkValidity() && dateTo.checkValidity();
@@ -98,19 +142,10 @@ export function createActivityPanel(root, locale = 'zh') {
       const scope = coverage.hasOverlap ? t("统计覆盖 {0} 至 {1}{2}", coverage.effectiveFrom, coverage.effectiveTo, coverage.incomplete ? t("（数据不完整）") : '') : t("所选日期无统计覆盖");
       entityCaption.textContent = t("{0} 至 {1} · {2} · 已记录 {3} 次{4} · 每格一项，从左到右、从上到下按次数降序 · 颜色越深次数越多", dateFrom.value, dateTo.value, scope, ranked.total, label);
       if (!ranked.ready) entityCaption.textContent = t("统计暂不可读取，不将失败当作零。");
-      const maxCount = Math.max(1, ...ranked.all.map(e => e.total));
-      ranked.all.forEach((entry, index) => {
-        const level = entry.total ? Math.min(4, Math.max(1, Math.ceil(4 * entry.total / maxCount))) : 0;
-        const description = `${entry.name} · ${t(entry.detail)}：${entry.unknown ? t("无覆盖或归属不明，不能判断使用量") : t("{0} 次{1}{2}", entry.total, label, entry.total ? '' : t("（已覆盖期间无记录）"))}`;
-        const cell = node('button', undefined, `heat-cell entity-cell ${entry.unknown ? 'heat-unknown' : `level-${level}`}`); cell.type = 'button';
-        cell.title = description; cell.setAttribute('aria-label', t("第 {0} 名，{1}", index + 1, description));
-        for (const event of ['mouseenter', 'focus', 'click']) cell.addEventListener(event, () => { entityTip.textContent = description; });
-        entityGrid.append(cell);
-      });
-      if (!ranked.all.length) entityTip.textContent = ranked.ready ? t("当前没有可展示的项目。") : t("尚无统计数据。");
+      renderGrid(entityGrid, entityTip, ranked, label);
     }
     rankings.replaceChildren();
-    for (const [title, entries] of [[t("最常用{0} · 前 5", kind === 'plugins' ? t("插件") : ' Skill'), rankingView.top], [t("未观测到使用 · 最多 5 项"), rankingView.unused]]) {
+    for (const [title, entries] of [[t("最常用{0} · 前 5", kind === 'plugins' ? t("插件") : ' Skill'), rankingView.top]]) {
       const section = node('section'); section.append(node('h3', title));
       const list = node('ol', undefined, 'activity-ranking');
       for (const entry of entries) {
@@ -121,9 +156,55 @@ export function createActivityPanel(root, locale = 'zh') {
       if (!entries.length) section.append(node('p', !view.ready ? t("统计暂不可读取，不将失败当作零。") : adopting && !usage?.coverage?.from ? t("尚未收到采用记录，暂不生成排名。") : calling && !usage?.coverage?.from ? t("尚未收到插件调用记录。") : view.ready ? t("当前范围没有符合条件的项目。") : t("尚无统计，不将未知当作零。"), 'activity-note')); else section.append(list);
       rankings.append(section);
     }
+    const observation = rankingView.observation;
+    const review = node('section', undefined, 'usage-observation');
+    review.append(node('h3', t("低频使用观察")));
+    const state = !rankingView.ready ? t("统计暂不可读取") : observation.incomplete ? t("统计不完整") : observation.mature ? t("低频候选") : t("观察积累中");
+    review.append(node('strong', state));
+    if (checkInventory) {
+      const check = node('button', t("核对安装清单")); check.type = 'button';
+      const checkStatus = node('p', '', 'activity-note'); checkStatus.setAttribute('role','status');
+      check.addEventListener('click', async () => {
+        check.disabled = true; checkStatus.textContent = t("正在核对安装清单…");
+        try {
+          const result = await checkInventory();
+          if (result.isError || !Array.isArray(result.structuredContent?.skills) || !result.structuredContent?.pluginRegistry) throw new Error('Inventory unavailable');
+          current = result.structuredContent; render();
+        } catch { checkStatus.textContent = t("安装清单核对失败，请稍后重试；保留现有结果。"); }
+        finally { check.disabled = false; }
+      });
+      review.append(check, checkStatus);
+    }
+    review.append(node('p', t("所选范围内：观察跨度 {0}/14 天 · 有记录 {1}/5 天 · 已确认清单 {2} 项", observation.observedDays, observation.activeDays, observation.total), 'activity-caption'));
+    if (observation.incomplete) review.append(node('p', t("安装清单未核验或记录不完整，暂不生成低频候选；下方仅列已确认清单中的可查询项目。"), 'activity-note'));
+    else if (!observation.mature) review.append(node('p', t("观察跨度至少 14 天且至少 5 天有记录后，才展示低频候选。"), 'activity-note'));
+    review.append(node('p', t("按所选日期范围统计。候选仅在 1–2 天有记录，首次记录距范围末日不少于 14 天；按最近使用时间从早到晚排序。安装时间未知，近期首次记录的项目继续观察。无记录不等于闲置，记录不保证覆盖所有实际使用。"), 'activity-note'));
+    const addList = (heading, entries, zero) => {
+      const details = node('details'), summary = node('summary', heading);
+      const search = node('input'); search.type = 'search'; search.placeholder = t("搜索名称或来源"); search.setAttribute('aria-label', heading + ' · ' + t("搜索名称或来源"));
+      const list = node('ol', undefined, 'activity-ranking'); list.style.maxHeight = '320px'; list.style.overflowY = 'auto';
+      const draw = () => {
+        const query = (search.value || '').trim().toLocaleLowerCase();
+        const matches = entries.filter(e => `${e.name} ${e.detail}`.toLocaleLowerCase().includes(query));
+        list.replaceChildren();
+        for (const entry of matches) {
+          const item = node('li'), copy = node('div');
+          copy.append(node('strong', entry.name), node('span', t(entry.detail), 'ranking-detail'));
+          item.append(copy, node('span', zero ? t("所选范围无记录") : t("{0} 次 · {1} 天 · 最近 {2}",entry.total,entry.activeDays,entry.lastUsed), 'ranking-detail'));
+          list.append(item);
+        }
+        if (!matches.length) list.append(node('li', t("没有匹配项目。")));
+      };
+      search.addEventListener('input',draw); draw();
+      details.append(summary, search, list); review.append(details);
+    };
+    if (observation.mature) addList(t("查看低频候选（{0} 项）",observation.low.length),observation.low,false);
+    if (rankingView.ready && rankingView.coverage.hasOverlap) addList(t("查看全部无记录项目（{0} 项）",observation.zero.length),observation.zero,true);
+    else if (rankingView.ready) review.append(node('p',t("所选日期无统计覆盖"),'activity-note'));
+    rankings.append(review);
     note.textContent = t("{0} {1}不代表成功执行次数。零值仅表示该年份与已查询期间交集内未观测到信号，不代表从未使用。{2}", kind === 'plugins' ? t("插件按所属 Skill 信号汇总，尚不包含插件工具调用；未核实安装的缓存不进入零使用列表。") : t("Skill 按文件实例统计；同名副本保留来源区别。"), label, view.excluded ? t(" {0} 条时间或归属不明的信号未进入热力图。", view.excluded) : '');
     if (adopting && !usage?.coverage?.from && view.ready) entityTip.textContent = t("尚未收到 record_skill_use 记录；启用工具不会自动回填历史使用量。");
-    if (calling) { note.textContent = t("独立统计插件工具调用尝试，不与 Skill 采用相加；失败的调用也计一次。由调用方主动记录，按记录时间统计，不是宿主自动监听。只展示有记录的插件；缺失记录不代表从未调用。"); if (!view.ready) caption.textContent = t("插件调用记录暂不可读取。"); else if (!usage.coverage.from) caption.textContent = t("尚未收到插件工具调用记录；启用接口不会自动回填。"); }
+    if (calling) { note.textContent = t("独立统计插件工具调用尝试，不与 Skill 采用相加；失败的调用也计一次。由调用方主动记录，按记录时间统计，不是宿主自动监听。展示已确认安装及有记录的插件；低频观察只纳入已确认清单，缺失记录不代表从未调用。"); if (!view.ready) caption.textContent = t("插件调用记录暂不可读取。"); else if (!usage.coverage.from) caption.textContent = t("尚未收到插件工具调用记录；启用接口不会自动回填。"); }
     if (adopting) note.textContent = t("{0} 数据由助手主动记录，不是宿主独立验证；未接入记录约定的客户端可能漏记。记录开始前不补造数据，旧推断数据不混入采用次数。", kind === 'plugins' ? t("插件汇总所属 Skill 的采用次数，不含插件工具调用。") : t("每次采用分别计数，同一对话重复采用不合并。"));
   }
   const update = inventory => { current = inventory; render(); };

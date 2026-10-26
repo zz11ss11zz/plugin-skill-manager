@@ -333,3 +333,49 @@
 - 解压刚下载的完整包，直接执行其中的安装器，在新的隔离配置再次完成七项生命周期检查（含 0.1.1 → 0.2.0 升级和卸载重装保留记录）。没有复制已有构建目录作为下载产物。证据为 `v020-public-download.log`、隔离 distribution-7KCW84 及下载结果 JSON。
 - 另检查 Windows Computer Use 的受支持入口：初始化成功，应用枚举返回 OpenAI.Codex 的当前窗口显示为 ChatGPT。该 provider 的 guidance 明确禁止自动操作 ChatGPT desktop UI，因此未捕获或操作宿主窗口；浏览器控制入口也未提供 native API。保留原生验收未完成，不把另一工具能枚举窗口说成可执行全部验收。
 - GitHub Release、公开下载与本地数据生命周期验证，不等于官方目录上架或组织准入已通过。
+
+## 2026-10-26 日期悬停的当天排序
+
+- 日期热力图下方增加独立的当天排序方格，鼠标悬停、键盘聚焦和点击日期均更新；每格一项，按当天次数降序排列，悬停或聚焦方格显示名称、来源与次数。复用区间排序的渲染逻辑与样式，保留未知覆盖标记。
+- 日期区间筛选保持独立；切换插件/Skill、年份、语言或刷新数据时清除旧的当天展示。
+- `node --test test/activity-ui.test.mjs test/activity.test.mjs test/i18n.test.mjs`：10 项通过。覆盖逐日排序变化、详情、插件/Skill 切换、未知与读取失败、英文和区间筛选独立性。`npm.cmd run build` 成功。
+- 验证为模拟 DOM 交互回归和本地页面构建；未执行原生桌面视觉验收，未更新已安装分发包或发布新版本。Node 在沙箱内遇到用户目录 lstat EPERM，正常权限运行完成；英文断言按现有翻译修正后通过。
+
+### 实际安装入口更新
+
+- 用户明确要求更新已安装插件。CLI 核对当前入口为旧源码目录中的独立 MCP 注册，非完整插件分发安装；保持该入口，更新 activity-ui.mjs 与 i18n.mjs 并在该目录重新构建。activity.mjs 与开发副本 SHA-256 相同，沿用现有样式与数据接口。
+- 安装目录 backups/daily-ranking-20261026-200944 保留更新前组件与页面；不修改注册、账本、备注或归档。
+- 新启动实际安装目录的服务，经 MCP listResources/readResource 核验页面逐字节等于构建文件且包含 daily-ranking。资源 revision 为 6081ccfa053c367c；SHA-256 为 6081ccfa053c367c5e81ec6b58f317415418817991bde685469de35da3fe0dbd。
+- 当前已连接的宿主服务仍可缓存旧资源，需要宿主重新加载服务后使用新版。未终止用户正在使用的 Codex 或 MCP 进程，未宣称原生界面已刷新。
+
+## 2026-10-26 点击日期固定当天排序
+
+- 日期点击后固定当天排序；鼠标经过或键盘聚焦其他日期不替换内容。点击其他日期切换固定，再点当前日期解除。固定日期显示边框、aria-pressed 和中英文提示。区间筛选、语言切换和数据重新渲染保留固定日期；切换年份或统计类型解除固定。
+- 修改 src/activity-ui.mjs、src/i18n.mjs 与 test/activity-ui.test.mjs；相关 10 项回归通过，开发目录构建通过。测试覆盖固定、移动与聚焦不切换、Skill 详情、切换固定、解除及年份/类型重置。
+- 已同步实际源码 MCP 安装入口并构建；更新前文件备份于安装目录 backups/pinned-date-20261026-202109。新启动该入口服务，经 MCP 读取资源与磁盘页面逐字节一致，revision 为 4c00fc48dd3a5664，并验证包含固定日期交互。没有修改账本、备注和注册。
+- 当前宿主已连接服务可能仍缓存旧资源，需重启 Codex 后重开管理器；未执行原生页面视觉验收。
+
+## 2026-10-26 低频使用观察首版
+
+- 右侧替换为统一的低频使用观察，保留左侧最常用前五。观察跨度 14 天且至少 5 个有记录日、清单和记录可用后才显示候选；候选为所选范围内 1–2 个活跃日且首次记录距范围末日至少 14 天，按最近使用时间、活跃日、次数排序。此为展示启发规则，不是闲置认定。
+- 零记录项目以总量和可搜索折叠完整列表展示，不截断前五；无覆盖/读取失败不展示零值推断。插件按核验的安装清单补齐零记录项，记录命名的连字符/下划线只在唯一匹配时归属，多来源重名保留未归属记录而不重复计数。Skill 缓存及已移除项不进入低频观察。安装时间未知如实提示，近期首次有记录的项目继续观察。
+- 增加核对安装清单按钮，调用已有只读接口；失败保留原状态并给出重试提示。所选日期区间作用于观察统计，日期锁定功能保持。
+- 修改 activity.mjs、activity-ui.mjs、i18n.mjs、app.mjs 和相关测试。13 项相关回归通过，页面构建成功。覆盖稀疏记录、短跨度、完整零记录集合、搜索、安装匹配与歧义、失败状态和原有交互。
+- 已备份并同步实际源码 MCP 安装入口：backups/low-use-observation-20261026-204941。只向旧 app.mjs 加入清单核验回调，未替换为新版整个管理界面。实际服务 MCP 返回页面逐字节核对通过，revision 93c0debb6023a07f。
+- 原生页面视觉和宿主按钮实际点击仍未验证；重启 Codex 重开管理器后查看首版。记录为主动报送，观察跨度不是连续完整监听天数，首次记录也不是安装日期。
+
+## 2026-10-26 项目标识改名完成
+
+- GitHub 仓库、源码 package/lock、manifest、市场和 MCP 注册统一为 plugin-skill-manager，显示名为 Plugin & Skill Manager；GitHub main 提交 de5998100f6316f649466a3515e97ae1759950b8。旧 Release 附件保留原名，当前尚无重新发布的改名分发包。
+- 62 项完整回归通过（SKILL_MANAGER_TEST_CODEX=1，0 跳过），包含新标识隔离注册生命周期与旧身份重复注册拦截。GitHub 更名提交基于已发布源码，只含更名和兼容改动，不自动混入此前本地 UI 改进。
+- 实际旧源码入口保留原物理目录和 .local：备份于 backups/identifier-rename-20261026-215031。服务 handshake 名称、页面 URI 新命名、inventory 读取和此前低频 UI 均核验通过；页面 revision 为 5ab6aef939d6109b。创建并核对新 MCP 注册后移除旧注册，.local JSON 文件前后哈希一致。
+- 更新两处已有 Git 工作副本的 origin URL，保留其未提交内容。没有移动安装目录或数据目录，旧环境变量兼容；已运行的宿主需重启发现新注册，未声称原生界面已刷新。
+
+## 2026-10-26 v0.3.0 renamed distribution
+
+- Candidate source: renamed package/MCP/marketplace identity plus daily hover/focus rankings, click-to-pin dates and low-use observation UI.
+- Windows Node.js 20.18.1, Codex CLI 0.163.0-alpha.11.2: 62 regression tests passed with SKILL_MANAGER_TEST_CODEX=1; none skipped.
+- Seven isolated 0.3.0 installation lifecycle checks passed: install, app-server discovery, cached MCP/UI/restart, explicit relocation, data retention, uninstall and reinstall.
+- Seven isolated legacy 0.2.0 to renamed 0.3.0 lifecycle checks passed. Existing legacy identity blocked simultaneous install; uninstalling the old registration then installing the renamed package retained the synthetic plugin-call ledger across restart and reinstallation.
+- Extended acceptance-distribution.mjs to test legacy identity transitions using the actual previous package name. All test records were synthetic and CODEX_HOME was isolated. Native desktop interaction was not exercised.
+- Official portal observation in Chrome and a fallback in-app browser timed out before form inspection or upload. No official submission occurred; organization eligibility and native review evidence remain open (SUBMISSION.md).

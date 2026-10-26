@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 — 2026-10-26
+
+- Rename package, marketplace and MCP identity to `plugin-skill-manager`; preserve existing records, environment variables and legacy release assets.
+- Add daily ranking grids on calendar hover/focus and a click-to-pin date.
+- Add low-use observation with coverage thresholds, searchable zero-record items and installed-inventory checks. Missing records are not proof of non-use.
+- Ship renamed installation and desktop-review ZIPs; official directory submission and native review evidence remain pending.
+
 ## 0.2.0 — 2026-10-26
 
 - Ship a complete prebuilt plugin distribution with integrity checks and an installer for install, check, explicit source relocation and uninstall. Keep local records and archives on uninstall.
