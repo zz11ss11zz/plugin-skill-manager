@@ -1,6 +1,6 @@
 # Support / 支持
 
-Report reproducible issues at [GitHub Issues](https://github.com/zz11ss11zz/codex-skill-manager/issues). Include the plugin version, operating system, Node.js version, Codex CLI version, the installation route, minimal steps and a sanitized error. Replace personal paths with examples. Do not post credentials, private session logs, real indexes or unrelated files.
+Report reproducible issues at [GitHub Issues](https://github.com/zz11ss11zz/plugin-skill-manager/issues). Include the plugin version, operating system, Node.js version, Codex CLI version, the installation route, minimal steps and a sanitized error. Replace personal paths with examples. Do not post credentials, private session logs, real indexes or unrelated files.
 
 For install or upgrade failures, first run `node install.mjs check` from the extracted complete distribution. Its report checks that package and CLI installation state; it does not establish native desktop UI support or full recording coverage. Preserve the old package and data while diagnosing a failure. See [installation](DISTRIBUTION.md) and [migration/recovery](DATA_MIGRATION.md).
 

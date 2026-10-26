@@ -7,7 +7,7 @@ import { createActivityPanel } from './activity-ui.mjs';
 import { createManagementPanel } from './management-ui.mjs';
 const updateActivity = createActivityPanel(document.querySelector('#activity-panel'), locale);
 const status = document.querySelector('#status');
-const app = new App({ name: 'codex-skill-manager', version: packageInfo.version }, {});
+const app = new App({ name: 'plugin-skill-manager', version: packageInfo.version }, {});
 const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), args => app.callServerTool(args), receive, locale);
 let connected = false, hasData = false, lastRefresh = 0, pending = null;
 function receive(result) {

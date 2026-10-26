@@ -6,8 +6,8 @@ import { promisify } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
-export const marketplace = 'codex-skill-manager';
-export const pluginId = `codex-skill-manager@${marketplace}`;
+export const marketplace = 'plugin-skill-manager';
+export const pluginId = `plugin-skill-manager@${marketplace}`;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const equalPath = (a, b) => process.platform === 'win32' ? path.resolve(a).toLowerCase() === path.resolve(b).toLowerCase() : path.resolve(a) === path.resolve(b);
 export async function verifyDistribution(root) {
@@ -21,8 +21,8 @@ export async function verifyDistribution(root) {
     if ((await lstat(file)).isSymbolicLink() || hash(await readFile(file)) !== expected) throw new Error(`Integrity mismatch: ${relative}`);
   }
   const catalog = JSON.parse(await readFile(path.join(root, '.agents/plugins/marketplace.json'), 'utf8'));
-  if (catalog.name !== marketplace || catalog.plugins.length !== 1 || catalog.plugins[0].source.path !== './plugins/codex-skill-manager') throw new Error('Unexpected release catalog');
-  const manifest = JSON.parse(await readFile(path.join(root, 'plugins/codex-skill-manager/plugin.json'), 'utf8'));
+  if (catalog.name !== marketplace || catalog.plugins.length !== 1 || catalog.plugins[0].source.path !== './plugins/plugin-skill-manager') throw new Error('Unexpected release catalog');
+  const manifest = JSON.parse(await readFile(path.join(root, 'plugins/plugin-skill-manager/plugin.json'), 'utf8'));
   if (manifest.name !== marketplace || manifest.version !== integrity.version) throw new Error('Release version mismatch');
   return integrity;
 }
@@ -50,8 +50,9 @@ export async function manageDistribution({ root, action, replaceSource = false, 
   const different = existing && !equalPath(existing.root, root);
   if (different && action !== 'check' && !(action === 'install' && replaceSource)) throw new Error('This catalog is registered at another path. Use that package to uninstall, or install --replace-source to move it.');
   if (action === 'install') {
+    if (catalogState.marketplaces.some(m => m.name === 'codex-skill-manager')) throw new Error('Legacy codex-skill-manager marketplace exists. Uninstall using the old package first; preserve data and archives.');
     const servers = await cli(['mcp', 'list', '--json']);
-    if (servers.some(s => s.name === marketplace)) throw new Error('Standalone MCP registration already exists. Remove it with codex mcp remove codex-skill-manager before installing the plugin; data is retained.');
+    if (servers.some(s => [marketplace, 'codex-skill-manager'].includes(s.name))) throw new Error('Standalone MCP registration already exists. Inspect and remove the plugin-skill-manager or legacy codex-skill-manager registration before installing the plugin; data is retained.');
     if (different) {
       await cli(['plugin', 'marketplace', 'remove', marketplace, '--json']);
       try { await cli(['plugin', 'marketplace', 'add', root, '--json']); }

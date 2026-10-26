@@ -6,7 +6,7 @@
 
 ## 安装
 
-从 [v0.2.0 Release](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.2.0) 下载源码 ZIP，解压到长期保留的位置，在含 package.json 的目录打开 PowerShell：
+从 [v0.2.0 Release](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.2.0) 下载源码 ZIP，解压到长期保留的位置，在含 package.json 的目录打开 PowerShell：
 
 ```powershell
 node --version
@@ -24,8 +24,8 @@ npm.cmd run setup:check
 Git 用户可使用：
 
 ```powershell
-git clone --branch v0.1.1 --depth 1 https://github.com/zz11ss11zz/codex-skill-manager.git
-cd codex-skill-manager
+git clone --branch v0.1.1 --depth 1 https://github.com/zz11ss11zz/plugin-skill-manager.git
+cd plugin-skill-manager
 ```
 
 再执行上方 npm 命令。Git 连接失败时改用 Release ZIP，不关闭 TLS 校验。ZIP 目录不能 git pull。
@@ -35,7 +35,7 @@ cd codex-skill-manager
 源码 MCP 注册不会安装配套 Skill。先完成服务安装，再在希望使用 Skill 的项目目录中安装说明文件。`skills@1.7.4` 要求 Node.js 22.20+，与管理器自身要求不同。替换下方路径为实际源码目录：
 
 ```powershell
-npx skills@1.7.4 add "C:\tools\codex-skill-manager" --skill skill-manager --agent codex --copy
+npx skills@1.7.4 add "C:\tools\plugin-skill-manager" --skill skill-manager --agent codex --copy
 ```
 
 这是项目级安装，默认写入当前项目的 `.agents/skills/skill-manager`；不加 `--global`。同名 Skill 已存在时先检查安装器提示，不覆盖自己的修改。2026-10-23 在隔离项目、Node.js 24.19.0、skills 1.7.4 下实际安装通过，安装后的 SKILL.md 与源码逐字节一致。官方参数见 [skills 仓库](https://github.com/vercel-labs/skills)。
@@ -43,7 +43,7 @@ npx skills@1.7.4 add "C:\tools\codex-skill-manager" --skill skill-manager --agen
 网络允许 GitHub clone 时也可以使用：
 
 ```powershell
-npx skills@1.7.4 add zz11ss11zz/codex-skill-manager --skill skill-manager --agent codex --copy
+npx skills@1.7.4 add zz11ss11zz/plugin-skill-manager --skill skill-manager --agent codex --copy
 ```
 
 本次远程命令在 Git clone 阶段因 `Recv failure: Connection was reset` 失败，仅列为可选方式，不声称本机通过。可以先下载源码 ZIP 再使用本地路径，不关闭 TLS 校验。
@@ -65,7 +65,7 @@ npx skills@1.7.4 remove skill-manager --agent codex
 - 原目录更新源码后重新安装依赖、测试、setup:install，并重载服务。
 - 换目录时先从旧目录运行 npm.cmd run setup:uninstall，再从新目录安装；不强制覆盖其他同名服务。
 - 旧 .local 按 [迁移与回退](DATA_MIGRATION.md) 明确来源并核验。原文件和时点备份保留，不用旧快照覆盖后续新增记录。
-- 旧目录丢失时，先用 codex mcp get codex-skill-manager 核对，再通过官方 CLI 移除确认过的注册。
+- 旧目录丢失时，先用 codex mcp get plugin-skill-manager 核对，再通过官方 CLI 移除确认过的注册。
 
 ## 卸载
 
@@ -82,4 +82,4 @@ registered 应为 false，再重载宿主。仅移除当前目录对应的注册
 
 遇到损坏文件/写锁/迁移失败，保留原文件和错误，停止相关服务后按迁移说明恢复；不要自动删除锁、索引或源日志。Windows 技能归档恢复不覆盖同名文件。
 
-可选 CLI 回归：`$env:SKILL_MANAGER_TEST_CODEX='1'; npm.cmd test`。测试使用隔离数据。具体范围见 [VALIDATION.md](VALIDATION.md)；问题提交至 [GitHub Issues](https://github.com/zz11ss11zz/codex-skill-manager/issues)，只附脱敏错误和复现步骤。
+可选 CLI 回归：`$env:SKILL_MANAGER_TEST_CODEX='1'; npm.cmd test`。测试使用隔离数据。具体范围见 [VALIDATION.md](VALIDATION.md)；问题提交至 [GitHub Issues](https://github.com/zz11ss11zz/plugin-skill-manager/issues)，只附脱敏错误和复现步骤。

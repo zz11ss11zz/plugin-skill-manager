@@ -1,9 +1,9 @@
 {
-  "name": "codex-skill-manager-dev",
+  "name": "plugin-skill-manager-dev",
   "interface": { "displayName": "Plugin & Skill Manager (development)" },
   "plugins": [{
-    "name": "codex-skill-manager",
-    "source": { "source": "local", "path": "./plugins/codex-skill-manager" },
+    "name": "plugin-skill-manager",
+    "source": { "source": "local", "path": "./plugins/plugin-skill-manager" },
     "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
     "category": "Productivity"
   }]

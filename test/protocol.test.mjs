@@ -30,8 +30,8 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     const uri = tools[0]._meta.ui.resourceUri;
     const { contents } = await client.readResource({ uri });
     const revision = createHash('sha256').update(contents[0].text).digest('hex').slice(0, 16);
-    assert.equal(uri, `ui://codex-skill-manager/dashboard-${revision}.html`);
-    await assert.rejects(client.readResource({ uri: 'ui://codex-skill-manager/dashboard.html' }));
+    assert.equal(uri, `ui://plugin-skill-manager/dashboard-${revision}.html`);
+    await assert.rejects(client.readResource({ uri: 'ui://plugin-skill-manager/dashboard.html' }));
     assert.equal(contents[0].mimeType, 'text/html;profile=mcp-app');
     assert.match(contents[0].text, /id="activity-panel"/);
     assert.doesNotMatch(contents[0].text, /id="(?:skills|search|archives|management-plan|usage)"/);

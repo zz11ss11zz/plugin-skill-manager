@@ -46,12 +46,14 @@ test('complete distribution blocks duplicate MCP registration and altered packag
     const calls = [];
     const cli = async args => {
       calls.push(args);
-      if (args[0] === 'mcp') return [{ name: 'codex-skill-manager' }];
+      if (args[0] === 'mcp') return [{ name: 'plugin-skill-manager' }];
       return { marketplaces: [] };
     };
     await assert.rejects(manageDistribution({ root, action: 'install', cli }), /Standalone MCP/);
     assert.ok(calls.every(args => args.includes('list')));
-    const file = path.join(root, 'plugins/codex-skill-manager/mcp.json');
+    await assert.rejects(manageDistribution({root,action:'install',cli:async args => args[0]==='mcp' ? [{name:'codex-skill-manager'}] : {marketplaces:[]}}), /Standalone MCP/);
+    await assert.rejects(manageDistribution({root,action:'install',cli:async () => ({marketplaces:[{name:'codex-skill-manager',root:'/old'}]})}), /Legacy/);
+    const file = path.join(root, 'plugins/plugin-skill-manager/mcp.json');
     await writeFile(file, (await readFile(file, 'utf8')) + '\n');
     calls.length = 0;
     await assert.rejects(manageDistribution({ root, action: 'install', cli }), /Integrity mismatch/);

@@ -4,7 +4,7 @@ Prepared 2026-10-26 for 0.2.0. **Not submitted, approved or listed.** This file 
 
 ## Package and listing
 
-- The public `plugin.zip` is a complete **installation distribution**: catalog, installer and `plugins/codex-skill-manager/`. Extract it before registering its local catalog.
+- The public `plugin.zip` is a complete **installation distribution**: catalog, installer and `plugins/plugin-skill-manager/`. Extract it before registering its local catalog.
 - The separate `desktop-package.zip` has `plugin.json`, `mcp.json`, `skills/`, assets and the bundled server **at its root**. It is the package shape prepared for desktop-only review, not a claim of submission readiness. Node.js 20.18+ must be available on PATH; JavaScript dependencies and dashboard are bundled.
 - `packaging/interface.json` holds the base English listing, capability labels, public HTTPS information pages and icon paths. The maintainer name follows the repository NOTICE; a directory publisher name must ultimately match the selected verified identity.
 - `packaging/review-cases.json` supplies exactly five positive and three negative scenarios. They are scenarios for reviewers, not fabricated records of human review. No credentials are required by this local service; test only synthetic Skills and records in an isolated environment.

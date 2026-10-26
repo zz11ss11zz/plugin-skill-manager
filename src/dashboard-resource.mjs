@@ -8,7 +8,7 @@ import { bundledDashboard } from './bundled-dashboard.mjs';
 
 export const dashboardFile = fileURLToPath(new URL('../dist/dashboard.html', import.meta.url));
 export const dashboardRevision = html => createHash('sha256').update(html).digest('hex').slice(0, 16);
-const resourceUri = revision => `ui://codex-skill-manager/dashboard-${revision}.html`;
+const resourceUri = revision => `ui://plugin-skill-manager/dashboard-${revision}.html`;
 const mimeType = 'text/html;profile=mcp-app';
 
 async function atomicWrite(file, text) {
@@ -46,7 +46,7 @@ export function registerDashboard(server, file = dashboardFile, embedded = bundl
     contents: [{ uri, mimeType, text: html }],
   }));
   server.registerResource('dashboard-revision', new ResourceTemplate(
-    'ui://codex-skill-manager/dashboard-{revision}.html', { list: undefined },
+    'ui://plugin-skill-manager/dashboard-{revision}.html', { list: undefined },
   ), { mimeType }, async (requestedUri, { revision }) => {
     if (typeof revision !== 'string' || !/^[a-f0-9]{16}$/.test(revision)) throw new Error('Invalid dashboard revision');
     // Standalone packages carry one immutable revision in the JS bundle.

@@ -1,6 +1,6 @@
 # 开发市场目录
 
-这是 M3 开发产物，尚不是公开发布包或已验证的 GitHub 市场。新版完整包已通过 Windows 市场安装、宿主 Skill 发现、启动、重启、替换、卸载与数据保留验收；真实原生侧栏验收仍未完成。源码仓库尚未提供可直接安装的远程目录，不应把 `codex plugin marketplace add zz11ss11zz/codex-skill-manager` 宣传为可用安装入口。
+这是 M3 开发产物，尚不是公开发布包或已验证的 GitHub 市场。新版完整包已通过 Windows 市场安装、宿主 Skill 发现、启动、重启、替换、卸载与数据保留验收；真实原生侧栏验收仍未完成。源码仓库尚未提供可直接安装的远程目录，不应把 `codex plugin marketplace add zz11ss11zz/plugin-skill-manager` 宣传为可用安装入口。
 
 ## 分发验收边界（当前有效）
 
@@ -23,7 +23,7 @@ npm run build:marketplace
 
 ```sh
 codex plugin marketplace add <市场目录绝对路径> --json
-codex plugin add codex-skill-manager@codex-skill-manager-dev --json
+codex plugin add plugin-skill-manager@plugin-skill-manager-dev --json
 codex plugin list --json
 ```
 
@@ -32,8 +32,8 @@ codex plugin list --json
 卸载插件和移除市场是两件事：
 
 ```sh
-codex plugin remove codex-skill-manager@codex-skill-manager-dev --json
-codex plugin marketplace remove codex-skill-manager-dev
+codex plugin remove plugin-skill-manager@plugin-skill-manager-dev --json
+codex plugin marketplace remove plugin-skill-manager-dev
 ```
 
 持久记录保留在 `$CODEX_HOME/skill-manager/data-v1`，或显式配置的外部数据目录；迁移、停机备份和回退见包内 `DATA_MIGRATION.md`。
@@ -58,6 +58,6 @@ node scripts/diagnose-install.mjs <已构建插件包的绝对路径>
 
 配套 Skill 说明工具、计数口径和排错边界，不是自动运行的记录钩子。只有任务或长期指令已启用记录且工具可用时，才记录实际采用/调用；重试记录沿用 ID，新事件使用新 ID。缺失记录不代表从未使用。仅安装 Skill 不会安装 MCP 服务。
 
-本页开发目录与 v0.2.0 [完整安装分发包](DISTRIBUTION.md)分开，后者使用 `codex-skill-manager` 作为市场名称。托管远程市场不纳入本版；原生侧栏限制见 KNOWN_LIMITATIONS.md。构建目录不代表发布市场或修改真实配置。
+本页开发目录与 v0.2.0 [完整安装分发包](DISTRIBUTION.md)分开，后者使用 `plugin-skill-manager` 作为市场名称。托管远程市场不纳入本版；原生侧栏限制见 KNOWN_LIMITATIONS.md。构建目录不代表发布市场或修改真实配置。
 
 格式依据（2026-10-23 核查）：https://developers.openai.com/plugins/build/plugins

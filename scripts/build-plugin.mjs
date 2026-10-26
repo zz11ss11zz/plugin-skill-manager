@@ -23,7 +23,7 @@ const bundle = await build({
 const manifest = {
   $schema: 'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json',
   name: pkg.name, version: pkg.version, description: 'Local skill inventory and adoption records for Codex.',
-  license: 'Apache-2.0', repository: 'https://github.com/zz11ss11zz/codex-skill-manager',
+  license: 'Apache-2.0', repository: 'https://github.com/zz11ss11zz/plugin-skill-manager',
   extensions: { 'com.openai': {
     onboardingSkill: './skills/setup/SKILL.md',
     interface: JSON.parse(await readFile('packaging/interface.json', 'utf8')),
@@ -31,7 +31,7 @@ const manifest = {
     publication: { release_notes: 'Prebuilt installation, recording setup, separate inventory management and a color icon. Native desktop review remains pending.' },
   } },
 };
-const mcp = { mcpServers: { 'codex-skill-manager': { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}' } } };
+const mcp = { mcpServers: { 'plugin-skill-manager': { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}' } } };
 for (const [name, data] of [['plugin.json', manifest], ['mcp.json', mcp]]) await writeFile(path.join(root, name), JSON.stringify(data, null, 2) + '\n');
 for (const dest of ['assets/icon.png', 'server/src/assets/orbit-color.png']) await copyFile('src/assets/orbit-color.png', path.join(root, dest));
 const dependencies = new Set(Object.keys(bundle.metafile.inputs).flatMap(file => {

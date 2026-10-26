@@ -16,7 +16,7 @@ Plugin & Skill Manager：把已记录的 Skill 采用与插件调用变成日期
 
 v0.1.0 已开源，Apache-2.0。当前提供 Windows 源码安装；配套 Skill 单独安装不会装好 MCP 服务。演示使用合成数据和浏览器宿主，最新版 Codex 原生侧栏交互仍有未验收项。
 
-仓库与安装：https://github.com/zz11ss11zz/codex-skill-manager
+仓库与安装：https://github.com/zz11ss11zz/plugin-skill-manager
 
 欢迎试用后在 Issues 提供脱敏复现步骤：安装是否顺利、统计口径是否清楚、最需要增加什么能力。
 
@@ -38,9 +38,9 @@ Skills 越装越多后，一个实际问题是：最近的任务里，哪些能�
 
 演示图中的名称和数据都是合成示例，使用真实界面在浏览器演示宿主中展示。你可以看到切换类型、筛选日期以及排名随范围变化的过程。
 
-项目地址：https://github.com/zz11ss11zz/codex-skill-manager
+项目地址：https://github.com/zz11ss11zz/plugin-skill-manager
 
-版本下载：https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.1
+版本下载：https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.1.1
 
 如果你也有大量 Skills，欢迎从自己的工作流程试用，并在 Issues 留下脱敏的错误与建议。尤其想了解：安装步骤是否清晰、采用与调用的区别是否容易理解、现有统计能否帮助你整理能力库。
 

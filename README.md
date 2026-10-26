@@ -1,10 +1,12 @@
 # Plugin & Skill Manager
 
+Source identifiers now use `plugin-skill-manager`. Existing v0.2.0 downloads keep their old identifiers; see [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
+
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.2.0](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.2.0) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.2.0](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.2.0) · [Apache-2.0](LICENSE)
 
 ![30-second dashboard walkthrough with synthetic data](docs/media/en/demo.gif)
 
@@ -26,7 +28,7 @@ The complete product combines a **local MCP service, an activity UI, and a compa
 
 Tested on Windows. Requires Node.js 20.18+ and the Codex CLI on PATH. This is an independent project, not an official OpenAI product or an official-directory listing.
 
-Download the [v0.2.0 complete plugin ZIP](https://github.com/zz11ss11zz/codex-skill-manager/releases/download/v0.2.0/codex-skill-manager-0.2.0-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
+Download the [v0.2.0 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.2.0/codex-skill-manager-0.2.0-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
 
 ```powershell
 node install.mjs install
@@ -44,7 +46,7 @@ The complete plugin already includes these Skills. For the alternative source/MC
 ```powershell
 # Run in the project where you want to use the Skill.
 # Replace this path with your extracted source directory.
-npx skills@1.7.4 add "C:\tools\codex-skill-manager" --skill skill-manager --agent codex --copy
+npx skills@1.7.4 add "C:\tools\plugin-skill-manager" --skill skill-manager --agent codex --copy
 ```
 
 This local-source route was tested in an isolated project. A direct GitHub route is available in the CLI, but our network test failed during Git clone; do not treat it as verified here. See [companion Skill installation](docs/LOCAL_SETUP.md#配套-skill可选).
@@ -59,7 +61,7 @@ node install.mjs uninstall
 
 ## Demo and feedback
 
-[Chinese launch copy and 30-second script](docs/LAUNCH.zh-CN.md) · [Reproduce the synthetic demo](docs/media/README.md) · [Report an issue](https://github.com/zz11ss11zz/codex-skill-manager/issues)
+[Chinese launch copy and 30-second script](docs/LAUNCH.zh-CN.md) · [Reproduce the synthetic demo](docs/media/README.md) · [Report an issue](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
 Useful feedback: installation steps that failed, confusing metric definitions, or missing workflows. Share sanitized errors and reproduction steps; omit private chats, paths and credentials.
 

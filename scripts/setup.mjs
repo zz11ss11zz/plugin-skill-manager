@@ -6,7 +6,7 @@ import path from 'node:path';
 
 const run = promisify(execFile);
 const root = fileURLToPath(new URL('..', import.meta.url));
-const name = 'codex-skill-manager';
+const name = 'plugin-skill-manager';
 const entry = fileURLToPath(new URL('../src/server.mjs', import.meta.url));
 const normalize = value => process.platform === 'win32' ? path.resolve(value).toLowerCase() : path.resolve(value);
 
@@ -20,8 +20,12 @@ export async function setup(action, { cli = process.env.CODEX_SKILL_MANAGER_CLI 
   };
   const matches = item => item?.transport?.type === 'stdio' && typeof item.transport.command === 'string' && normalize(item.transport.command) === normalize(process.execPath) && Array.isArray(item.transport.args) && item.transport.args.length === 1 && typeof item.transport.args[0] === 'string' && normalize(item.transport.args[0]) === normalize(entry);
   const existing = await inspect();
+  if (action === 'install') {
+    const registrations = JSON.parse(await command(['mcp', 'list', '--json']));
+    if (registrations.some(item => item.name === 'codex-skill-manager')) throw new Error('旧名 codex-skill-manager 的 MCP 注册仍存在。核对入口并移除旧注册后再安装，保留原数据目录。');
+  }
   if (action === 'check') return { action, registered: !!existing, matches: matches(existing), enabled: existing?.enabled ?? null, entry };
-  if (existing && !matches(existing)) throw new Error('同名 MCP 注册指向其他命令或目录，未覆盖或移除。请先核对 codex mcp get codex-skill-manager。');
+  if (existing && !matches(existing)) throw new Error('同名 MCP 注册指向其他命令或目录，未覆盖或移除。请先核对 codex mcp get plugin-skill-manager。');
   if (action === 'install') {
     if (build) await run(process.execPath, [path.join(root, 'scripts', 'build.mjs')], { cwd: root, env, windowsHide: true, timeout: 30000 });
     await access(path.join(root, 'dist', 'dashboard.html'));

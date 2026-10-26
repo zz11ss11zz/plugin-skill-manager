@@ -49,7 +49,7 @@ test('standalone package builds and serves MCP resources outside the source tree
     assert.ok(contents[0].text.includes(`版本 / Version v${pkg.version}</span>`));
     assert.equal(await readFile(path.join(source, 'dist/dashboard.html'), 'utf8'), contents[0].text);
     assert.ok(!(await readdir(path.join(root, 'server'))).includes('dist'));
-    await assert.rejects(client.readResource({ uri: 'ui://codex-skill-manager/dashboard-0000000000000000.html' }));
+    await assert.rejects(client.readResource({ uri: 'ui://plugin-skill-manager/dashboard-0000000000000000.html' }));
     const bundle = await readFile(path.join(root, 'server/src/server.mjs'), 'utf8');
     assert.ok(!bundle.includes(source));
     assert.match(await readFile(path.join(root, 'THIRD_PARTY_NOTICES.md'), 'utf8'), /@modelcontextprotocol\/sdk/);

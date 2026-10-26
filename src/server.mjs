@@ -46,7 +46,7 @@ async function inventoryWithArchives() {
   catch { inventory.archives = []; inventory.issues.push({ path: archiveManager.archiveRoot, reason: '归档记录无法读取' }); }
   return inventory;
 }
-const server = new McpServer({ name: 'codex-skill-manager', version: packageInfo.version, icons: [appIcon] });
+const server = new McpServer({ name: 'plugin-skill-manager', version: packageInfo.version, icons: [appIcon] });
 const uri = registerDashboard(server);
 server.registerTool('open_skill_manager', {
   title: 'Plugin & Skill Manager',

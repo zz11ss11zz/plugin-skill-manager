@@ -35,8 +35,8 @@ test('existing and new sessions read each other’s immutable UI builds after an
       }
     }
     assert.equal(await readFile(file, 'utf8'), bHtml);
-    await assert.rejects(a.client.readResource({uri:'ui://codex-skill-manager/dashboard-..%2Foutside.html'}));
-    await assert.rejects(a.client.readResource({uri:'ui://codex-skill-manager/dashboard-0000000000000000.html'}));
+    await assert.rejects(a.client.readResource({uri:'ui://plugin-skill-manager/dashboard-..%2Foutside.html'}));
+    await assert.rejects(a.client.readResource({uri:'ui://plugin-skill-manager/dashboard-0000000000000000.html'}));
     const bRevision = b.uri.match(/dashboard-(.+)\.html/)[1];
     await writeFile(path.join(dir, 'revisions', `${bRevision}.html`), 'corrupted');
     await assert.rejects(a.client.readResource({uri:b.uri}), /content mismatch/);

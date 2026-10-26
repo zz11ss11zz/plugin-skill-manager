@@ -1,6 +1,6 @@
 # Development marketplace
 
-This is an M3 development artifact, not a public release or a verified GitHub marketplace. The current complete package passed Windows marketplace installation, host Skill discovery, service startup, restart, replacement, uninstall and data retention. Native sidebar acceptance is still incomplete. The source repository does not yet expose an installable remote catalog. Do not advertise `codex plugin marketplace add zz11ss11zz/codex-skill-manager` as a working installation route.
+This is an M3 development artifact, not a public release or a verified GitHub marketplace. The current complete package passed Windows marketplace installation, host Skill discovery, service startup, restart, replacement, uninstall and data retention. Native sidebar acceptance is still incomplete. The source repository does not yet expose an installable remote catalog. Do not advertise `codex plugin marketplace add zz11ss11zz/plugin-skill-manager` as a working installation route.
 
 ## Distribution acceptance boundary (current)
 
@@ -17,7 +17,7 @@ npm ci --ignore-scripts
 npm run build:marketplace
 ```
 
-Output: `dist/marketplace-<package.json version>/`, containing `.agents/plugins/marketplace.json` and a complete `plugins/codex-skill-manager/` package. JavaScript dependencies and the companion `skills/skill-manager/SKILL.md` are included. Existing output directories are not overwritten. To build to a fresh alternative directory after `npm run build`, run `node scripts/build-marketplace.mjs <new-directory>`.
+Output: `dist/marketplace-<package.json version>/`, containing `.agents/plugins/marketplace.json` and a complete `plugins/plugin-skill-manager/` package. JavaScript dependencies and the companion `skills/skill-manager/SKILL.md` are included. Existing output directories are not overwritten. To build to a fresh alternative directory after `npm run build`, run `node scripts/build-marketplace.mjs <new-directory>`.
 
 ## Install and verify
 
@@ -25,7 +25,7 @@ This local-marketplace flow passed on Windows with CLI 0.163.0-alpha.11.1. Use d
 
 ```sh
 codex plugin marketplace add <absolute-marketplace-directory> --json
-codex plugin add codex-skill-manager@codex-skill-manager-dev --json
+codex plugin add plugin-skill-manager@plugin-skill-manager-dev --json
 codex plugin list --json
 ```
 
@@ -34,8 +34,8 @@ The first command registers the catalog; it does not prove plugin installation. 
 To remove this development install and its catalog:
 
 ```sh
-codex plugin remove codex-skill-manager@codex-skill-manager-dev --json
-codex plugin marketplace remove codex-skill-manager-dev
+codex plugin remove plugin-skill-manager@plugin-skill-manager-dev --json
+codex plugin marketplace remove plugin-skill-manager-dev
 ```
 
 Persistent records remain outside the plugin under `$CODEX_HOME/skill-manager/data-v1`, unless explicitly overridden. See the package's `DATA_MIGRATION.md`. Removing a catalog is separate from removing its plugin.
@@ -60,6 +60,6 @@ The diagnostic creates an isolated profile under ignored `work/`, writes synthet
 
 The companion Skill explains available tools and counting semantics. It is not an always-on hook: adoption and call recording require the user's task or standing recording instruction and actual tool availability. Copying the Skill alone does not install the service. Record retries retain IDs; new actual events receive new IDs; missing records are unknown history.
 
-This development catalog is separate from the 0.2 [complete installation distribution](DISTRIBUTION.md), whose catalog is named `codex-skill-manager`. A hosted remote catalog remains outside release scope. Native-sidebar acceptance remains limited as documented in KNOWN_LIMITATIONS.md. Building either directory does not publish a marketplace or change user configuration.
+This development catalog is separate from the 0.2 [complete installation distribution](DISTRIBUTION.md), whose catalog is named `plugin-skill-manager`. A hosted remote catalog remains outside release scope. Native-sidebar acceptance remains limited as documented in KNOWN_LIMITATIONS.md. Building either directory does not publish a marketplace or change user configuration.
 
 Format reference, checked 2026-10-23: https://developers.openai.com/plugins/build/plugins

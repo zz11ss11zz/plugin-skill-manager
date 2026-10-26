@@ -10,7 +10,7 @@
 - **Upgrades / 升级**: actual data written by the published v0.0.1-alpha.1 service was migrated to 0.1.0 with byte-identical backups and retained notes/counts. This does not cover every historical version or desktop UI behavior.
 - **Windows startup / 启动**: one isolated snapshot-rollback service start closed unexpectedly; direct initialization and a fresh full lifecycle run passed. Its cause was not identified. Preserve diagnostics and original data on failure; do not delete data or disable security controls to retry.
 
-Report issues via [GitHub Issues](https://github.com/zz11ss11zz/codex-skill-manager/issues), including version, OS, Node/Codex versions and redacted errors. Do not upload private logs, credentials or indexes.
+Report issues via [GitHub Issues](https://github.com/zz11ss11zz/plugin-skill-manager/issues), including version, OS, Node/Codex versions and redacted errors. Do not upload private logs, credentials or indexes.
 
 - **2026-10-26 marketplace reinstall**: with CLI 0.163.0-alpha.11.2, v0.1.1 installed and passed eight checks through uninstall, but relocated marketplace reinstall failed with Windows cache activation `os error 5`. Source/MCP standalone lifecycle passed all nine checks separately. Do not treat the earlier successful marketplace run as proof this intermittent issue is eliminated.
 

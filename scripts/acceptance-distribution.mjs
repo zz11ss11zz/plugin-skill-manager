@@ -40,7 +40,7 @@ assert.ok(discovered.data.flatMap(d => d.skills).some(s => s.pluginId === plugin
 checks.push('real app-server discovers companion skill');
 let activeVersion = installed.version;
 async function query(record = false) {
-  const packagePath = path.join(home, 'plugins/cache/codex-skill-manager/codex-skill-manager', activeVersion);
+  const packagePath = path.join(home, 'plugins/cache/plugin-skill-manager/plugin-skill-manager', activeVersion);
   const client = new Client({ name: 'distribution-acceptance', version: '1' });
   const transport = new StdioClientTransport({ command: process.execPath, args: [path.join(packagePath, 'server/src/server.mjs')], env, stderr: 'pipe' });
   try {

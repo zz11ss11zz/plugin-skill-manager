@@ -17,6 +17,9 @@ test('isolated Codex registration installs, remains idempotent and uninstalls wi
     await writeFile(config, 'model = "test-model-preserved"\n');
     const options = { env, build: false };
     assert.equal((await setup('check', options)).registered, false);
+    await run(process.env.CODEX_SKILL_MANAGER_CLI || 'codex', ['mcp','add','codex-skill-manager','--',process.execPath,'--version'], {env,windowsHide:true});
+    await assert.rejects(setup('install', options), /旧名 codex-skill-manager/);
+    await run(process.env.CODEX_SKILL_MANAGER_CLI || 'codex', ['mcp','remove','codex-skill-manager'], {env,windowsHide:true});
     assert.equal((await setup('install', options)).status, 'installed');
     const installed = await readFile(config, 'utf8');
     assert.ok(installed.includes('test-model-preserved'));
@@ -26,7 +29,7 @@ test('isolated Codex registration installs, remains idempotent and uninstalls wi
     assert.equal((await setup('uninstall', options)).status, 'uninstalled');
     assert.ok((await readFile(config, 'utf8')).includes('test-model-preserved'));
     assert.equal((await setup('check', options)).registered, false);
-    await run(process.env.CODEX_SKILL_MANAGER_CLI || 'codex', ['mcp', 'add', 'codex-skill-manager', '--', process.execPath, '--version'], { env, windowsHide: true });
+    await run(process.env.CODEX_SKILL_MANAGER_CLI || 'codex', ['mcp', 'add', 'plugin-skill-manager', '--', process.execPath, '--version'], { env, windowsHide: true });
     const foreign = await readFile(config, 'utf8');
     await assert.rejects(setup('install', options), /同名 MCP 注册/);
     await assert.rejects(setup('uninstall', options), /同名 MCP 注册/);

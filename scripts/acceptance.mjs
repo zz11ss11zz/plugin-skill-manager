@@ -46,10 +46,10 @@ await new PluginCalls(path.join(legacy, files[1])).record([call]);
 await new UsageIndex({ roots: [path.dirname(log)], stateFile: path.join(legacy, files[3]) }).refresh([skill]);
 const original = await hashes(legacy);
 await cp(packageRoot, path.join(market, 'plugins', 'manager'), { recursive: true, errorOnExist: true, force: false });
-await save(path.join(market, '.agents', 'plugins', 'marketplace.json'), JSON.stringify({ name: 'manager-acceptance', plugins: [{ name: 'codex-skill-manager', source: { source: 'local', path: './plugins/manager' }, policy: { installation: 'AVAILABLE', authentication: 'ON_INSTALL' }, category: 'Productivity' }] }));
+await save(path.join(market, '.agents', 'plugins', 'marketplace.json'), JSON.stringify({ name: 'manager-acceptance', plugins: [{ name: 'plugin-skill-manager', source: { source: 'local', path: './plugins/manager' }, policy: { installation: 'AVAILABLE', authentication: 'ON_INSTALL' }, category: 'Productivity' }] }));
 let registeredPackage = path.join(market, 'plugins', 'manager');
 async function install() {
-  if (!mcpOnly) return JSON.parse(await cli(['plugin', 'add', 'codex-skill-manager@manager-acceptance', '--json']));
+  if (!mcpOnly) return JSON.parse(await cli(['plugin', 'add', 'plugin-skill-manager@manager-acceptance', '--json']));
   await cli(['mcp', 'add', 'manager-acceptance', '--', process.execPath, path.join(registeredPackage, 'server', 'src', 'server.mjs')]);
   const registered = JSON.parse(await cli(['mcp', 'get', 'manager-acceptance', '--json']));
   assert.equal(registered.transport.command, process.execPath);
@@ -58,9 +58,9 @@ async function install() {
 }
 async function uninstall() {
   if (!mcpOnly) {
-    await cli(['plugin', 'remove', 'codex-skill-manager@manager-acceptance', '--json']);
+    await cli(['plugin', 'remove', 'plugin-skill-manager@manager-acceptance', '--json']);
     const list = JSON.parse(await cli(['plugin', 'list', '--json']));
-    assert.ok(!list.installed.some(p => p.pluginId === 'codex-skill-manager@manager-acceptance'));
+    assert.ok(!list.installed.some(p => p.pluginId === 'plugin-skill-manager@manager-acceptance'));
     return;
   }
   await cli(['mcp', 'remove', 'manager-acceptance']);
@@ -74,10 +74,10 @@ console.log(JSON.stringify(installed));
 check(mcpOnly ? 'real CLI MCP registration of standalone package' : 'real CLI marketplace installation');
 if (!mcpOnly) {
   const list = JSON.parse(await cli(['plugin', 'list', '--json']));
-  const plugin = list.installed.find(p => p.pluginId === 'codex-skill-manager@manager-acceptance');
+  const plugin = list.installed.find(p => p.pluginId === 'plugin-skill-manager@manager-acceptance');
   assert.equal(plugin?.enabled, true); assert.equal(plugin?.installed, true);
   const discovered = await listHostSkills({ cwd: root, env, cli: process.env.CODEX_SKILL_MANAGER_CLI || 'codex' });
-  const entry = discovered.data.flatMap(d => d.skills).find(s => s.pluginId === plugin.pluginId && s.name === 'codex-skill-manager:skill-manager');
+  const entry = discovered.data.flatMap(d => d.skills).find(s => s.pluginId === plugin.pluginId && s.name === 'plugin-skill-manager:skill-manager');
   assert.equal(entry?.enabled, true);
   assert.equal(await readFile(entry.path, 'utf8'), await readFile(path.join(packageRoot, 'skills/skill-manager/SKILL.md'), 'utf8'));
   assert.ok(path.resolve(entry.path).startsWith(path.resolve(inventoryRoots.cache) + path.sep));
@@ -88,14 +88,14 @@ if (!mcpOnly) {
 // Locate the installed cache instead of treating the marketplace source as an install.
 async function cachedPackage() {
   if (mcpOnly) return registeredPackage;
-  const base = path.join(inventoryRoots.cache, 'manager-acceptance', 'codex-skill-manager');
+  const base = path.join(inventoryRoots.cache, 'manager-acceptance', 'plugin-skill-manager');
   const versions = (await readdir(base, { withFileTypes: true })).filter(d => d.isDirectory());
   assert.equal(versions.length, 1);
   return path.join(base, versions[0].name);
 }
 let current;
 async function start(pkg, extra = {}) {
-  const config = JSON.parse(await readFile(path.join(pkg, 'mcp.json'))).mcpServers['codex-skill-manager'];
+  const config = JSON.parse(await readFile(path.join(pkg, 'mcp.json'))).mcpServers['plugin-skill-manager'];
   const substitute = value => value.replaceAll('${PLUGIN_ROOT}', pkg);
   const registered = mcpOnly ? JSON.parse(await cli(['mcp', 'get', 'manager-acceptance', '--json'])).transport : null;
   const transport = new StdioClientTransport({ command: registered?.command || process.execPath, args: registered?.args || config.args.map(substitute), cwd: substitute(config.cwd), env: { ...env, ...extra }, stderr: 'pipe' });
@@ -119,7 +119,7 @@ try {
   const entryTool = (await current.client.listTools()).tools.find(t => t.name === 'open_skill_manager');
   const resource = await current.client.readResource({ uri: entryTool._meta.ui.resourceUri });
   assert.equal(resource.contents[0].text, await readFile(path.join(repo, 'dist/dashboard.html'), 'utf8'));
-  await assert.rejects(current.client.readResource({ uri: 'ui://codex-skill-manager/dashboard-0000000000000000.html' }));
+  await assert.rejects(current.client.readResource({ uri: 'ui://plugin-skill-manager/dashboard-0000000000000000.html' }));
   check('installed bundle serves byte-identical UI and rejects unknown revisions');
   assert.deepEqual(await hashes(persistent), original);
   assert.deepEqual(await hashes(path.join(persistent, 'migration-backup')), original);
