@@ -51,7 +51,7 @@ await client.callTool({name:'import_usage',arguments:{}});
 const allowedTools = new Set((await client.listTools()).tools.map(t => t.name));
 const script = await build({ entryPoints: [fileURLToPath(new URL('./preview-host.mjs', import.meta.url))], bundle: true, write: false, format: 'esm', platform: 'browser' });
 const dashboard = await readFile(new URL('../dist/dashboard.html', import.meta.url));
-const page = '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>能力管理器 · 合成数据验证</title><style>body{font-family:system-ui;margin:0;background:#e9edf2}header{padding:12px}iframe{display:block;border:1px solid #adb7c2;max-width:100%;width:960px;height:calc(100vh - 85px);margin:auto;background:white}button{padding:8px;margin-right:8px}</style><header><strong>合成数据验证 · 不读取或修改你的技能</strong> <button id="narrow">窄面板</button><button id="wide">宽面板</button><span id="host-status"></span></header><iframe id="app" title="能力管理器测试面板"></iframe><script type="module" src="/bridge.js"></script></html>';
+const page = '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>Plugin & Skill Manager · 合成数据验证</title><style>body{font-family:system-ui;margin:0;background:#e9edf2}header{padding:12px}iframe{display:block;border:1px solid #adb7c2;max-width:100%;width:960px;height:calc(100vh - 85px);margin:auto;background:white}button{padding:8px;margin-right:8px}</style><header><strong>合成数据验证 · 不读取或修改你的技能</strong> <button id="narrow">窄面板</button><button id="wide">宽面板</button><span id="host-status"></span></header><iframe id="app" title="Plugin & Skill Manager测试面板"></iframe><script type="module" src="/bridge.js"></script></html>';
 let origin;
 const http = createHttpServer(async (request, response) => {
   response.setHeader('Cache-Control', 'no-store');

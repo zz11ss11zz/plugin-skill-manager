@@ -49,8 +49,8 @@ async function inventoryWithArchives() {
 const server = new McpServer({ name: 'codex-skill-manager', version: packageInfo.version, icons: [appIcon] });
 const uri = registerDashboard(server);
 server.registerTool('open_skill_manager', {
-  title: '能力管理器',
-  description: '只读扫描标准技能目录与插件缓存，打开能力管理器。不读取聊天或凭据；缓存不代表已安装或启用。',
+  title: 'Plugin & Skill Manager',
+  description: '只读扫描标准技能目录与插件缓存，打开Plugin & Skill Manager。不读取聊天或凭据；缓存不代表已安装或启用。',
   inputSchema: {},
   annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   _meta: { ui: { resourceUri: uri }, 'openai/ui': { entrypoints: [{ type: 'global' }] } },

@@ -1,9 +1,9 @@
 ---
 name: setup
-description: Set up or diagnose recording for Codex Skill Manager after installation, explain its local data boundaries, and check whether records have arrived. Use for this plugin's first-use setup or missing-record questions.
+description: Set up or diagnose recording for Plugin & Skill Manager after installation, explain its local data boundaries, and check whether records have arrived. Use for this plugin's first-use setup or missing-record questions.
 ---
 
-# Set up Codex Skill Manager
+# Set up Plugin & Skill Manager
 
 Discover this plugin's actual tool namespace. Call `check_recording_status` and `open_skill_manager` to check service access and existing records. If the tools are absent, report that the current chat cannot access the MCP service; consult the installation guide or suggest reopening Codex after installation. Installing a Skill alone does not provide the service.
 

@@ -11,7 +11,7 @@ await mkdir(path.join(root, 'plugins'));
 execFileSync(process.execPath, ['scripts/build-plugin.mjs', path.join(root, 'plugins', pkg.name)], { stdio: 'inherit' });
 const catalog = JSON.parse(await readFile('packaging/marketplace.json', 'utf8'));
 catalog.name = marketplace;
-catalog.interface.displayName = 'Codex Skill Manager';
+catalog.interface.displayName = 'Plugin & Skill Manager';
 await writeFile(path.join(root, '.agents/plugins/marketplace.json'), JSON.stringify(catalog, null, 2) + '\n');
 await copyFile('scripts/plugin-install.mjs', path.join(root, 'install.mjs'));
 await copyFile('docs/DISTRIBUTION.md', path.join(root, 'README.md'));

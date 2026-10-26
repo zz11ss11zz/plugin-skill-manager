@@ -1,5 +1,5 @@
 {
-  "displayName": "Codex Skill Manager",
+  "displayName": "Plugin & Skill Manager",
   "shortDescription": "Local skills and activity",
   "longDescription": "Explore local Codex Skills and separately recorded Skill adoptions and plugin tool-call attempts. View activity heatmaps and date-filtered rankings, inspect sources, save local notes, and preview reversible Windows user-skill archives. Recording depends on explicit caller participation: this plugin does not automatically monitor every chat, and missing records do not mean no activity. Includes first-use setup guidance. Requires Node.js 20.18+ and a compatible local Codex CLI. This is an independent open-source project; native desktop compatibility and official directory review remain pending.",
   "developerName": "Zishen Wang",
@@ -9,7 +9,7 @@
   "supportURL": "https://github.com/zz11ss11zz/codex-skill-manager/blob/main/docs/SUPPORT.md",
   "privacyPolicyURL": "https://github.com/zz11ss11zz/codex-skill-manager/blob/main/docs/PRIVACY.md",
   "termsOfServiceURL": "https://github.com/zz11ss11zz/codex-skill-manager/blob/main/docs/TERMS.md",
-  "defaultPrompt": ["Open Skill Manager and explain my recorded activity.", "Check whether Skill adoption and plugin call records have arrived.", "Show my local Skill inventory and its sources."],
+  "defaultPrompt": ["Open Plugin & Skill Manager and explain my recorded activity.", "Check whether Skill adoption and plugin call records have arrived.", "Show my local Skill inventory and its sources."],
   "brandColor": "#245EAA",
   "composerIcon": "./assets/icon.png",
   "logo": "./assets/icon.png"

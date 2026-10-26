@@ -15,7 +15,7 @@ directory. It waits for MCP messages on stdin; use Ctrl+C to stop. A quiet
 process alone is not proof of a successful handshake.
 
 In a Codex environment with local plugin loading, select this directory using
-the supported local-plugin workflow. Confirm the global Skill Manager entry
+the supported local-plugin workflow. Confirm the global Plugin & Skill Manager entry
 opens, the panel loads, and errors are understandable. If local loading is not
 available, record that limitation. M3 provides a companion Skill and a buildable
 development marketplace. The current package embeds the exact dashboard HTML

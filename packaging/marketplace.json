@@ -1,6 +1,6 @@
 {
   "name": "codex-skill-manager-dev",
-  "interface": { "displayName": "Codex Skill Manager (development)" },
+  "interface": { "displayName": "Plugin & Skill Manager (development)" },
   "plugins": [{
     "name": "codex-skill-manager",
     "source": { "source": "local", "path": "./plugins/codex-skill-manager" },

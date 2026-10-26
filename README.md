@@ -1,4 +1,4 @@
-# Codex Skill Manager
+# Plugin & Skill Manager
 
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
 
@@ -33,7 +33,7 @@ node install.mjs install
 node install.mjs check
 ```
 
-The check should show the installed 0.2.0 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
+The check should show the installed 0.2.0 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
 
 60 regression tests and seven isolated plugin lifecycle checks have passed, including a 0.1.1 → 0.2.0 source relocation upgrade. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
 
@@ -49,7 +49,7 @@ npx skills@1.7.4 add "C:\tools\codex-skill-manager" --skill skill-manager --agen
 
 This local-source route was tested in an isolated project. A direct GitHub route is available in the CLI, but our network test failed during Git clone; do not treat it as verified here. See [companion Skill installation](docs/LOCAL_SETUP.md#配套-skill可选).
 
-Start with: “Open Skill Manager and explain the difference between adoption and call counts.” To collect new records, follow [adoption recording](docs/ADOPTION_RECORDING.md) or [plugin-call recording](docs/PLUGIN_CALLS.md). The companion Skill alone does not enable background collection.
+Start with: “Open Plugin & Skill Manager and explain the difference between adoption and call counts.” To collect new records, follow [adoption recording](docs/ADOPTION_RECORDING.md) or [plugin-call recording](docs/PLUGIN_CALLS.md). The companion Skill alone does not enable background collection.
 
 Uninstall the complete plugin, preserving its local data:
 

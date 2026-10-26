@@ -16,7 +16,7 @@ await client.connect(transport);
 const tools = (await client.listTools()).tools;
 const resource = await client.readResource({ uri: tools.find(t => t.name === 'open_skill_manager')._meta.ui.resourceUri });
 const bridge = await build({ entryPoints: ['scripts/preview-host.mjs'], bundle: true, write: false, format: 'esm', platform: 'browser' });
-const page = '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>M2 独立包验收</title><style>body{font-family:system-ui;margin:0;background:#edf1f5}header{padding:12px;font-size:13px}iframe{display:block;border:1px solid #dce2ea;max-width:100%;width:960px;height:calc(100vh - 70px);margin:auto;background:white}button{padding:5px;margin-left:8px}</style><header><strong>M2 独立包 · 隔离测试记录 · 浏览器验收</strong><button id="narrow">窄面板</button><button id="wide">宽面板</button><span id="host-status"></span></header><iframe id="app" title="能力管理器验收面板"></iframe><script type="module" src="/bridge.js"></script></html>';
+const page = '<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>M2 独立包验收</title><style>body{font-family:system-ui;margin:0;background:#edf1f5}header{padding:12px;font-size:13px}iframe{display:block;border:1px solid #dce2ea;max-width:100%;width:960px;height:calc(100vh - 70px);margin:auto;background:white}button{padding:5px;margin-left:8px}</style><header><strong>M2 独立包 · 隔离测试记录 · 浏览器验收</strong><button id="narrow">窄面板</button><button id="wide">宽面板</button><span id="host-status"></span></header><iframe id="app" title="Plugin & Skill Manager验收面板"></iframe><script type="module" src="/bridge.js"></script></html>';
 let origin;
 const http = createServer(async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');

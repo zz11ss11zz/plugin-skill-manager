@@ -14,7 +14,7 @@ function receive(result) {
   const data = result.structuredContent;
   if (result.isError || data?.mode !== 'inventory' || !Array.isArray(data.skills)) {
     status.hidden = false;
-    status.textContent = t(statusKey = "统计数据暂不可读取，请重新打开能力管理器。");
+    status.textContent = t(statusKey = "统计数据暂不可读取，请重新打开Plugin & Skill Manager。");
     return;
   }
   updateActivity(data);
@@ -27,9 +27,9 @@ function setLocale(context = {}) {
   locale = resolveLocale(context.locale, locale);
   t = translator(locale);
   document.documentElement.lang = locale;
-  document.title = t('能力管理器');
+  document.title = t('Plugin & Skill Manager');
   document.querySelector('#app-version').textContent = t('版本 {0}', `v${packageInfo.version}`);
-  document.querySelector('h1').textContent = t('能力管理器');
+  document.querySelector('h1').textContent = t('Plugin & Skill Manager');
   document.querySelector('header p').textContent = t('查看本地技能文件与来源证据。');
   document.querySelector('#activity-panel').setAttribute('aria-label', t('使用活动热力图与排名'));
   updateActivity.setLocale(locale);
@@ -46,7 +46,7 @@ async function refresh() {
   try { receive(await pending); }
   catch {
     status.hidden = false;
-    status.textContent = t(statusKey = hasData ? "统计刷新失败，暂时保留上次结果；重新进入面板时会重试。" : "统计数据暂不可读取，请重新打开能力管理器。");
+    status.textContent = t(statusKey = hasData ? "统计刷新失败，暂时保留上次结果；重新进入面板时会重试。" : "统计数据暂不可读取，请重新打开Plugin & Skill Manager。");
   } finally { pending = null; }
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) void refresh(); });

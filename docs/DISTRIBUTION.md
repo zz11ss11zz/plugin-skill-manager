@@ -11,9 +11,9 @@ node install.mjs check
 node install.mjs install
 ```
 
-Restart Codex or start a new chat to discover the plugin. Ask it to open Codex Skill Manager. CLI installation does not establish native desktop UI compatibility.
+Restart Codex or start a new chat to discover the plugin. Ask it to open Plugin & Skill Manager. CLI installation does not establish native desktop UI compatibility.
 
-重启 Codex 或新建聊天以发现插件，请它打开能力管理器。CLI 安装通过不等于已完成原生桌面界面验收。
+重启 Codex 或新建聊天以发现插件，请它打开Plugin & Skill Manager。CLI 安装通过不等于已完成原生桌面界面验收。
 
 ## Upgrade / 升级
 

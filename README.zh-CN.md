@@ -1,6 +1,6 @@
 [English](README.md) | **中文**
 
-# Codex Skill Manager · 能力管理器
+# Plugin & Skill Manager
 
 **给已记录的 Skill 采用和插件调用，一张看得懂的活动面板。**
 
@@ -35,7 +35,7 @@ node install.mjs install
 node install.mjs check
 ```
 
-检查结果应显示已安装并启用的 0.2.0 插件，且注册来源匹配。重开 Codex，再让助手打开能力管理器或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
+检查结果应显示已安装并启用的 0.2.0 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
 60 项回归与 7 项隔离插件生命周期检查通过，包括 0.1.1 → 0.2.0 换路径升级。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
@@ -51,7 +51,7 @@ npx skills@1.7.4 add "C:\tools\codex-skill-manager" --skill skill-manager --agen
 
 本地源码安装路径已在隔离项目中实际通过。远程 GitHub 命令本次在克隆阶段连接重置，没有记为通过。[完整步骤与远程可选方式](docs/LOCAL_SETUP.md#配套-skill可选)。
 
-安装后可对助手说：“打开能力管理器，解释采用次数和插件调用次数有什么区别。”要记录后续活动，按 [采用记录说明](docs/ADOPTION_RECORDING.md) 或 [插件调用接入](docs/PLUGIN_CALLS.md) 配置明确约定。
+安装后可对助手说：“打开Plugin & Skill Manager，解释采用次数和插件调用次数有什么区别。”要记录后续活动，按 [采用记录说明](docs/ADOPTION_RECORDING.md) 或 [插件调用接入](docs/PLUGIN_CALLS.md) 配置明确约定。
 
 ## 怎样理解数字
 

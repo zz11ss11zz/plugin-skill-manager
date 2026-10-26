@@ -1,6 +1,6 @@
 # Project terms / 项目使用说明
 
-Codex Skill Manager is independent open-source software maintained by Zishen Wang. It is not an official OpenAI product, and publication in this repository does not mean approval for the OpenAI Plugin Directory.
+Plugin & Skill Manager is independent open-source software maintained by Zishen Wang. It is not an official OpenAI product, and publication in this repository does not mean approval for the OpenAI Plugin Directory.
 
 The software is provided under the [Apache License, Version 2.0](../LICENSE), including its warranty disclaimer and limitation of liability. This page does not replace or amend that license. Bundled third-party components retain their licenses, included in `THIRD_PARTY_NOTICES.md` in built packages.
 

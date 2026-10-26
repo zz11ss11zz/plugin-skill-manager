@@ -42,10 +42,10 @@ export const english = {
   "{0} 数据由助手主动记录，不是宿主独立验证；未接入记录约定的客户端可能漏记。记录开始前不补造数据，旧推断数据不混入采用次数。": "{0} Records are submitted by the assistant, not independently verified by the host. Clients without the recording convention may miss events. History is not backfilled and inferred signals are excluded.",
   "插件汇总所属 Skill 的采用次数，不含插件工具调用。": "Plugins aggregate their Skill adoptions, excluding plugin tool calls.",
   "每次采用分别计数，同一对话重复采用不合并。": "Each adoption counts separately, including repeats within a conversation.",
-  "统计数据暂不可读取，请重新打开能力管理器。": "Statistics are unavailable. Reopen Skill Manager.",
+  "统计数据暂不可读取，请重新打开Plugin & Skill Manager。": "Statistics are unavailable. Reopen Plugin & Skill Manager.",
   "统计刷新失败，暂时保留上次结果；重新进入面板时会重试。": "Refresh failed. Previous results are retained; reopening the panel will retry.",
   "管理器连接未完成，请重新打开面板。": "Connection failed. Reopen the panel.",
-  "能力管理器": "Skill Manager", "查看本地技能文件与来源证据。": "Explore local skills and their source evidence.",
+  "Plugin & Skill Manager": "Plugin & Skill Manager", "查看本地技能文件与来源证据。": "Explore local skills and their source evidence.",
   "使用活动热力图与排名": "Activity heatmaps and rankings", "正在读取统计…": "Loading statistics…"
 };
 export function translator(locale) {
