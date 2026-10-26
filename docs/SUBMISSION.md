@@ -22,7 +22,7 @@ The WebM is a sequence of real browser UI states, not a native desktop screen re
 
 1. Confirm developer/business identity and submission access for the actual publishing organization.
 2. Obtain confirmation from OpenAI that the organization is allowlisted for **local MCP submissions**. No organization ID has been sent by this project, and no partner eligibility is assumed.
-3. Run a clean native desktop installation: global entry, panel rendering, language changes, restart, notes/archive/restore, setup in a fresh chat and setup after installation in an existing chat. Current test tools disable native app control; these remain unverified.
+3. Run a clean native desktop installation: global entry, panel rendering, language changes, restart, notes/archive/restore, setup in a fresh chat and setup after installation in an existing chat. The browser controller has native app APIs disabled. The separate Windows Computer Use provider identified the running host as ChatGPT, which its guidance explicitly excludes from UI automation. No host-window action was taken; these workflows remain unverified.
 4. Record a reviewer-accessible native walkthrough covering the review cases, then supply `review.demo_recording_url`. The browser demonstration is supporting material, not a substitute for missing native evidence.
 5. Check imported portal metadata, target availability and any actual required fields. The publisher must make the policy attestations based on verified facts. Submit and publish only after prerequisites and review are satisfied.
 

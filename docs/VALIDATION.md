@@ -325,3 +325,11 @@
 - 新图标为内置 ImageGen 生成的 1254×1254 RGBA PNG，约 1 MiB，alpha 范围 0–255；符合方形、透明和文件容量检查。提示词与来源见 ICON.md。
 - 当前工具禁用原生应用控制，未验证最新桌面全局入口、应用重启、宿主语言传播和新旧聊天 setup。没有请求组织 allowlist、提交身份或代作政策声明。官方审核材料准备与实际审核状态分别记录在 SUBMISSION.md。
 - 本地详细证据：`v020-tests-final.log`、`v020-installer-entry.log`、`v020-final-targeted.log`、`v020-media-validation.json`、隔离 distribution-Hk2Skw 结果。公开文档不附带真实用户配置或账本。
+
+### 公开 Release 下载与最终边界
+
+- v0.2.0 从 commit `1694a2f3ecd80a37a45042b307f840030cabdd1f` 发布；源码、完整插件分发包、desktop-package 及 SHA256SUMS 四个资产均核对 GitHub 返回的大小/摘要。Release 为正式版本，未修改旧标签。
+- 从公开 `releases/download/v0.2.0/` 地址重新下载 plugin ZIP 和 desktop-package ZIP；SHA-256 均与公开校验清单一致。检查完整包的 install.mjs 和 .agents 目录，以及审核准备包根部的 plugin.json、mcp.json、setup Skill。
+- 解压刚下载的完整包，直接执行其中的安装器，在新的隔离配置再次完成七项生命周期检查（含 0.1.1 → 0.2.0 升级和卸载重装保留记录）。没有复制已有构建目录作为下载产物。证据为 `v020-public-download.log`、隔离 distribution-7KCW84 及下载结果 JSON。
+- 另检查 Windows Computer Use 的受支持入口：初始化成功，应用枚举返回 OpenAI.Codex 的当前窗口显示为 ChatGPT。该 provider 的 guidance 明确禁止自动操作 ChatGPT desktop UI，因此未捕获或操作宿主窗口；浏览器控制入口也未提供 native API。保留原生验收未完成，不把另一工具能枚举窗口说成可执行全部验收。
+- GitHub Release、公开下载与本地数据生命周期验证，不等于官方目录上架或组织准入已通过。
