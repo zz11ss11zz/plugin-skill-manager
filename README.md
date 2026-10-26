@@ -6,9 +6,9 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 
 **English** | [中文](README.zh-CN.md) · [Install](docs/LOCAL_SETUP.md) · [Release v0.1.0](https://github.com/zz11ss11zz/codex-skill-manager/releases/tag/v0.1.0) · [Apache-2.0](LICENSE)
 
-![30-second dashboard walkthrough with synthetic data](docs/media/demo.gif)
+![30-second dashboard walkthrough with synthetic data](docs/media/en/demo.gif)
 
-*Actual dashboard UI in a browser demonstration host, using synthetic records. This is not a native Codex recording or real user activity. [Static screenshot](docs/media/dashboard-skills.png) · [Demo provenance](docs/media/README.md). The Chinese adoption heading includes a wording correction made after v0.1.0.*
+*Actual dashboard UI in a browser demonstration host, using synthetic records. This is not a native Codex recording or real user activity. [Static screenshot](docs/media/en/dashboard-skills.png) · [Demo provenance](docs/media/README.md). The demo includes localization corrections made after v0.1.0.*
 
 ## What it helps you do
 

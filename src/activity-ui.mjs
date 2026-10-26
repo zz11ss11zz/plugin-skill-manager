@@ -101,7 +101,7 @@ export function createActivityPanel(root, locale = 'zh') {
       const maxCount = Math.max(1, ...ranked.all.map(e => e.total));
       ranked.all.forEach((entry, index) => {
         const level = entry.total ? Math.min(4, Math.max(1, Math.ceil(4 * entry.total / maxCount))) : 0;
-        const description = `${entry.name} · ${entry.detail}：${entry.unknown ? t("无覆盖或归属不明，不能判断使用量") : t("{0} 次{1}{2}", entry.total, label, entry.total ? '' : t("（已覆盖期间无记录）"))}`;
+        const description = `${entry.name} · ${t(entry.detail)}：${entry.unknown ? t("无覆盖或归属不明，不能判断使用量") : t("{0} 次{1}{2}", entry.total, label, entry.total ? '' : t("（已覆盖期间无记录）"))}`;
         const cell = node('button', undefined, `heat-cell entity-cell ${entry.unknown ? 'heat-unknown' : `level-${level}`}`); cell.type = 'button';
         cell.title = description; cell.setAttribute('aria-label', t("第 {0} 名，{1}", index + 1, description));
         for (const event of ['mouseenter', 'focus', 'click']) cell.addEventListener(event, () => { entityTip.textContent = description; });
@@ -115,7 +115,7 @@ export function createActivityPanel(root, locale = 'zh') {
       const list = node('ol', undefined, 'activity-ranking');
       for (const entry of entries) {
         const item = node('li'), badge = node('span', entry.name.slice(0, 2).toUpperCase(), 'activity-avatar'), copy = node('div');
-        copy.append(node('strong', entry.name), node('span', entry.detail, 'ranking-detail'));
+        copy.append(node('strong', entry.name), node('span', t(entry.detail), 'ranking-detail'));
         item.append(badge, copy, node('span', t("{0} 次", entry.total), 'ranking-count')); list.append(item);
       }
       if (!entries.length) section.append(node('p', !view.ready ? t("统计暂不可读取，不将失败当作零。") : adopting && !usage?.coverage?.from ? t("尚未收到采用记录，暂不生成排名。") : calling && !usage?.coverage?.from ? t("尚未收到插件调用记录。") : view.ready ? t("当前范围没有符合条件的项目。") : t("尚无统计，不将未知当作零。"), 'activity-note')); else section.append(list);

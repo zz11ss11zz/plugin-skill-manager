@@ -25,6 +25,7 @@ function setLocale(context = {}) {
   t = translator(locale);
   document.documentElement.lang = locale;
   document.title = t('能力管理器');
+  document.querySelector('#app-version').textContent = t('版本 {0}', `v${packageInfo.version}`);
   document.querySelector('h1').textContent = t('能力管理器');
   document.querySelector('header p').textContent = t('查看本地技能文件与来源证据。');
   document.querySelector('#activity-panel').setAttribute('aria-label', t('使用活动热力图与排名'));

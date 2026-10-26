@@ -3,6 +3,7 @@ export function resolveLocale(host, fallback = 'en') {
   return /^zh(?:[-_]|$)/i.test(value) ? 'zh' : 'en';
 }
 export const english = {
+  "版本 {0}": "Version {0}", "用户技能": "User skill", "系统技能": "System skill", "独立插件工具调用记录": "Recorded plugin tool calls",
   "插件工具调用": "Plugin tool calls",
   "活动类型": "Activity type", "插件": "Plugins", "活动年份": "Activity year",
   "将鼠标移到日期上，或用键盘选择日期查看使用量。": "Hover over a date or select it with the keyboard to view activity.",
