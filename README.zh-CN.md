@@ -4,7 +4,7 @@
 
 当前正式版本：**v0.3.1**。从旧标识 `codex-skill-manager` 升级时，请先看[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
 
-**当前 main 已包含后续界面更新：**仅保留活动和管理两页，管理页支持点击来源统计筛选、自动核对安装状态和紧凑操作按钮；紫色仅用于热力图色阶。这些改动尚未包含在 v0.3.1 发布 ZIP 或下方历史演示动画中。
+**当前 main 已包含后续界面更新：**仅保留活动和管理两页，管理页支持点击来源统计筛选、自动核对安装状态和紧凑操作按钮；紫色仅用于热力图色阶。下方动画展示当前 main；这些改动尚未包含在 v0.3.1 发布 ZIP 中。
 
 **给已记录的 Skill 采用和插件调用，一张看得懂的活动面板。**
 
@@ -12,9 +12,9 @@
 
 [下载安装](docs/DISTRIBUTION.md) · [v0.3.1](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.1) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
-![v0.3.1 演示：单日排序、精简观察区、备注和记录接入](docs/media/v031/zh/demo.gif)
+![当前 main 演示：紫色活动热力图、来源分类、搜索与备注](docs/media/main-20261027/zh/demo.gif)
 
-2026-10-27 更新：六个实际 v0.3.1 浏览器界面状态，每帧 5 秒循环播放。数据与显示路径均为合成示例；这是截图序列动画，不是 Codex 原生侧栏录屏或官方审核视频。[单日排序](docs/media/v031/zh/02-daily-pinned.png) · [精简观察区](docs/media/v031/zh/03-observation.png) · [素材说明与复现](docs/media/README.md)。
+2026-10-27 更新：30 秒展示当前 main 的插件调用、Skill 采用、管理总览、个人技能筛选、分类内搜索与来源详情。六张实际浏览器截图，每帧 5 秒；数据与路径均为合成示例。界面包版本仍显示 v0.3.1，但本次源码预览比已发布 ZIP 更新。[素材说明与复现](docs/media/README.md)。
 
 ## 能帮你做什么
 

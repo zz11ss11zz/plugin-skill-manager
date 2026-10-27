@@ -1,10 +1,20 @@
 # Demo assets
 
-## Historical release demo used in README: v0.3.1
+## Current main demo — 2026-10-27
+
+Both READMEs use `main-20261027/<en|zh>/demo.gif`, captured from source commit `1e81af2a0d18e0b80ee3a943753abd722d095b51`. The package badge still reads v0.3.1; the demonstrated changes are unreleased and are not in the v0.3.1 ZIPs.
+
+The six states show plugin-call heatmaps, Skill-adoption heatmaps, Manage with all source totals, the personal-Skill category, a search for `report-demo`, and expanded source/notes. There are only Activity and Manage views. All inventory, activity and displayed paths are synthetic. Original descriptions retain their source language.
+
+Each GIF contains six 1280 × 720 browser screenshots at five seconds per frame (30 seconds total, infinite loop). Pillow encodes a 192-color palette without dithering, disposal 2. No UI text or numbers are painted onto screenshots; the visible DEMO banner is retained. These are screenshot walkthroughs, not native Codex recordings or official review evidence. `main-20261027/capture.json` records source revision, duration, dimensions and asset hashes.
+
+To reproduce, run `npm ci`, `npm run build`, then `node scripts/demo.mjs --lang=en` or `node scripts/demo.mjs --lang=zh`. Open the printed local URL, capture the default plugin view, select Skill, then Manage, Personal skills, search `report-demo`, and expand Source and notes. Wait for each updated view to paint before capture. Type `q` in the demo terminal to stop it. Coverage dates depend on capture date.
+
+## Historical release demo: v0.3.1
 
 Current main has since removed the Setup page and added clickable source totals, automatic installation checks and violet heatmaps. The v0.3.1 captures below are retained as release history and do not depict the latest main UI.
 
-Captured 2026-10-27 from the actual v0.3.1 UI with the local synthetic AppBridge harness. Both READMEs now use `v031/<en|zh>/demo.gif`: six unaltered 1280 × 720 browser screenshots, five seconds each, looping for 30 seconds. The visible synthetic-browser label is retained. These assets are not native desktop recordings, real user activity, or official submission evidence.
+Captured 2026-10-27 from the actual v0.3.1 UI with the local synthetic AppBridge harness. Earlier READMEs used `v031/<en|zh>/demo.gif`: six unaltered 1280 × 720 browser screenshots, five seconds each, looping for 30 seconds. The visible synthetic-browser label is retained. These assets are not native desktop recordings, real user activity, or official submission evidence.
 
 | Frame | Demonstrated state |
 | --- | --- |

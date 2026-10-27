@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-27",
+  "source_commit": "1e81af2a0d18e0b80ee3a943753abd722d095b51",
+  "scope": "Synthetic browser AppBridge host; not native Codex acceptance or a new release. UI still reports package version 0.3.1.",
+  "frames": [
+    "01-plugins",
+    "02-skills",
+    "03-manage",
+    "04-personal",
+    "05-search",
+    "06-details"
+  ],
+  "size": [
+    1280,
+    720
+  ],
+  "frame_duration_ms": 5000,
+  "loop": 0,
+  "assets": {
+    "en": {
+      "sha256": "f0f6215898cbb7aae1eabbcb5eedb565d823341180f75ad82bc353dbc4496c81",
+      "bytes": 793822
+    },
+    "zh": {
+      "sha256": "9f8b842b5d2cf546ee9232f6b94fd06da8318d78da317f4adc130ee1229075e6",
+      "bytes": 700458
+    }
+  }
+}

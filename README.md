@@ -2,7 +2,7 @@
 
 Current release: **v0.3.1**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
-**Current main includes newer UI changes:** Activity and Manage are the only views; Manage has clickable source totals, automatic installation checks, and compact controls. Violet is limited to the heatmap color scale. These changes are not yet in the v0.3.1 release ZIPs or the historical animation below.
+**Current main includes newer UI changes:** Activity and Manage are the only views; Manage has clickable source totals, automatic installation checks, and compact controls. Violet is limited to the heatmap color scale. The animation below shows current main; these changes are not yet in the v0.3.1 release ZIPs.
 
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
 
@@ -10,9 +10,9 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 
 **English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.3.1](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.1) · [Apache-2.0](LICENSE)
 
-![v0.3.1: daily rankings, compact observation, notes and recording setup](docs/media/v031/en/demo.gif)
+![Current main: violet activity heatmaps, source categories, search and notes](docs/media/main-20261027/en/demo.gif)
 
-*Updated 2026-10-27: six actual v0.3.1 browser UI states, five seconds each. Synthetic records and example paths only; this is a looping screenshot walkthrough, not a native Codex recording or an official review video. [Daily ranking](docs/media/v031/en/02-daily-pinned.png) · [Compact observation](docs/media/v031/en/03-observation.png) · [Source and capture details](docs/media/README.md).*
+*Updated 2026-10-27: a 30-second walkthrough of current main—plugin calls, Skill adoptions, Manage, personal Skills, category search, and source details. Six actual browser screenshots, five seconds each; synthetic records and example paths only. The package badge still says v0.3.1; this source preview is newer than the released ZIPs. [Capture and reproduction details](docs/media/README.md).*
 
 ## What it helps you do
 
