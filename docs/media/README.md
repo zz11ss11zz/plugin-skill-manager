@@ -2,7 +2,7 @@
 
 ## Current main demo — 2026-10-27
 
-Both READMEs use `main-20261027/<en|zh>/demo.gif`, captured from source commit `1e81af2a0d18e0b80ee3a943753abd722d095b51`. The package badge still reads v0.3.1; the demonstrated changes are unreleased and are not in the v0.3.1 ZIPs.
+Both READMEs use `main-20261027/<en|zh>/demo.gif`, captured from source commit `1e81af2a0d18e0b80ee3a943753abd722d095b51`. The package badge still reads v0.3.1; the demonstrated changes are included in v0.3.2, but not in the v0.3.1 ZIPs.
 
 The six states show plugin-call heatmaps, Skill-adoption heatmaps, Manage with all source totals, the personal-Skill category, a search for `report-demo`, and expanded source/notes. There are only Activity and Manage views. All inventory, activity and displayed paths are synthetic. Original descriptions retain their source language.
 

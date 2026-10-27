@@ -1,18 +1,18 @@
 # Plugin & Skill Manager
 
-Current release: **v0.3.1**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
+Current release: **v0.3.2**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
-**Current main includes newer UI changes:** Activity and Manage are the only views; Manage has clickable source totals, automatic installation checks, and compact controls. Violet is limited to the heatmap color scale. The animation below shows current main; these changes are not yet in the v0.3.1 release ZIPs.
+**New in v0.3.2:** Activity and Manage are the only views. Manage has clickable Skill source totals, category search, cached automatic installation checks and compact controls. Violet is limited to the heatmap color scale.
 
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.3.1](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.1) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.3.2](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.2) · [Apache-2.0](LICENSE)
 
 ![Current main: violet activity heatmaps, source categories, search and notes](docs/media/main-20261027/en/demo.gif)
 
-*Updated 2026-10-27: a 30-second walkthrough of current main—plugin calls, Skill adoptions, Manage, personal Skills, category search, and source details. Six actual browser screenshots, five seconds each; synthetic records and example paths only. The package badge still says v0.3.1; this source preview is newer than the released ZIPs. [Capture and reproduction details](docs/media/README.md).*
+*Updated 2026-10-27: a 30-second walkthrough of current main—plugin calls, Skill adoptions, Manage, personal Skills, category search, and source details. Six actual browser screenshots, five seconds each; synthetic records and example paths only. Captured before the version bump: the badge says v0.3.1, while the shown interface is included in v0.3.2. [Capture and reproduction details](docs/media/README.md).*
 
 ## What it helps you do
 
@@ -30,20 +30,20 @@ The complete product combines a **local MCP service, an activity UI, and a compa
 
 Tested on Windows. Requires Node.js 20.18+ and the Codex CLI on PATH. This is an independent project, not an official OpenAI product or an official-directory listing.
 
-Download the [v0.3.1 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.3.1/plugin-skill-manager-0.3.1-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
+Download the [v0.3.2 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.3.2/plugin-skill-manager-0.3.2-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-The check should show the installed 0.3.1 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
+The check should show the installed 0.3.2 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
 
-62 regression tests and seven isolated 0.3.1 plugin lifecycle checks have passed. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
+64 regression tests and seven isolated 0.3.1-to-0.3.2 installation/upgrade lifecycle checks passed. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
 
 ## Official directory status
 
-As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
+The **v0.3.2 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
 
 ## Optional: companion Skill
 

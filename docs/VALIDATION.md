@@ -398,3 +398,11 @@
 - Windows Node.js 20.18.1: 64 tests passed with SKILL_MANAGER_TEST_CODEX=1, zero skipped. The tests include automatic-check caching/retry, source grouping/filtering, localization and standalone package/MCP startup. Updated capture and UI acceptance scripts passed syntax checks; this run used browser-controller interactions instead of executing those scripts.
 - Synthetic preview now injects its own plugin-call store. Generated plugin manifests include the author name and verify consistency with the developer name.
 - Published v0.3.1 ZIPs and historical demo captures are unchanged; README and media documentation distinguish this main-branch update from the released package. Browser verification does not establish native-host acceptance.
+
+## 2026-10-27 v0.3.2 release validation
+
+- Release source was reconstructed from the verified public snapshot and subsequent published commits; its full recursive Git tree hash matched main at 5d6da7ab602b197f65c64f84a2e09f5b2b1a59d6 before the release edits. No private logs or machine-specific validation files were added.
+- Updated package/lock to 0.3.2 and generated manifest publication notes. Author.name matches developerName. The source contains the two-view UI, source totals/category search, cached automatic checks, compact controls and violet heatmaps already exercised in the synthetic bilingual browser walkthrough.
+- Full regression: 64 passed, 0 failed, 0 skipped with SKILL_MANAGER_TEST_CODEX=1. Standalone bundle MCP handshake, 12 tools, resource/version consistency and persistent restart records passed.
+- Seven isolated real-CLI lifecycle checks passed using Codex CLI 0.163.0-alpha.11.2: install; app-server Skill discovery; cached server/resource and restart persistence; rejection of implicit source changes; explicit 0.3.1-to-0.3.2 source replacement retaining data; uninstall retention; reinstall retention. All test records were synthetic and isolated.
+- Native desktop conversational/UI review was not performed. No v0.3.2 portal upload, policy attestation, review submission or official directory publication is claimed. Organization local-MCP eligibility remains an external requirement.

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.2 — 2026-10-27
 
 - Keep only Activity and Manage in both languages; retain the setup Skill and recording diagnostic tool without a separate Setup page.
 - Add clickable source totals for personal, system and plugin-cache Skills, with category search and responsive neutral styling.

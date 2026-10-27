@@ -29,7 +29,7 @@ const manifest = {
     onboardingSkill: './skills/setup/SKILL.md',
     interface: JSON.parse(await readFile('packaging/interface.json', 'utf8')),
     review: { test_cases: JSON.parse(await readFile('packaging/review-cases.json', 'utf8')) },
-    publication: { release_notes: 'Compact bilingual observation area and inventory action. Data and counting rules are unchanged. Native desktop review remains pending.' },
+    publication: { release_notes: 'Version 0.3.2: Activity and Manage views, clickable Skill source totals and category search, cached automatic installation checks, compact controls and violet heatmaps. English accessibility labels and author metadata are corrected. Counting and stored data formats are unchanged. Native desktop review remains pending.' },
   } },
 };
 const mcp = { mcpServers: { 'plugin-skill-manager': { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}' } } };

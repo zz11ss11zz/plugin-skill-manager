@@ -2,19 +2,19 @@
 
 # Plugin & Skill Manager
 
-当前正式版本：**v0.3.1**。从旧标识 `codex-skill-manager` 升级时，请先看[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
+当前正式版本：**v0.3.2**。从旧标识 `codex-skill-manager` 升级时，请先看[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
 
-**当前 main 已包含后续界面更新：**仅保留活动和管理两页，管理页支持点击来源统计筛选、自动核对安装状态和紧凑操作按钮；紫色仅用于热力图色阶。下方动画展示当前 main；这些改动尚未包含在 v0.3.1 发布 ZIP 中。
+**v0.3.2 更新：**仅保留活动和管理两页，管理页支持点击 Skill 来源统计筛选、分类内搜索、缓存自动安装检查和紧凑操作按钮；紫色仅用于热力图色阶。
 
 **给已记录的 Skill 采用和插件调用，一张看得懂的活动面板。**
 
 查看日期热力图、按时间筛选排名，分别理解 Skill 采用与插件调用尝试。记录保存在本机。
 
-[下载安装](docs/DISTRIBUTION.md) · [v0.3.1](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.1) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
+[下载安装](docs/DISTRIBUTION.md) · [v0.3.2](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.2) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
 ![当前 main 演示：紫色活动热力图、来源分类、搜索与备注](docs/media/main-20261027/zh/demo.gif)
 
-2026-10-27 更新：30 秒展示当前 main 的插件调用、Skill 采用、管理总览、个人技能筛选、分类内搜索与来源详情。六张实际浏览器截图，每帧 5 秒；数据与路径均为合成示例。界面包版本仍显示 v0.3.1，但本次源码预览比已发布 ZIP 更新。[素材说明与复现](docs/media/README.md)。
+2026-10-27 更新：30 秒展示当前 main 的插件调用、Skill 采用、管理总览、个人技能筛选、分类内搜索与来源详情。六张实际浏览器截图，每帧 5 秒；数据与路径均为合成示例。动画采集于升版前，版本标记仍显示 v0.3.1；所示界面已包含在 v0.3.2 中。[素材说明与复现](docs/media/README.md)。
 
 ## 能帮你做什么
 
@@ -32,18 +32,20 @@
 
 已验证环境为 Windows，需要 Node.js 20.18+ 和 PATH 中可用的 Codex CLI。本项目为独立开源项目，不是 OpenAI 官方产品，尚未上架官方插件目录。
 
-下载 [v0.3.1 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.3.1/plugin-skill-manager-0.3.1-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
+下载 [v0.3.2 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.3.2/plugin-skill-manager-0.3.2-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-检查结果应显示已安装并启用的 0.3.1 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
+检查结果应显示已安装并启用的 0.3.2 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
-62 项回归与 7 项隔离的 0.3.1 插件生命周期检查通过。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
+本版 64 项回归与 7 项隔离的 0.3.1 → 0.3.2 安装升级生命周期检查通过。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
 ## 官方目录状态
+
+本次提供独立的 **v0.3.2 desktop-package.zip 提交包**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的 plugin.zip。
 
 截至 2026-10-27，**0.3.1 草稿已上传**，尚未提交审核、获批或发布。门户当前提示暂不接受更多 skills-only 提交，本地 MCP 服务的识别与准入仍待确认。GitHub 发布包可手动安装；保存草稿不等于官方上架。
 

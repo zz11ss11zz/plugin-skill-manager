@@ -1,6 +1,14 @@
 # Official submission preparation / 官方提交准备
 
-Prepared 2026-10-26 for 0.3.1. **Not submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
+Prepared 2026-10-27 for 0.3.2. **This version has not been uploaded, submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
+
+## v0.3.2 package selection
+
+Upload **plugin-skill-manager-0.3.2-desktop-package.zip** from the v0.3.2 release. It has `plugin.json`, `mcp.json`, two Skills, assets and the bundled runtime at the ZIP root. The author is Zishen Wang, matching the listing developer name. The build includes the two-view UI, source categories/search, automatic cached checks and violet heatmaps. Keep the local MCP configuration intact.
+
+The separate `plugin-skill-manager-0.3.2-plugin.zip` is for manual installation, not portal upload. The source ZIP is for development. Verify the selected file with `SHA256SUMS-0.3.2.txt`.
+
+The earlier 0.3.1 portal draft was uploaded but not submitted, approved or published; the portal reported that it was not accepting more skills-only submissions. The previous attempt notes below are historical. Uploading this new version does not resolve local-MCP eligibility or missing native review evidence. Current official desktop-only guidance was rechecked on 2026-10-27 and still requires organization allowlisting.
 
 ## Package and listing
 
@@ -26,7 +34,7 @@ The WebM is a sequence of real browser UI states, not a native desktop screen re
 4. Record a reviewer-accessible native walkthrough covering the review cases, then supply `review.demo_recording_url`. The browser demonstration is supporting material, not a substitute for missing native evidence.
 5. Check imported portal metadata, target availability and any actual required fields. The publisher must make the policy attestations based on verified facts. Submit and publish only after prerequisites and review are satisfied.
 
-No upload, submission, organization message, policy attestation or directory publication has been performed.
+For v0.3.2, no upload, submission, organization message, policy attestation or directory publication has been performed.
 
 ## Official references
 
