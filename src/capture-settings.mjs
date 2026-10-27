@@ -43,6 +43,10 @@ export class CaptureController {
   async refresh() {
     this.current = await this.settings.read();
     if (!this.current.enabled) return null;
+    const coverage = (await this.collector.status()).coverage;
+    // Visible-panel queries and other service instances must honor the same interval.
+    const checkedAt = Date.parse(coverage?.checkedAt);
+    if (Number.isFinite(checkedAt) && Date.now() - checkedAt < this.current.intervalSeconds * 1000) return coverage;
     return this.collector.refresh();
   }
   async info() {

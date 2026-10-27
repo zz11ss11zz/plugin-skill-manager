@@ -38,3 +38,12 @@ test('controller consults shared settings, stops future reads on disable and rep
     assert.equal((await controller.info()).lastError, 'unreadable');
   } finally { await rm(root, { recursive: true, force: true }); }
 });
+
+test('panel refreshes and multiple instances honor the shared capture interval', async () => {
+  let reads = 0, coverage = null;
+  const settings = { read: async () => ({ enabled: true, intervalSeconds: 60 }) };
+  const collector = { status: async () => ({ coverage }), refresh: async () => { reads++; coverage = { checkedAt: new Date().toISOString(), pendingBytes: 0 }; return coverage; } };
+  const first = new CaptureController(collector, settings), second = new CaptureController(collector, settings);
+  await first.refresh(); await first.refresh(); await second.refresh();
+  assert.equal(reads, 1);
+});

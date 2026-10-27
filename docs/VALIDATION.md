@@ -409,9 +409,11 @@
 
 ## Automatic local capture on main (after v0.3.2)
 
-- Windows / Node.js 24.14.0: 70 tests passed, zero failed or skipped with SKILL_MANAGER_TEST_CODEX=1. The portable test runner explicitly lists files and serializes filesystem fixtures.
+- Windows / Node.js 24.14.0: 71 tests passed, zero failed or skipped with SKILL_MANAGER_TEST_CODEX=1. The portable test runner explicitly lists files and serializes filesystem fixtures.
 - Synthetic host-event tests exclude prose, wrapper source and tool-result text; cover original timestamps, failed attempts, cross-session replay, archive moves, truncation, partial lines, corruption preservation, write retry and duplicate concurrent requests. No personal activity data is committed.
 - The standalone generated plugin was tested with an isolated CODEX_HOME: configure automatic capture, append a synthetic host event, wait without query/open calls, observe the background ledger write, disable, restart and verify retained configuration/counts.
 - Persistent configuration defaults off, respects explicit opt-in/disable, supports 5–3600 seconds, overrides legacy environment defaults and preserves corrupt files. Polling uses filesystem/Node timers and makes no model/network calls.
 - Full regression exposed intermittent Windows EPERM when atomically publishing a new migrated directory. Publication now retries only EPERM/EACCES up to three times while the destination remains absent and staging exists. Existing destinations are never removed or overwritten; an injected regression covers the retry bound.
 - Added Windows Node 20.18.1/24 GitHub Actions checks. CI outcomes must be read from the PR; local results alone do not prove CI success. Native Codex sidebar visual acceptance and unlogged remote events remain outside this verification. Existing v0.3.2 Release assets are unchanged.
+
+- Panel refreshes and multiple service instances honor the shared persisted collection interval, so a visible panel cannot force 10-second log scans when collection is set to 60 seconds. Windows Node 20.18.1/24 CI passed for the initial PR revision; checks are rerun for the interval fix.
