@@ -88,7 +88,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     const markPinned = () => {
       for (const [date, button] of dateButtons) {
         button.setAttribute('aria-pressed', String(date === pinnedDate));
-        button.style.boxShadow = date === pinnedDate ? '0 0 0 2px #183b6b' : '';
+        button.style.boxShadow = date === pinnedDate ? '0 0 0 2px var(--focus)' : '';
       }
     };
     for (const date of dates) {
@@ -140,7 +140,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
       rankingView = ranked;
       const coverage = ranked.coverage;
       const scope = coverage.hasOverlap ? t("统计覆盖 {0} 至 {1}{2}", coverage.effectiveFrom, coverage.effectiveTo, coverage.incomplete ? t("（数据不完整）") : '') : t("所选日期无统计覆盖");
-      entityCaption.textContent = t("{0} 至 {1} · {2} · 已记录 {3} 次{4} · 每格一项，从左到右、从上到下按次数降序 · 颜色越深次数越多", dateFrom.value, dateTo.value, scope, ranked.total, label);
+      entityCaption.textContent = t("{0} 至 {1} · {2} · 已记录 {3} 次{4} · 每格一项，从左到右、从上到下按次数降序 · 色阶表示次数，参见图例", dateFrom.value, dateTo.value, scope, ranked.total, label);
       if (!ranked.ready) entityCaption.textContent = t("统计暂不可读取，不将失败当作零。");
       renderGrid(entityGrid, entityTip, ranked, label);
     }
@@ -234,3 +234,4 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
   };
   return update;
 }
+

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Keep only Activity and Manage in both languages; retain the setup Skill and recording diagnostic tool without a separate Setup page.
+- Add clickable source totals for personal, system and plugin-cache Skills, with category search and responsive neutral styling.
+- Check plugin installation status automatically on entering Manage, cache results for one minute, and offer retry on failure.
+- Use compact outlined actions and a violet heatmap color scale; preserve the gray/blue interface palette outside the heatmap.
+- Localize navigation accessibility labels and singular file counts; update synthetic UI scripts for the new controls and isolate preview plugin-call records.
+- Include the author name in generated plugin manifests and verify it against the declared developer name.
+
 ## 0.3.1 — 2026-10-26
 
 - Simplify the low-use observation area in both English and Chinese; move detailed rules into a collapsed explanation.

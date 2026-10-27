@@ -38,13 +38,10 @@ try {
   await frame.getByLabel(t('Start date', '开始日期'), { exact: true }).fill('2026-06-01');
   await frame.getByLabel(t('End date', '结束日期'), { exact: true }).fill('2026-06-30');
   await shot('filtered', t('Filter Skill adoptions by date', '按日期筛选 Skill 采用'));
-  await frame.getByRole('button', { name: t('Setup', '接入'), exact: true }).click();
-  await frame.getByRole('button', { name: t('Check recording status', '检查记录状态'), exact: true }).click();
-  await frame.getByText(zh ? /最近接收/ : /Latest received/).first().waitFor();
-  await shot('setup', t('Read-only recording status', '只读检查记录接入'));
   await frame.getByRole('button', { name: t('Manage', '管理'), exact: true }).click();
-  await frame.getByLabel(t('Search name, description or path', '搜索名称、说明或路径')).fill('chart-demo');
-  await frame.getByLabel(t('Source', '来源'), { exact: true }).selectOption({ label: t('User skill', '用户技能') });
+  await frame.getByRole('button', { name: zh ? /^个人技能，/ : /^Personal skills,/ }).click();
+  await shot('sources', t('Browse Skills by source', '按来源查看 Skill'));
+  await frame.getByLabel(t('Search this category', '搜索当前分类')).fill('chart-demo');
   await frame.getByText(t('Source and notes', '来源与备注'), { exact: true }).click();
   await frame.getByLabel(t('Local note', '本地备注'), { exact: true }).fill(t('Keep this example for review.', '保留此演示技能用于复核。'));
   await frame.getByRole('button', { name: t('Save note', '保存备注'), exact: true }).click();

@@ -12,6 +12,7 @@ import { ArchiveManager } from '../src/archive.mjs';
 import { UsageIndex } from '../src/usage-index.mjs';
 import { SkillNotes } from '../src/skill-notes.mjs';
 import { Adoptions } from '../src/adoptions.mjs';
+import { PluginCalls } from '../src/plugin-calls.mjs';
 
 const temporary = await mkdtemp(path.join(os.tmpdir(), 'skill-manager-ui-'));
 const roots = { skills: path.join(temporary, 'skills'), cache: path.join(temporary, 'cache') };
@@ -37,6 +38,7 @@ for (let day = 0; day < 250; day++) {
 }
 await file('logs/activity.jsonl', activityRows.join('\n') + '\n');
 const service = createServer(roots, {
+  pluginCalls: new PluginCalls(path.join(temporary, 'plugin-calls.json')),
   adoptions: new Adoptions(path.join(temporary, 'adoptions.json')),
   skillNotes: new SkillNotes(path.join(temporary, 'notes.json')),
   archiveManager: new ArchiveManager({ roots, archiveRoot: path.join(temporary, 'archive') }),

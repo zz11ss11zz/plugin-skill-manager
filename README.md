@@ -2,6 +2,8 @@
 
 Current release: **v0.3.1**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
+**Current main includes newer UI changes:** Activity and Manage are the only views; Manage has clickable source totals, automatic installation checks, and compact controls. Violet is limited to the heatmap color scale. These changes are not yet in the v0.3.1 release ZIPs or the historical animation below.
+
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
@@ -18,8 +20,9 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 - Switch between Skill adoptions and plugin tool-call attempts without mixing the metrics.
 - Filter period rankings by date independently of the pinned day, and distinguish missing coverage from zero activity.
 - Inspect low-use candidates and items with no records in a compact observation panel. Open the counting details when needed; nothing is archived automatically.
-- Use the separate Manage view to search local inventory, inspect sources, save notes, and preview reversible Windows user-skill archives and restores.
-- Check the latest received records in Setup without creating synthetic events or changing personal instructions.
+- Click Personal skills, System skills, Skills in plugin cache, or Total in Manage to browse that category, then search within it. Counts represent Skill files, not plugins.
+- Plugin installation status is checked automatically when entering Manage, with a one-minute cache and a retry action on failure. Save notes and preview reversible Windows user-skill archives and restores in the same view.
+- The separate Setup page has been removed. The companion setup Skill and read-only recording diagnostic tool remain available in chat.
 
 The complete product combines a **local MCP service, an activity UI, and a companion Skill**. Installing the Skill alone does not install the service. Recording requires explicit caller participation; this is not an automatic host monitor. Missing records do not mean a Skill was never used.
 
@@ -93,7 +96,7 @@ Recording details: [Skill adoptions (Chinese)](docs/ADOPTION_RECORDING.md) · [P
 
 ## Privacy
 
-Runtime records are stored locally under `$CODEX_HOME/skill-manager/data-v1` (default `~/.codex/skill-manager/data-v1`); archives are separately kept under `$CODEX_HOME/skill-manager-archive`. The application adds no telemetry or upload endpoint, but MCP tool results are returned to the host and may be used in its model context under the host's policies. Explicit plugin-installation checks may contact configured marketplaces. See [privacy and data flow](docs/PRIVACY.md), [project terms](docs/TERMS.md), [support](docs/SUPPORT.md), and [migration](docs/DATA_MIGRATION.md).
+Runtime records are stored locally under `$CODEX_HOME/skill-manager/data-v1` (default `~/.codex/skill-manager/data-v1`); archives are separately kept under `$CODEX_HOME/skill-manager-archive`. The application adds no telemetry or upload endpoint, but MCP tool results are returned to the host and may be used in its model context under the host's policies. Plugin-installation checks, including automatic checks on entering Manage, may contact configured marketplaces. See [privacy and data flow](docs/PRIVACY.md), [project terms](docs/TERMS.md), [support](docs/SUPPORT.md), and [migration](docs/DATA_MIGRATION.md).
 
 The repository contains code, documentation, and synthetic test data. Public demo assets contain no personal activity records.
 

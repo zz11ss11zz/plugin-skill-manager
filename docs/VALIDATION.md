@@ -387,3 +387,14 @@
 - Seven isolated real-CLI lifecycle checks passed for the public v0.3.0 distribution upgraded to v0.3.1, including installed-cache MCP/UI startup, explicit source relocation and data retention across restart/uninstall/reinstall. Synthetic data only; native desktop interactions were not exercised.
 - Browser QA of the same UI changes covered plugin/Skill switching, inventory checks, collapsed/expanded explanations and a 360px frame without observation-heading overflow. English translation and language-switch checks passed. This is supporting browser evidence, not native review footage.
 - GitHub distribution is separate from official-directory submission. Local-MCP organization eligibility, reviewer-accessible walkthrough and actual portal review status remain unconfirmed.
+
+## 2026-10-27 bilingual UI update (main, unreleased)
+
+- Activity and Manage are the only views. The recording diagnostic tool and companion setup Skill remain available; the redundant Setup page is removed.
+- Source totals group personal roots, system Skills and plugin-cache Skills. Clicking a row filters the list; searches stay within that category and never alter the summary totals. Unknown sources remain visible if present.
+- Installation checks run when entering Manage, with a 60-second cache, in-flight deduplication and failure retry. No periodic background polling or automatic chat import was added.
+- Compact outlined controls and neutral source rows replace large blue buttons. Violet is confined to the heatmap scale; navigation, focus and text retain gray/blue styling. Both theme palettes remain available.
+- English browser validation exercised all source rows, category search, two-view navigation and 360px layout (345px content width and scroll width). Navigation accessibility labels and singular Skill-file counts were corrected. User-authored metadata is not translated.
+- Windows Node.js 20.18.1: 64 tests passed with SKILL_MANAGER_TEST_CODEX=1, zero skipped. The tests include automatic-check caching/retry, source grouping/filtering, localization and standalone package/MCP startup. Updated capture and UI acceptance scripts passed syntax checks; this run used browser-controller interactions instead of executing those scripts.
+- Synthetic preview now injects its own plugin-call store. Generated plugin manifests include the author name and verify consistency with the developer name.
+- Published v0.3.1 ZIPs and historical demo captures are unchanged; README and media documentation distinguish this main-branch update from the released package. Browser verification does not establish native-host acceptance.

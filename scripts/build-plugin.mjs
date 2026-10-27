@@ -23,6 +23,7 @@ const bundle = await build({
 const manifest = {
   $schema: 'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json',
   name: pkg.name, version: pkg.version, description: 'Local skill inventory and adoption records for Codex.',
+  author: { name: 'Zishen Wang' },
   license: 'Apache-2.0', repository: 'https://github.com/zz11ss11zz/plugin-skill-manager',
   extensions: { 'com.openai': {
     onboardingSkill: './skills/setup/SKILL.md',

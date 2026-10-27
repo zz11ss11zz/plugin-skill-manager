@@ -52,7 +52,7 @@ export const english = {
   "请选择 {0} 年内有效的起止日期，开始日期不得晚于结束日期。": "Choose valid dates within {0}; the start must not be after the end.",
   "统计覆盖 {0} 至 {1}{2}": "Coverage: {0} to {1}{2}",
   "（数据不完整）": " (incomplete data)", "所选日期无统计覆盖": "No coverage for the selected dates",
-  "{0} 至 {1} · {2} · 已记录 {3} 次{4} · 每格一项，从左到右、从上到下按次数降序 · 颜色越深次数越多": "{0} to {1} · {2} · {3} recorded {4} · One item per cell, descending left to right and top to bottom · Darker means more",
+  "{0} 至 {1} · {2} · 已记录 {3} 次{4} · 每格一项，从左到右、从上到下按次数降序 · 色阶表示次数，参见图例": "{0} to {1} · {2} · {3} recorded {4} · One item per cell, descending left to right and top to bottom · Color indicates count; see legend",
   "无覆盖或归属不明，不能判断使用量": "Coverage or attribution unknown; activity cannot be determined",
   "{0} 次{1}{2}": "{0} {1}{2}", "（已覆盖期间无记录）": " (no records in the covered period)",
   "第 {0} 名，{1}": "Rank {0}, {1}", "当前没有可展示的项目。": "No items to display.",
@@ -83,3 +83,4 @@ export function translator(locale) {
   return (key, ...values) => (locale === 'en' ? english[key] ?? key : key)
     .replace(/\{(\d+)\}/g, (_, i) => String(values[Number(i)] ?? ''));
 }
+

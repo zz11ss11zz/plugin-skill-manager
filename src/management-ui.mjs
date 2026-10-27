@@ -1,7 +1,30 @@
 // Management is a separate view; the activity homepage stays focused on counts.
 export function createManagementPanel(root, callTool, onInventory, initialLocale = 'zh') {
-  let locale = initialLocale, data = null, view = 'activity', busy = false, plan = null, recording = null;
+  let locale = initialLocale, data = null, view = 'activity', busy = false, plan = null;
   let search = '', source = '';
+  const checks = { manage: { at: 0, error: '', loading: false } };
+  async function checkView(force = false) {
+    const target = view, check = checks[target];
+    if (!check || busy || check.loading || (!force && check.at && Date.now() - check.at < 60000)) return;
+    check.loading = true; check.error = ''; busy = true; render();
+    try {
+      const result = await callTool({ name: 'check_plugin_status', arguments: {} });
+      if (result.isError) throw new Error(result.content?.find(c => c.type === 'text')?.text || text('检查失败', 'Check failed'));
+      const value = result.structuredContent;
+      if (value?.mode !== 'inventory') throw new Error(text('清单暂不可读取', 'Inventory unavailable'));
+      data = value; onInventory(result);
+    } catch (error) { check.error = error.message; }
+    finally { check.at = Date.now(); check.loading = false; busy = false; render(); }
+  }
+  function renderCheck() {
+    const check = checks[view];
+    if (check.loading) body.append(el('p', text('正在自动检查…', 'Checking automatically…'), 'manager-meta'));
+    else if (check.error) {
+      const warning = el('div'); warning.setAttribute('role', 'status');
+      warning.append(el('p', text('自动检查未完成：', 'Automatic check failed: ') + check.error), button(text('重试检查', 'Retry check'), () => checkView(true)));
+      body.append(warning);
+    }
+  }
   const drafts = new Map();
   const text = (zh, en) => locale === 'en' ? en : zh;
   const el = (tag, content, cls) => { const node = document.createElement(tag); if (content) node.textContent = content; if (cls) node.className = cls; return node; };
@@ -22,7 +45,7 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
       const value = result.structuredContent;
       if (value?.mode === 'inventory') { data = value; onInventory(result); }
       if (value?.mode === 'management-plan') plan = value.plan;
-      if (value?.mode === 'recording-status') recording = value;
+
       if (name === 'execute_skill_plan' || name === 'cancel_skill_plan') plan = null;
       feedback.textContent = text('已完成。', 'Done.');
       return result;
@@ -30,9 +53,10 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     finally { busy = false; render(); }
   }
   function renderNav() {
+    nav.setAttribute('aria-label', text('管理器页面', 'Manager views'));
     nav.replaceChildren();
-    for (const [id, label] of [['activity', text('活动', 'Activity')], ['manage', text('管理', 'Manage')], ['setup', text('接入', 'Setup')]]) {
-      const tab = button(label, () => { view = id; render(); });
+    for (const [id, label] of [['activity', text('活动', 'Activity')], ['manage', text('管理', 'Manage')]]) {
+      const tab = button(label, () => { view = id; render(); void checkView(); });
       tab.setAttribute('aria-pressed', String(view === id)); nav.append(tab);
     }
     activity.hidden = view !== 'activity'; body.hidden = view === 'activity';
@@ -51,8 +75,9 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
   }
   function renderList(list, count) {
     list.replaceChildren();
-    const matches = (data?.skills || []).filter(s => (!source || s.source === source) && `${s.name} ${s.description} ${s.path} ${s.owner?.name || ''}`.toLowerCase().includes(search.toLowerCase()));
-    count.textContent = text(`匹配 ${matches.length} 个文件实例`, `${matches.length} matching file instances`);
+    const category = (data?.skills || []).filter(s => !source || sourceGroup(s) === source);
+    const matches = category.filter(s => `${s.name} ${s.description} ${s.path} ${s.owner?.name || ''}`.toLowerCase().includes(search.toLowerCase()));
+    count.textContent = search ? text(`显示 ${matches.length} / ${category.length} 个 Skill 文件`, `Showing ${matches.length} of ${category.length} Skill ${category.length === 1 ? 'file' : 'files'}`) : text(`${matches.length} 个 Skill 文件`, `${matches.length} Skill ${matches.length === 1 ? 'file' : 'files'}`);
     for (const skill of matches) {
       const item = el('li'), heading = el('h3', skill.name), meta = el('p', sourceLabel(skill.source), 'manager-meta');
       item.append(heading, meta, el('p', skill.description));
@@ -78,33 +103,62 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     if (!matches.length) list.append(el('p', text('没有匹配项。可清空搜索或更换来源。', 'No matches. Clear the search or choose another source.')));
   }
   function sourceLabel(value) {
-    const labels = { '用户技能': 'User skill', '用户 .agents 技能': 'User .agents skill', '系统技能': 'System skill', '插件技能': 'Plugin skill', '插件缓存': 'Plugin cache' };
-    return locale === 'en' ? labels[value] || 'Plugin cache' : value;
+    const labels = { '用户技能': 'User skill', '用户 .agents 技能': 'User .agents skill', '系统技能': 'System skill', '插件技能': 'Plugin skill', '插件缓存': 'Plugin cache', '插件缓存技能': 'Plugin cache' };
+    return locale === 'en' ? labels[value] || value : value;
+  }
+  function sourceGroup(skill) {
+    if (['用户技能', '用户 .agents 技能'].includes(skill.source)) return 'personal';
+    if (skill.source === '系统技能') return 'system';
+    if (skill.owner || ['插件技能', '插件缓存', '插件缓存技能'].includes(skill.source)) return 'plugins';
+    return 'other';
+  }
+  function groupLabel(group) {
+    return ({personal:text('个人技能', 'Personal skills'),system:text('系统技能', 'System skills'),plugins:text('插件缓存中的技能', 'Skills in plugin cache'),other:text('其他来源', 'Other sources'),'':text('全部 Skill', 'All Skills')})[group];
+  }
+  function renderSources() {
+    const skills = data?.skills || [], groups = ['personal', 'system', 'plugins'];
+    if (skills.some(s => sourceGroup(s) === 'other')) groups.push('other');
+    const table = el('table', '', 'source-summary');
+    table.setAttribute('aria-label', text('按来源查看 Skill', 'Browse Skills by source'));
+    const head = el('thead'), headings = el('tr');
+    for (const label of [text('来源', 'Source'), text('Skill 文件数', 'Skill files')]) {
+      const th = el('th', label); th.setAttribute('scope', 'col'); headings.append(th);
+    }
+    head.append(headings); table.append(head);
+    const rows = el('tbody');
+    for (const group of [...groups, '']) {
+      const total = group ? skills.filter(s => sourceGroup(s) === group).length : skills.length;
+      const label = group ? groupLabel(group) : text('合计', 'Total');
+      const row = el('tr', '', group ? '' : 'source-total'), cell = el('td'); cell.setAttribute('colspan', '2');
+      const action = button('', () => {
+        source = group; search = ''; render();
+        body.querySelector?.(`[data-source="${group}"]`)?.focus();
+      });
+      action.className = 'source-choice'; action.setAttribute('data-source', group);
+      action.setAttribute('aria-pressed', String(source === group));
+      action.setAttribute('aria-label', text(`${label}，${total} 个 Skill 文件`, `${label}, ${total} Skill ${total === 1 ? 'file' : 'files'}`));
+      action.append(el('span', label), el('span', String(total), 'source-count'));
+      cell.append(action); row.append(cell); rows.append(row);
+    }
+    table.append(rows); body.append(table);
+    body.append(el('p', text('点击来源查看下方列表。缓存中的技能不代表插件当前已启用。', 'Choose a source to filter the list below. Cached Skills do not confirm that a plugin is enabled.'), 'source-hint'));
   }
   function render() {
     renderNav(); body.replaceChildren(); if (view === 'activity') return;
-    if (view === 'setup') {
-      body.append(el('h2', text('记录接入', 'Recording setup')), el('p', text('只统计调用方主动报送的记录，不自动监听所有会话。空记录不代表没有活动。', 'Counts include caller-reported records only. Other chats are not monitored automatically; empty records do not mean no activity.')));
-      body.append(button(text('检查记录状态', 'Check recording status'), () => invoke('check_recording_status')));
-      if (recording) for (const [key, label] of [['adoptions', text('Skill 采用', 'Skill adoptions')], ['pluginCalls', text('插件调用尝试', 'Plugin call attempts')]]) {
-        const r = recording[key];
-        body.append(el('p', `${label}: ${r.state === 'unavailable' ? text('暂不可读取', 'Unavailable') : r.state === 'empty' ? text('尚未收到记录', 'No records received') : `${r.count} / ${text('最近接收', 'Latest received')}: ${r.latestReceivedAt}`}`));
-      }
-      body.append(el('p', text('请在聊天中运行本插件的 setup Skill，检查服务并为选定项目配置记录约定。仅安装插件不会自动修改你的个人规则。', 'Run this plugin’s setup Skill in chat to check the service and configure recording for your chosen project. Installing the plugin does not change your personal instructions.')));
-      return;
-    }
-    body.append(el('h2', text('技能清单', 'Skill inventory')));
-    body.append(button(text('刷新清单', 'Refresh inventory'), () => invoke('open_skill_manager')), button(text('核对插件状态', 'Check plugin status'), () => invoke('check_plugin_status')));
+    const toolbar = el('div', '', 'manager-toolbar'), actions = el('div', '', 'manager-actions');
+    actions.append(button(text('刷新清单', 'Refresh inventory'), () => invoke('open_skill_manager')));
+    toolbar.append(el('h2', text('技能清单', 'Skill inventory')), actions); body.append(toolbar);
+    renderCheck();
     renderPlan();
-    const filters = el('div', '', 'manager-filters'), searchLabel = el('label', text('搜索名称、说明或路径', 'Search name, description or path')), input = el('input');
+    renderSources();
+    const filters = el('div', '', 'manager-filters'), searchLabel = el('label', text('搜索当前分类', 'Search this category')), input = el('input');
     input.type = 'search'; input.value = search; searchLabel.append(input);
-    const sourceLabelNode = el('label', text('来源', 'Source')), select = el('select');
-    select.setAttribute('aria-label', text('来源', 'Source'));
-    for (const value of ['', ...new Set((data?.skills || []).map(s => s.source))]) { const option = el('option', value ? sourceLabel(value) : text('全部来源', 'All sources')); option.value = value; select.append(option); }
-    select.value = source; sourceLabelNode.append(select); filters.append(searchLabel, sourceLabelNode);
+    input.placeholder = text('名称、说明或路径', 'Name, description or path');
+    const listHeading = el('h3', groupLabel(source), 'source-list-heading');
+    filters.append(listHeading, searchLabel);
     const count = el('p', '', 'manager-meta'), list = el('ul', '', 'manager-list');
+    count.setAttribute('aria-live', 'polite');
     input.addEventListener('input', () => { search = input.value; renderList(list, count); });
-    select.addEventListener('change', () => { source = select.value; renderList(list, count); });
     body.append(filters, count, list); renderList(list, count);
     body.append(el('h2', text('归档记录', 'Archives')));
     for (const archive of data?.archives || []) {
@@ -119,3 +173,4 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
   update.setLocale = value => { locale = value; render(); };
   render(); return update;
 }
+

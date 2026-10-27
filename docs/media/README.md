@@ -1,6 +1,8 @@
 # Demo assets
 
-## Current README demo: v0.3.1
+## Historical release demo used in README: v0.3.1
+
+Current main has since removed the Setup page and added clickable source totals, automatic installation checks and violet heatmaps. The v0.3.1 captures below are retained as release history and do not depict the latest main UI.
 
 Captured 2026-10-27 from the actual v0.3.1 UI with the local synthetic AppBridge harness. Both READMEs now use `v031/<en|zh>/demo.gif`: six unaltered 1280 × 720 browser screenshots, five seconds each, looping for 30 seconds. The visible synthetic-browser label is retained. These assets are not native desktop recordings, real user activity, or official submission evidence.
 
@@ -45,3 +47,4 @@ For English capture, run `node scripts/demo.mjs --lang=en` and use browser local
 `v020/en` and `v020/zh` contain language-matched screenshots and `walkthrough.webm`: a four-second-per-state sequence of six actual browser UI screenshots. It is a demonstration video, not native desktop capture or conversational review evidence. `capture.json` records the stages and browser errors. Paths displayed by the synthetic harness use `C:\demo\skill-manager`; actual fixture operations remain isolated in a temporary directory.
 
 Reproduce with `scripts/capture-walkthrough.mjs <demo-url> <output-directory>` (add `--zh` for Chinese), using Playwright and Chrome. If Playwright is not installed in the project, set `PLAYWRIGHT_MODULE` to its absolute `index.mjs`; `CHROME_PATH` selects the browser executable. `scripts/acceptance-ui.mjs <demo-url> <output-directory>` separately checks actual note, archive, restore and narrow-panel behavior. Neither requires a private account or real activity data.
+
