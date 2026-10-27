@@ -10,7 +10,7 @@ Use the connected Plugin & Skill Manager tools when available. Tool namespace pr
 ## Inspect and explain
 
 - `open_skill_manager` opens the panel and scans the inventory. A cached plugin is not proof of installation or enablement. Use `check_plugin_status` when the user requests verification; it invokes the CLI and may consult configured marketplaces.
-- `query_usage` reads the existing index. Use offset-bearing ISO timestamps with an inclusive start and exclusive end; convert the user's local dates and timezone. It does not import new logs. Invoke `import_usage` when the user requests refreshing historical signals, and report pending bytes, read issues and coverage.
+- `query_usage` reads the existing index. Use offset-bearing ISO timestamps with an inclusive start and exclusive end; convert the user's local dates and timezone. Skill queries do not import new Skill signals. When automatic plugin capture is enabled, inventory/query refreshes also receive host MCP events. Invoke `import_usage` when the user requests refreshing historical signals, and report pending bytes, read issues and coverage.
 - Keep Skill adoptions, plugin call attempts, historical mentions and read requests distinct. A read request is not proof of adoption; a failed tool attempt still counts as an attempt. Missing/unreadable records and uncovered dates are unknown, not zero. Same-name file instances and ambiguous attribution must remain separate.
 
 ## Record actual activity
@@ -30,3 +30,7 @@ For a requested archive or restore, use `preview_skill_archive` or `preview_skil
 ## Troubleshooting boundaries
 
 The default data directory is `$CODEX_HOME/skill-manager/data-v1` (or `~/.codex/skill-manager/data-v1`); an explicit absolute `CODEX_SKILL_MANAGER_DATA_DIR` may override it. Do not delete data, break locks, change access controls, or reinstall automatically to resolve an error. Stop the relevant service before migration or backup restoration. MCP registration, marketplace installation, and a working native sidebar are separate checks.
+
+## Automatic plugin capture
+
+Use configure_auto_capture only when the user requests activation, deactivation or an interval change (5–3600 seconds, default 10). Settings persist across local chats/restarts; inspect check_recording_status for effective configuration, pending bytes and issues. Capture reads local host McpToolCall completion events without interpreting prose or wrapper code. It makes no model calls; MCP statistics returned to a chat may enter context. Avoid manual double reporting. Skill adoption remains caller-reported. Refer to docs/AUTO_CAPTURE.md for upgrade boundaries.

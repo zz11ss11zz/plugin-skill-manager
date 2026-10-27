@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, mkdir, appendFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -12,6 +12,10 @@ import { scanInventory } from '../src/inventory.mjs';
 test('standalone package builds and serves MCP resources outside the source tree', { timeout: 30000 }, async () => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'skill-plugin-'));
   const root = path.join(temporary, 'plugin with spaces');
+  const codexHome = path.join(temporary, 'codex');
+  await mkdir(path.join(codexHome, 'sessions'), {recursive:true});
+  await mkdir(path.join(codexHome, 'archived_sessions'));
+  const persistentData = path.join(temporary, 'persistent data');
   const source = fileURLToPath(new URL('..', import.meta.url));
   const client = new Client({ name: 'package-test', version: '1' });
   let transport;
@@ -38,11 +42,11 @@ test('standalone package builds and serves MCP resources outside the source tree
     assert.equal(config.command, 'node');
     assert.equal(config.type, 'stdio');
     const substitute = value => value.replaceAll('${PLUGIN_ROOT}', root);
-    transport = new StdioClientTransport({ command: process.execPath, args: config.args.map(substitute), cwd: substitute(config.cwd), stderr: 'pipe', env: { CODEX_SKILL_MANAGER_DATA_DIR: path.join(temporary, 'persistent data') } });
+    transport = new StdioClientTransport({ command: process.execPath, args: config.args.map(substitute), cwd: substitute(config.cwd), stderr: 'pipe', env: { CODEX_HOME: codexHome, CODEX_SKILL_MANAGER_DATA_DIR: persistentData } });
     await client.connect(transport);
     assert.equal(client.getServerVersion().version, pkg.version);
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 12);
+    assert.equal(tools.length, 13);
     const uri = tools[0]._meta.ui.resourceUri;
     const { contents } = await client.readResource({ uri });
     assert.match(contents[0].text, /id="activity-panel"/);
@@ -56,15 +60,35 @@ test('standalone package builds and serves MCP resources outside the source tree
     assert.match(await readFile(path.join(root, 'THIRD_PARTY_NOTICES.md'), 'utf8'), /@modelcontextprotocol\/sdk/);
     const call = { id: 'packaged_restart_call_001', plugin: 'demo', tool: 'mcp__codex_apps__demo_read' };
     assert.ok(!(await client.callTool({ name: 'record_plugin_calls', arguments: { calls: [call] } })).isError);
+    const enabled = await client.callTool({name:'configure_auto_capture',arguments:{enabled:true,intervalSeconds:5}});
+    assert.ok(!enabled.isError);
+    const hostEvent = {type:'event_msg',timestamp:'2026-01-02T00:00:01Z',payload:{type:'item_completed',started_at_ms:Date.parse('2026-01-02T00:00:00Z'),item:{type:'McpToolCall',id:'packaged-auto-call-00001',server:'codex_apps',tool:'github.fetch_file',status:'failed',arguments:{secret:'DO_NOT_PERSIST'}}}};
+    await appendFile(path.join(codexHome,'sessions','synthetic.jsonl'),JSON.stringify(hostEvent)+'\n');
+    // No query/open tool is called while waiting: this verifies background polling.
+    const deadline=Date.now()+13000;
+    let captured;
+    while(Date.now()<deadline){
+      const saved=JSON.parse(await readFile(path.join(persistentData,'plugin-calls.json')));
+      captured=saved.calls.find(c=>c.id==='packaged-auto-call-00001');
+      if(captured) break;
+      await new Promise(resolve=>setTimeout(resolve,100));
+    }
+    assert.equal(captured?.at,'2026-01-02T00:00:00.000Z');
+    assert.equal(captured?.source,'host-event');
+    assert.doesNotMatch(await readFile(path.join(persistentData,'plugin-calls.json'),'utf8'),/DO_NOT_PERSIST/);
+    await client.callTool({name:'configure_auto_capture',arguments:{enabled:false,intervalSeconds:60}});
     await client.close(); await transport.close();
     const restarted = new Client({ name: 'restart-test', version: '1' });
-    transport = new StdioClientTransport({ command: process.execPath, args: config.args.map(substitute), cwd: substitute(config.cwd), stderr: 'pipe', env: { CODEX_SKILL_MANAGER_DATA_DIR: path.join(temporary, 'persistent data') } });
+    transport = new StdioClientTransport({ command: process.execPath, args: config.args.map(substitute), cwd: substitute(config.cwd), stderr: 'pipe', env: { CODEX_HOME: codexHome, CODEX_SKILL_MANAGER_DATA_DIR: persistentData } });
     try {
       await restarted.connect(transport);
       assert.ok(!(await restarted.callTool({ name: 'record_plugin_calls', arguments: { calls: [call] } })).isError);
       const records = JSON.parse(await readFile(path.join(temporary, 'persistent data', 'plugin-calls.json')));
-      assert.equal(records.calls.length, 1);
+      assert.equal(records.calls.length, 2);
       assert.equal(records.calls[0].id, call.id);
+      const state=(await restarted.callTool({name:'check_recording_status',arguments:{}})).structuredContent;
+      assert.equal(state.automaticMonitoring,false);
+      assert.equal(state.configuration.intervalSeconds,60);
       assert.ok(!(await readdir(path.join(root, 'server'))).includes('.local'));
     } finally { await restarted.close(); }
   } finally {

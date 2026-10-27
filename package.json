@@ -10,7 +10,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "start": "node src/server.mjs",
-    "test": "npm run build && node --test test",
+    "test": "npm run build && node scripts/test.mjs",
     "setup:check": "node scripts/setup.mjs check",
     "setup:install": "node scripts/setup.mjs install",
     "setup:uninstall": "node scripts/setup.mjs uninstall",

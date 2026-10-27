@@ -2,6 +2,8 @@
 
 Current release: **v0.3.2**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
+**On main, after v0.3.2:** Optional automatic local plugin-call capture now reads real host events across chats, with persistent enable/disable and a configurable 5–3600 second interval (10 seconds by default). The collector makes no model calls. [Setup, privacy, token cost and upgrade notes](docs/AUTO_CAPTURE.md). Existing release ZIPs are unchanged.
+
 **New in v0.3.2:** Activity and Manage are the only views. Manage has clickable Skill source totals, category search, cached automatic installation checks and compact controls. Violet is limited to the heatmap color scale.
 
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
@@ -24,7 +26,7 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 - Plugin installation status is checked automatically when entering Manage, with a one-minute cache and a retry action on failure. Save notes and preview reversible Windows user-skill archives and restores in the same view.
 - The separate Setup page has been removed. The companion setup Skill and read-only recording diagnostic tool remain available in chat.
 
-The complete product combines a **local MCP service, an activity UI, and a companion Skill**. Installing the Skill alone does not install the service. Recording requires explicit caller participation; this is not an automatic host monitor. Missing records do not mean a Skill was never used.
+The complete product combines a **local MCP service, an activity UI, and a companion Skill**. Installing the Skill alone does not install the service. Skill adoption recording requires caller participation. Plugin calls support opt-in local host-event capture on main; without it, callers must report calls. Local logs do not establish complete host-wide coverage. Missing records do not mean a Skill was never used.
 
 ## Quick start: complete manager
 
@@ -86,7 +88,7 @@ When the host supplies no locale, the browser language is used initially. Unsupp
 | Historical read request | A separate inferred signal; reading a Skill file can also mean review or audit. |
 | Explicit mention | A separate historical intent signal, not proof of execution. |
 
-Adoptions and plugin calls are separate metrics and are never added together. Recording is opt-in caller behavior, not automatic host monitoring. No records means unknown history, not never used. Enabling a recording tool does not backfill previous activity.
+Adoptions and plugin calls are separate metrics and are never added together. Skill adoptions are caller-reported; plugin calls can be collected from local host events after explicit opt-in. No records means unknown history, not never used. Enabling a recording tool does not backfill previous activity.
 
 Retries reuse the same batch or call ID for deduplication. New adoptions remain separate even within one conversation. Skill counts use file instances; same-name copies retain their source identity. Ambiguous attribution is not distributed across instances.
 

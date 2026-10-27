@@ -13,9 +13,11 @@ Explain the observed status in the user's language:
 - `empty`: no records have arrived in that ledger. This is not proof of no activity. Do not write a test event into the user's ledger.
 - `unavailable`: reading failed; preserve the file and report unknown counts. Do not reset it to zero.
 
-The plugin stores identifiers, timestamps, local inventory metadata, user-requested notes and archive records locally. It does not automatically monitor every tool or Skill invocation. Importing historical signals is a separate user-requested operation that reads local Codex session logs; signals are not confirmed adoptions.
+The plugin stores identifiers, timestamps, local inventory metadata, user-requested notes and archive records locally. Optional automatic plugin capture covers readable local host MCP events after explicit enablement; it does not confirm Skill adoptions or cover unlogged remote activity. Importing historical signals is a separate user-requested operation that reads local Codex session logs; signals are not confirmed adoptions.
 
-When the user wants ongoing recording, explain or provide this small instruction for their chosen project or personal instructions. Write it only if the user requested that configuration change, and preserve existing instructions:
+When the user requests ongoing plugin capture, call configure_auto_capture with enabled:true and their chosen intervalSeconds (default 10). This reads local logs across chats and archives; explain the local scope and no-model polling. Do not enable it from a mere read-only status question. Inspect check_recording_status for configuration, coverage and errors. For a disable request, set enabled:false and preserve records. Do not manually double-report automatically captured calls.
+
+For Skill adoptions, or plugin calls on clients without host-event logs, explain or provide this small instruction for their chosen project or personal instructions. Write it only if the user requested that configuration change, and preserve existing instructions:
 
 > When `record_skill_use` is available, report actual Skill adoptions near use: one item per adoption, including repeated adoptions, with a unique batch ID of at least 16 characters. Reuse the same ID and items when retrying the record. Exclude audit-only reads and historical backfill; send only Skill identifiers. If plugin call recording is also requested, call `record_plugin_calls` for actual plugin tool attempts using their real namespace, full tool name and unique call ID; do not record the recording tools themselves. Recording failures must not block the task.
 

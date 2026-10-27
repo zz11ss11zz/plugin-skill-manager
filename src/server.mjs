@@ -14,12 +14,22 @@ import { registerDashboard } from './dashboard-resource.mjs';
 import { initializeData } from './data-migration.mjs';
 import { appIcon } from './app-icon.mjs';
 import { recordingStatus } from './recording-status.mjs';
+import { AutoCapture } from './auto-capture.mjs';
+import { CaptureController } from './capture-settings.mjs';
 
-export function createServer(roots, { queryPlugins = loadPluginStatus, usageIndex = new UsageIndex(), archiveManager = new ArchiveManager({ roots }), skillNotes = new SkillNotes(), adoptions = new Adoptions(), pluginCalls = new PluginCalls() } = {}) {
+export function createServer(roots, { queryPlugins = loadPluginStatus, usageIndex = new UsageIndex(), archiveManager = new ArchiveManager({ roots }), skillNotes = new SkillNotes(), adoptions = new Adoptions(), pluginCalls = new PluginCalls(), captureController = null } = {}) {
+const autoCapture = captureController;
 let pluginSnapshot = null, usageSnapshot = null;
 let usagePeriod = { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone };
 async function inventoryWithArchives() {
   let inventory = await scanInventory(roots);
+  if (autoCapture) {
+    try {
+      const coverage = await autoCapture.refresh();
+      if (coverage) inventory.capture = { ...coverage, intervalSeconds: autoCapture.current.intervalSeconds };
+    }
+    catch { inventory.issues.push({ path: autoCapture.collector.stateFile, reason: '自动采集失败，保留已有统计，请检查诊断状态' }); }
+  }
   if (pluginSnapshot) inventory = applyPluginStatus(inventory, pluginSnapshot);
   // Restore persisted statistics after a service restart; never import chat logs on open.
   if (!usageSnapshot) {
@@ -50,9 +60,9 @@ const server = new McpServer({ name: 'plugin-skill-manager', version: packageInf
 const uri = registerDashboard(server);
 server.registerTool('open_skill_manager', {
   title: 'Plugin & Skill Manager',
-  description: '只读扫描标准技能目录与插件缓存，打开Plugin & Skill Manager。不读取聊天或凭据；缓存不代表已安装或启用。',
+  description: '扫描技能并打开管理器。启用自动采集时增量读取本机日志的宿主工具事件，只保存调用标识和时间，不保存正文。',
   inputSchema: {},
-  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: { readOnlyHint: !autoCapture, destructiveHint: false, openWorldHint: false },
   _meta: { ui: { resourceUri: uri }, 'openai/ui': { entrypoints: [{ type: 'global' }] } },
 }, async () => {
   const inventory = await inventoryWithArchives();
@@ -63,12 +73,36 @@ server.registerTool('check_recording_status', {
   description: '只读检查已有采用和插件调用账本，返回总数与最近接收时间。不写测试事件、不读取聊天、不证明其他会话已经接入；空账本不等于没有实际活动。',
   inputSchema: {},
   annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
-}, async () => ({ content: [{ type: 'text', text: '已检查本地记录。接入范围由调用方的记录约定决定，无法从账本确认宿主全量采集。' }], structuredContent: { mode: 'recording-status', ...await recordingStatus(adoptions, pluginCalls) } }));
+}, async () => {
+  const status = await recordingStatus(adoptions, pluginCalls);
+  if (autoCapture) {
+    try {
+      const info = await autoCapture.info();
+      status.automaticMonitoring = info.enabled;
+      status.capture = info.enabled ? 'local-host-events' : 'caller-reported';
+      status.configuration = { enabled: info.enabled, intervalSeconds: info.intervalSeconds, source: info.source };
+      status.coverage = info.coverage; status.lastError = info.lastError;
+    } catch (error) { status.lastError = error.message; }
+  }
+  return { content: [{ type: 'text', text: status.automaticMonitoring ? '本机日志自动采集已启用，覆盖和读取问题见诊断数据。' : '自动采集未启用，当前仅有主动上报记录。' }], structuredContent: { mode: 'recording-status', ...status } };
+});
+server.registerTool('configure_auto_capture', {
+  title: '配置本机全局插件调用采集',
+  description: '按用户要求启停跨会话本地日志采集并设置 5 至 3600 秒检查间隔。启用后读取 sessions 和 archived_sessions 的真实 MCP 调用事件；仅保存标识与时间。配置在本机持久化，不调用模型、不联网、不自动确认 Skill 采用。',
+  inputSchema: { enabled: z.boolean(), intervalSeconds: z.number().int().min(5).max(3600).default(10) },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+}, async args => {
+  if (!autoCapture) return { isError: true, content: [{ type: 'text', text: '当前服务没有自动采集控制器，请重载新版服务。' }] };
+  try {
+    const configuration = await autoCapture.configure(args);
+    return { content: [{ type: 'text', text: args.enabled ? '本机自动采集已启用，后续无需逐次手动上报。' : '本机自动采集已停用，已有记录保留；已开始的一轮可能完成。' }], structuredContent: { mode: 'capture-configuration', ...configuration } };
+  } catch (error) { return { isError: true, content: [{ type: 'text', text: error.message }] }; }
+});
 server.registerTool('check_plugin_status', {
   title: '核对插件安装状态',
   description: '显式调用官方 codex plugin list --json 核对插件安装版本和启用状态；CLI 可能查询已配置的插件市场。不上传技能文件或聊天。',
   inputSchema: {},
-  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
+  annotations: { readOnlyHint: !autoCapture, destructiveHint: false, openWorldHint: true },
 }, async () => {
   try {
     const status = await queryPlugins();
@@ -95,9 +129,9 @@ server.registerTool('import_usage', {
   }
 });
 server.registerTool('query_usage', {
-  title: '按期间查询使用信号', description: '只读查询已有本地索引，不读取新聊天日志。时间需带时区，包含起点、不包含终点；省略两端查询全部已索引时间。',
+  title: '按期间查询使用信号', description: '查询已有 Skill 索引与插件账本；启用自动采集时先增量接收本机宿主调用事件。时间需带时区，包含起点、不包含终点。',
   inputSchema: { from: z.string().datetime({ offset: true }).optional(), to: z.string().datetime({ offset: true }).optional(), timeZone: z.string().max(80).optional() },
-  annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: { readOnlyHint: !autoCapture, destructiveHint: false, openWorldHint: false },
 }, async period => {
   try {
     const inventory = await inventoryWithArchives();
@@ -109,7 +143,7 @@ server.registerTool('query_usage', {
     usagePeriod = period; usageSnapshot = result; inventory.usage = result;
     inventory.adoptions = adoptionSummary;
     inventory.pluginCalls = callSummary;
-    return { content: [{ type: 'text', text: '已按期间查询已有索引；未读取新日志。' }], structuredContent: inventory };
+    return { content: [{ type: 'text', text: '已按期间查询统计；启用时自动采集插件宿主事件。' }], structuredContent: inventory };
   } catch { return { isError: true, content: [{ type: 'text', text: '查询失败。请检查时间范围，并先导入一次使用信号更新索引；原结果保留。' }] }; }
 });
 const managementError = error => ({ isError: true, content: [{ type: 'text', text: error.code ? '文件操作失败，请检查路径权限及操作记录；未确认成功。' : error.message }] });
@@ -170,5 +204,11 @@ return server;
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const data = await initializeData();
   if (process.argv.includes('--initialize-data')) console.log(JSON.stringify(data, null, 2));
-  else await createServer().connect(new StdioServerTransport());
+  else {
+    const captureController = new CaptureController(new AutoCapture());
+    const stop = captureController.start();
+    const service = createServer(undefined, { captureController });
+    service.server.onclose = stop;
+    await service.connect(new StdioServerTransport());
+  }
 }

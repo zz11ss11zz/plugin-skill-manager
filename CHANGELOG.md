@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Optional cross-chat plugin/MCP host-event capture, persistent opt-in/disable and a configurable 5–3600 second interval. No model call is made by polling.
+- Original call times, ID deduplication, bounded incremental reads and diagnostic coverage; Skill adoptions remain separate.
+- Node 20/24 Windows test runner, Windows CI and a body-parser security update.
+- See docs/AUTO_CAPTURE.md for setup, privacy and upgrade limits. Existing v0.3.2 ZIPs are unchanged.
+
 ## 0.3.2 — 2026-10-27
 
 - Keep only Activity and Manage in both languages; retain the setup Skill and recording diagnostic tool without a separate Setup page.

@@ -6,11 +6,24 @@ import { dataDirectory } from './data-path.mjs';
 import { Adoptions } from './adoptions.mjs';
 import { PluginCalls } from './plugin-calls.mjs';
 import { SkillNotes } from './skill-notes.mjs';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const files = ['adoptions.json', 'plugin-calls.json', 'skill-notes.json', 'usage-index.json'];
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 async function stat(file) {
   try { return await lstat(file); } catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+}
+
+// Windows scanners can briefly hold a newly validated staging directory.
+// Retry only an unpublished destination; never remove or replace live data.
+export async function publishDataDirectory(source, target, { move = rename, inspect = stat, wait = delay, platform = process.platform } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    try { return await move(source, target); }
+    catch (error) {
+      if (platform !== 'win32' || !['EPERM', 'EACCES'].includes(error.code) || attempt >= 3 || await inspect(target) || !await inspect(source)) throw error;
+      await wait(50 * (attempt + 1));
+    }
+  }
 }
 async function directory(dir) {
   const info = await stat(dir);
@@ -84,7 +97,7 @@ export async function initializeData({
     await validate(staging);
     const receipt = { version: 1, source: exists ? source : null, createdAt: new Date().toISOString(), files: copied };
     await writeFile(path.join(staging, 'migration.json'), JSON.stringify(receipt, null, 2), { flag: 'wx', mode: 0o600 });
-    await rename(staging, target); staged = false;
+    await publishDataDirectory(staging, target); staged = false;
     return { directory: target, migrated: copied.length > 0, receipt };
   } finally {
     if (staged) await rm(staging, { recursive: true, force: true });

@@ -3,7 +3,7 @@ export async function recordingStatus(adoptions, pluginCalls) {
   const inspect = async (store, entries, count) => {
     try {
       const state = await store.read(), rows = entries(state);
-      return { state: rows.length ? 'recorded' : 'empty', count: count(rows), latestReceivedAt: rows.map(row => row.at).sort().at(-1) || null };
+      return { state: rows.length ? 'recorded' : 'empty', count: count(rows), latestReceivedAt: rows.map(row => row.receivedAt || row.at).sort().at(-1) || null };
     } catch { return { state: 'unavailable', count: null, latestReceivedAt: null }; }
   };
   return {

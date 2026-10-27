@@ -212,7 +212,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     rankings.append(review);
     note.textContent = t("{0} {1}不代表成功执行次数。零值仅表示该年份与已查询期间交集内未观测到信号，不代表从未使用。{2}", kind === 'plugins' ? t("插件按所属 Skill 信号汇总，尚不包含插件工具调用；未核实安装的缓存不进入零使用列表。") : t("Skill 按文件实例统计；同名副本保留来源区别。"), label, view.excluded ? t(" {0} 条时间或归属不明的信号未进入热力图。", view.excluded) : '');
     if (adopting && !usage?.coverage?.from && view.ready) entityTip.textContent = t("尚未收到 record_skill_use 记录；启用工具不会自动回填历史使用量。");
-    if (calling) { note.textContent = t("独立统计插件工具调用尝试，不与 Skill 采用相加；失败的调用也计一次。由调用方主动记录，按记录时间统计，不是宿主自动监听。展示已确认安装及有记录的插件；低频观察只纳入已确认清单，缺失记录不代表从未调用。"); if (!view.ready) caption.textContent = t("插件调用记录暂不可读取。"); else if (!usage.coverage.from) caption.textContent = t("尚未收到插件工具调用记录；启用接口不会自动回填。"); }
+    if (calling) { note.textContent = t("插件调用与 Skill 采用分开统计，失败调用也计数。启用本机自动采集后读取宿主 McpToolCall 事件，按原调用时间统计；仅覆盖可读日志，缺失记录不代表从未调用。"); if (!view.ready) caption.textContent = t("插件调用记录暂不可读取。"); else if (!usage.coverage.from) caption.textContent = t("尚未收到插件工具调用记录；请检查自动采集状态与日志覆盖。"); }
     if (adopting) note.textContent = t("{0} 数据由助手主动记录，不是宿主独立验证；未接入记录约定的客户端可能漏记。记录开始前不补造数据，旧推断数据不混入采用次数。", kind === 'plugins' ? t("插件汇总所属 Skill 的采用次数，不含插件工具调用。") : t("每次采用分别计数，同一对话重复采用不合并。"));
   }
   const update = inventory => { current = inventory; render(); };

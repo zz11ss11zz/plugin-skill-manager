@@ -7,8 +7,7 @@ import { acquireAdoptionLock } from './adoption-lock.mjs';
 const validCall = c => c && typeof c.id === 'string' && /^[A-Za-z0-9_-]{16,160}$/.test(c.id) &&
   typeof c.plugin === 'string' && /^[a-z0-9][a-z0-9_-]{0,79}$/.test(c.plugin) &&
   typeof c.tool === 'string' && c.tool.length <= 240 &&
-  c.tool.startsWith(`mcp__codex_apps__${c.plugin}_`) && /^[A-Za-z0-9_]+$/.test(c.tool) &&
-  c.tool.length > `mcp__codex_apps__${c.plugin}_`.length;
+  [`mcp__codex_apps__${c.plugin}_`, `mcp__${c.plugin}__`].some(prefix => c.tool.startsWith(prefix) && c.tool.length > prefix.length) && /^[A-Za-z0-9_]+$/.test(c.tool);
 const same = (a,b) => a.plugin === b.plugin && a.tool === b.tool;
 
 export class PluginCalls {
@@ -22,8 +21,9 @@ export class PluginCalls {
       return state;
     } catch (error) { if (error.code === 'ENOENT') return {version:1,calls:[]}; throw error; }
   }
-  async record(calls) {
+  async record(calls, { observed = false } = {}) {
     if (!Array.isArray(calls) || !calls.length || calls.length > 32 || calls.some(c=>!validCall(c))) throw new Error('插件调用参数无效');
+    if (observed && calls.some(c => c.source !== 'host-event' || !Number.isFinite(Date.parse(c.at)))) throw new Error('宿主调用时间无效');
     const directory = path.dirname(this.file);
     await mkdir(directory,{recursive:true});
     if ((await lstat(directory)).isSymbolicLink()) throw new Error('账本目录不能为链接');
@@ -32,10 +32,11 @@ export class PluginCalls {
     try {
       const state = await this.read(), known = new Map(state.calls.map(c=>[c.id,c]));
       const at = new Date().toISOString(); let changed = false;
-      for (const {id,plugin,tool} of calls) {
+      for (const call of calls) {
+        const {id,plugin,tool} = call;
         const old = known.get(id);
         if (old) { if (!same(old,{plugin,tool})) throw new Error('同一调用 ID 内容冲突，拒绝覆盖'); continue; }
-        const entry = {id,plugin,tool,at}; known.set(id,entry); state.calls.push(entry); changed = true;
+        const entry = {id,plugin,tool,at: observed ? call.at : at, ...(observed ? {source:'host-event', receivedAt:at} : {})}; known.set(id,entry); state.calls.push(entry); changed = true;
       }
       if (!changed) return;
       const serialized = JSON.stringify(state);
@@ -63,6 +64,6 @@ export class PluginCalls {
     return {total,catalog:[...catalog.values()],tools:[...tools].map(([name,count])=>({name,count})),
       activity:{timeZone,excluded:0,uncertainIds:[],days:[...days].sort(([a],[b])=>a.localeCompare(b)).map(([date,entries])=>({date,entries:[...entries].map(([id,calls])=>({id,calls}))}))},
       period:{from:period.from||null,to:period.to||null},coverage:{from:state.calls.map(c=>c.at).sort()[0]||null,to:new Date().toISOString(),pendingBytes:0,issues:[]},
-      limits:['调用方主动记录的调用尝试，不代表成功执行；记录时间不是宿主调用时间。','同一调用 ID 去重，新的实际重试用新 ID；不自动监听或回填历史。']};
+      limits:['宿主事件使用原始调用时间；手动上报使用接收时间。调用记录不代表成功。','同一调用 ID 去重；手动使用不同 ID 上报同一调用可能重复。自动采集只覆盖本机可读日志中的 McpToolCall 事件。']};
   }
 }
