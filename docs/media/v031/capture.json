@@ -1,0 +1,51 @@
+{
+  "version": "0.3.1",
+  "capturedAt": "2026-10-27",
+  "sourceBaseCommit": "12d4b16ed56081a3e6eb2572d0b12434e3669221",
+  "host": "local browser AppBridge, not native desktop",
+  "data": "synthetic only",
+  "viewport": [
+    1280,
+    720
+  ],
+  "capture": "browser controller screenshots",
+  "encoding": "Pillow 12.3.0, 192 colors, no dither, disposal 2, infinite loop",
+  "frames": [
+    "01-plugins",
+    "02-daily-pinned",
+    "03-observation",
+    "04-counting-details",
+    "05-manage",
+    "06-setup"
+  ],
+  "durationMsPerFrame": 5000,
+  "durationMs": 30000,
+  "verified": [
+    "daily pin and item detail",
+    "separate plugin/Skill modes",
+    "compact observation and expanded rules",
+    "saved synthetic note and retain flag",
+    "read-only recording status"
+  ],
+  "limitations": [
+    "No native-host acceptance",
+    "No official review video",
+    "Historical browser logs contained prior harness errors; the pre-connect locale notification was replaced with initial hostContext before these captures."
+  ],
+  "files": {
+    "en/01-plugins.png": "9533ea76bb0fbce4125c03be09cb16f8275e200730814bd8519dda365ae7ecd9",
+    "en/02-daily-pinned.png": "59e4a62d49f2db872c998f1bda29bfb7c041934a19706f71e41df94475d8cb79",
+    "en/03-observation.png": "27b446c86abe025cbf63d229f536b5aa6562a281fc7e5facb7f4bcae3936bb93",
+    "en/04-counting-details.png": "22b60ecacc5e737153d233f333749be3bd48fa288e8379bf19c44654c9c21dc4",
+    "en/05-manage.png": "335e9f62798d295cc7810e77ed0248ecc549f65cfab17b1090c704744f8f5142",
+    "en/06-setup.png": "dcff1b1031bed55da03aa42809d5d705b01ce5cf97687f250db0c9c49e6e5df9",
+    "en/demo.gif": "bf9c7da33bc1b20c042c8ddd1b51e18ac8b0ace8964b6cca82834bff0f05ea89",
+    "zh/01-plugins.png": "22ce3fb897e51e1524bbf70d252fe2d2e221e7c53f0b5c9049204aba09e22660",
+    "zh/02-daily-pinned.png": "c2907f0ba04d60f47ded3f19c596fc88c9bf3acc1e23f02fac90991176fbc151",
+    "zh/03-observation.png": "786baf3fba290a6d3f355a2af66ba699768c06c137660ad78ac8b1e4f2a236c3",
+    "zh/04-counting-details.png": "0a8e36335a038ebd10dcc72d73eabe3140d1fec0c5974c8ab42650fb4696ad1d",
+    "zh/05-manage.png": "5bb95a2e0b456a2bbd75340407db34b62f6370c751ce1c4b05b23ce5ba7ef66f",
+    "zh/06-setup.png": "c1058a8d6400dc34e87ca76659de1b61cf75e1710e8ee2e3f5215926cb31bec3",
+    "zh/demo.gif": "92b161f9a950939862f0473d8fdf4e5a3cbf199600777abb84d82767c5d1d69a"
+  }
+}

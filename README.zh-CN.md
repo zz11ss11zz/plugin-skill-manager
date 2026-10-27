@@ -2,7 +2,7 @@
 
 # Plugin & Skill Manager
 
-当前源码标识已改为 `plugin-skill-manager`；已有 v0.2.0 下载包仍保留旧标识，见[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
+当前正式版本：**v0.3.1**。从旧标识 `codex-skill-manager` 升级时，请先看[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
 
 **给已记录的 Skill 采用和插件调用，一张看得懂的活动面板。**
 
@@ -10,17 +10,16 @@
 
 [下载安装](docs/DISTRIBUTION.md) · [v0.3.1](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.1) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
-![30 秒演示：切换类型、筛选日期和查看排名；使用合成记录](docs/media/demo.gif)
+![v0.3.1 演示：单日排序、精简观察区、备注和记录接入](docs/media/v031/zh/demo.gif)
 
-演示使用真实界面与合成记录，运行在浏览器演示宿主中，不是 Codex 原生侧栏录屏，也不是真实用户统计。中文标题包含 v0.1.0 发布后的一处口径文字修正。[静态图](docs/media/dashboard-skills.png) · [素材说明与复现](docs/media/README.md)。
-
-v0.2 新增管理与接入页面：[中文演示视频](docs/media/v020/zh/walkthrough.webm) · [管理页截图](docs/media/v020/zh/manage.png)。视频由真实浏览器界面状态组成，数据和显示路径均为示例。
+2026-10-27 更新：六个实际 v0.3.1 浏览器界面状态，每帧 5 秒循环播放。数据与显示路径均为合成示例；这是截图序列动画，不是 Codex 原生侧栏录屏或官方审核视频。[单日排序](docs/media/v031/zh/02-daily-pinned.png) · [精简观察区](docs/media/v031/zh/03-observation.png) · [素材说明与复现](docs/media/README.md)。
 
 ## 能帮你做什么
 
-- 查看一年中已记录的活动，检查单日数量。
+- 查看一年中已记录的活动；悬停或聚焦日期查看当天排序，点击固定日期后继续查看各项详情。
 - 在插件调用与 Skill 采用之间切换，避免混算。
-- 按日期筛选排名，区分没有覆盖和已记录为零。
+- 独立筛选区间排名，不与固定的单日混淆；区分没有覆盖和已记录为零。
+- 在精简的观察区查看低频候选与无记录项目，需要时展开统计说明；不会自动归档。
 - 在独立“管理”页搜索本机清单、核对来源、保存备注，预览并执行 Windows 用户技能的可逆归档与恢复。
 - 在“接入”页查看最近收到的记录，不写入假测试事件，也不自动改写个人规则。
 
@@ -40,6 +39,10 @@ node install.mjs check
 检查结果应显示已安装并启用的 0.3.1 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
 62 项回归与 7 项隔离的 0.3.1 插件生命周期检查通过。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
+
+## 官方目录状态
+
+截至 2026-10-27，**0.3.1 草稿已上传**，尚未提交审核、获批或发布。门户当前提示暂不接受更多 skills-only 提交，本地 MCP 服务的识别与准入仍待确认。GitHub 发布包可手动安装；保存草稿不等于官方上架。
 
 ## 安装配套 Skill（可选）
 

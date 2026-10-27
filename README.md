@@ -1,6 +1,6 @@
 # Plugin & Skill Manager
 
-Source identifiers now use `plugin-skill-manager`. Existing v0.2.0 downloads keep their old identifiers; see [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
+Current release: **v0.3.1**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
 
@@ -8,17 +8,16 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 
 **English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.3.1](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.1) · [Apache-2.0](LICENSE)
 
-![30-second dashboard walkthrough with synthetic data](docs/media/en/demo.gif)
+![v0.3.1: daily rankings, compact observation, notes and recording setup](docs/media/v031/en/demo.gif)
 
-*Actual dashboard UI in a browser demonstration host, using synthetic records. This is not a native Codex recording or real user activity. [Static screenshot](docs/media/en/dashboard-skills.png) · [Demo provenance](docs/media/README.md). The demo includes localization corrections made after v0.1.0.*
-
-The 0.2 Manage and Setup views: [English walkthrough video](docs/media/v020/en/walkthrough.webm) · [Management screenshot](docs/media/v020/en/manage.png). These use synthetic browser UI states, with example paths.
+*Updated 2026-10-27: six actual v0.3.1 browser UI states, five seconds each. Synthetic records and example paths only; this is a looping screenshot walkthrough, not a native Codex recording or an official review video. [Daily ranking](docs/media/v031/en/02-daily-pinned.png) · [Compact observation](docs/media/v031/en/03-observation.png) · [Source and capture details](docs/media/README.md).*
 
 ## What it helps you do
 
-- See recorded activity over a year and inspect individual dates.
+- See recorded activity over a year; hover or focus a date for its daily ranking, and click to pin it while inspecting items.
 - Switch between Skill adoptions and plugin tool-call attempts without mixing the metrics.
-- Filter rankings by date and distinguish missing coverage from zero activity.
+- Filter period rankings by date independently of the pinned day, and distinguish missing coverage from zero activity.
+- Inspect low-use candidates and items with no records in a compact observation panel. Open the counting details when needed; nothing is archived automatically.
 - Use the separate Manage view to search local inventory, inspect sources, save notes, and preview reversible Windows user-skill archives and restores.
 - Check the latest received records in Setup without creating synthetic events or changing personal instructions.
 
@@ -38,6 +37,10 @@ node install.mjs check
 The check should show the installed 0.3.1 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
 
 62 regression tests and seven isolated 0.3.1 plugin lifecycle checks have passed. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
+
+## Official directory status
+
+As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
 
 ## Optional: companion Skill
 
@@ -61,7 +64,7 @@ node install.mjs uninstall
 
 ## Demo and feedback
 
-[Chinese launch copy and 30-second script](docs/LAUNCH.zh-CN.md) · [Reproduce the synthetic demo](docs/media/README.md) · [Report an issue](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
+[Current demo and capture details](docs/media/README.md) · [Chinese README](README.zh-CN.md) · [Report an issue](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
 Useful feedback: installation steps that failed, confusing metric definitions, or missing workflows. Share sanitized errors and reproduction steps; omit private chats, paths and credentials.
 
@@ -92,7 +95,7 @@ Recording details: [Skill adoptions (Chinese)](docs/ADOPTION_RECORDING.md) · [P
 
 Runtime records are stored locally under `$CODEX_HOME/skill-manager/data-v1` (default `~/.codex/skill-manager/data-v1`); archives are separately kept under `$CODEX_HOME/skill-manager-archive`. The application adds no telemetry or upload endpoint, but MCP tool results are returned to the host and may be used in its model context under the host's policies. Explicit plugin-installation checks may contact configured marketplaces. See [privacy and data flow](docs/PRIVACY.md), [project terms](docs/TERMS.md), [support](docs/SUPPORT.md), and [migration](docs/DATA_MIGRATION.md).
 
-The repository contains code, documentation, and synthetic test data. README badges load from Shields.io when viewing this page; they are not part of the dashboard.
+The repository contains code, documentation, and synthetic test data. Public demo assets contain no personal activity records.
 
 ## Development
 

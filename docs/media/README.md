@@ -1,5 +1,25 @@
 # Demo assets
 
+## Current README demo: v0.3.1
+
+Captured 2026-10-27 from the actual v0.3.1 UI with the local synthetic AppBridge harness. Both READMEs now use `v031/<en|zh>/demo.gif`: six unaltered 1280 × 720 browser screenshots, five seconds each, looping for 30 seconds. The visible synthetic-browser label is retained. These assets are not native desktop recordings, real user activity, or official submission evidence.
+
+| Frame | Demonstrated state |
+| --- | --- |
+| 01-plugins | Separate plugin tool-call attempts, version 0.3.1 |
+| 02-daily-pinned | June 3 pinned; daily item detail distinct from period ranking |
+| 03-observation | Skill rankings and compact low-use observation; small inventory action |
+| 04-counting-details | Expanded observation rules and coverage limitations |
+| 05-manage | Filtered synthetic user Skill, saved note and retain flag |
+| 06-setup | Read-only check of received adoption and plugin-call records |
+
+The UI was operated through the browser controller. The PNGs are raw screenshots; Pillow 12.3.0 encoded them with a 192-color palette, no dithering, 5000 ms per frame, infinite loop and disposal 2. Encoding changes colors only; no UI text or counts were painted onto images. The initial English fixture exposed a host-locale issue; the harness now supplies its explicit HTML language as the initial AppBridge host context. This only changes the synthetic preview host, not the installed plugin.
+
+Reproduce the interface with `npm ci`, `npm run build`, and `node scripts/demo.mjs --lang=en` (English), or `node scripts/demo.mjs` (Chinese). Open the printed loopback URL. Use the six interactions above and retain the demonstration label. The fixture writes only synthetic temporary files; type `q` in its terminal to close it. Displayed paths use `C:\demo\skill-manager`. Coverage end dates depend on the capture date. `v031/capture.json` records payload hashes and verification scope.
+
+## Historical assets (not used by current README)
+
+
 These captures show the v0.1.0 dashboard with the post-release Chinese heading correction to “Skill 采用次数” (the published tag is unchanged) with generated synthetic records, using a local browser AppBridge host. They are **not native Codex screenshots**, real usage statistics, or evidence of official directory publication.
 
 - `demo.gif`: six actual UI states, five seconds each; 30-second looping walkthrough.
@@ -16,7 +36,7 @@ Capture with a 1100 × 1100 browser viewport and Chinese locale. GIF frames reta
 
 ## Language-specific captures
 
-The English README uses `en/demo.gif` and `en/dashboard-skills.png`. The Chinese README keeps the original Chinese assets in this directory. Both sets contain the same six demonstration steps using synthetic records.
+Earlier English README versions used `en/demo.gif` and `en/dashboard-skills.png`. Earlier Chinese README versions used the original Chinese assets in this directory. Both sets contain the same six demonstration steps using synthetic records.
 
 For English capture, run `node scripts/demo.mjs --lang=en` and use browser locale `en-US`; for Chinese, run without the flag and use `zh-CN`. English captures include post-v0.1.0 localization fixes for the version label and built-in source labels. The 2026-10-26 capture checked every frame for untranslated Chinese text and reported no page errors. The published v0.1.0 tag remains unchanged.
 

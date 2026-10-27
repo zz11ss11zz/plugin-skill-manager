@@ -1,6 +1,8 @@
 import { AppBridge, PostMessageTransport } from '@modelcontextprotocol/ext-apps/app-bridge';
 const frame = document.querySelector('#app');
-const bridge = new AppBridge(null, { name: 'synthetic-test-host', version: '1.0.0' }, { serverTools: {} });
+const bridge = new AppBridge(null, { name: 'synthetic-test-host', version: '1.0.0' }, { serverTools: {} }, {
+  hostContext: { locale: document.documentElement.lang || navigator.language },
+});
 const call = async params => {
   const response = await fetch('/tool', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params) });
   if (!response.ok) throw new Error(`Synthetic host HTTP ${response.status}`);
