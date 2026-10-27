@@ -19,7 +19,7 @@ function emptyState(file) {
   return { path: file, offset: 0, line: 0, parser: { session: null, turn: null, cwd: null }, events: [], records: 0, malformed: 0, oversized: 0, firstTimestamp: null, lastTimestamp: null, discarding: false };
 }
 
-export async function readUsageFile(file, previous = null, { maxBytes = BUDGET, maxLineBytes = MAX_LINE } = {}) {
+export async function readUsageFile(file, previous = null, { maxBytes = BUDGET, maxLineBytes = MAX_LINE, parserFactory = () => new UsageParser() } = {}) {
   if (maxBytes <= maxLineBytes) throw new Error('读取预算必须大于单行限制');
   const info = await lstat(file);
   if (!info.isFile() || info.isSymbolicLink()) throw new Error('日志必须为普通文件');
@@ -34,7 +34,7 @@ export async function readUsageFile(file, previous = null, { maxBytes = BUDGET, 
         digest(await bytesAt(handle, state.anchorStart, state.offset - state.anchorStart)) !== state.anchorHash;
       if (changed) { state = emptyState(file); reset = true; }
     }
-    const parser = new UsageParser();
+    const parser = parserFactory();
     Object.assign(parser, state.parser);
     const buffer = await bytesAt(handle, state.offset, Math.min(maxBytes, Math.max(0, initial.size - state.offset)));
     let cursor = 0;
@@ -81,7 +81,7 @@ export async function readUsageFile(file, previous = null, { maxBytes = BUDGET, 
   } finally { await handle.close(); }
 }
 
-async function discover(roots) {
+export async function discover(roots) {
   const files = [], issues = [];
   async function walk(dir, boundary, depth) {
     try {

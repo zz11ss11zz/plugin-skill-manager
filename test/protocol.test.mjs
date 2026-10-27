@@ -25,7 +25,7 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     await client.connect(transport);
     assert.match(client.getServerVersion().icons[0].src, /^data:image\/png;base64,iVBOR/);
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 12);
+    assert.equal(tools.length, 13);
     assert.deepEqual(tools[0]._meta['openai/ui'].entrypoints, [{ type: 'global' }]);
     const uri = tools[0]._meta.ui.resourceUri;
     const { contents } = await client.readResource({ uri });

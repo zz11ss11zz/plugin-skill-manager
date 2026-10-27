@@ -53,3 +53,7 @@ Version 0.3.0 uses `plugin-skill-manager` for the package, plugin, marketplace a
 Before installing the renamed v0.3.0 package, inspect the old registration. For a standalone MCP install, retain the original source/data folders and remove only the `codex-skill-manager` registration, then register the renamed entry. For a full plugin install, run `node install.mjs uninstall` from the old package before installing the renamed package. Do not install both identities at once. The installer rejects an existing legacy registration/catalog rather than silently running duplicate services.
 
 升级前先核对旧入口：源码 MCP 安装保留原代码和数据目录，仅移除 `codex-skill-manager` 注册后再注册新入口；完整插件安装先从旧包执行 `node install.mjs uninstall`，再安装新包。安装器会阻止新旧身份并存。保留旧 `CODEX_SKILL_MANAGER_*` 环境变量兼容性、`skill-manager/data-v1` 持久目录和 `skill-manager-archive`；旧源码版的 `.local` 目录也不得因改名移动或删除。
+
+## Automatic capture on main / main 自动采集
+
+[启停、间隔、源码升级、隐私与 token 开销](AUTO_CAPTURE.md)。已有 v0.3.2 ZIP 不含此功能。升级 main 后重载服务，通过 configure_auto_capture 明确启用；设置保留在独立数据目录，安装和普通打开不会自动授权日志读取。

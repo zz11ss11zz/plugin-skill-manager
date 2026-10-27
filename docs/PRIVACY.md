@@ -16,3 +16,7 @@ Do not include credentials, private chat logs or personal indexes in public issu
 
 进入管理页会自动核对插件安装状态，结果缓存一分钟，失败时可重试。此操作调用 Codex CLI，可能访问已配置的插件市场，不会自动导入聊天日志。
 
+
+## Optional automatic capture on main
+
+After explicit enablement, a local collector reads session JSON lines across chats and archives, extracting host MCP completion events. It persists identifiers and original/receipt timestamps, plus cursor offsets, hashes and coverage diagnostics; not arguments, results or chat text. Reading a line necessarily touches its original payload locally. No network or model call is made by the collector. Settings are shared across local service instances and can be disabled without deleting records. [Details and limits](AUTO_CAPTURE.md). Skill adoption remains a separate caller-reported metric.

@@ -60,6 +60,8 @@ export const english = {
   "未观测到使用 · 最多 5 项": "No observed usage · Up to 5", "{0} 次": "{0} events",
   "统计暂不可读取，不将失败当作零。": "Statistics unavailable; an error does not mean zero usage.",
   "尚未收到采用记录，暂不生成排名。": "No adoption records received; rankings are unavailable.",
+  "插件调用与 Skill 采用分开统计，失败调用也计数。启用本机自动采集后读取宿主 McpToolCall 事件，按原调用时间统计；仅覆盖可读日志，缺失记录不代表从未调用。": "Plugin calls and Skill adoptions are separate. Local automatic capture reads host McpToolCall events at their original time, including failures. Only readable logs are covered; missing records do not mean no use.",
+  "尚未收到插件工具调用记录；请检查自动采集状态与日志覆盖。": "No plugin calls received; check automatic capture status and log coverage.",
   "尚未收到插件调用记录。": "No plugin call records received.",
   "当前范围没有符合条件的项目。": "No matching items in this period.",
   "尚无统计，不将未知当作零。": "No statistics yet; unknown is not zero.",

@@ -24,3 +24,7 @@
 开发者身份、准入、政策声明或不可访问的宿主验证不足时，完成可独立工作的部分并明确待办。正式上架须以门户实际通过为准；本地市场安装、源码注册及 skills.sh 分发均不等于官方上架。
 
 依据（2026-10-26 核验）：[桌面本地 MCP](https://developers.openai.com/plugins/deploy/desktop-only)、[打包和分发](https://developers.openai.com/plugins/build/plugins)、[提交要求](https://developers.openai.com/plugins/deploy/submission)。
+
+## 2026-10-27 用户授权范围更新
+
+用户明确要求本机跨会话自动采集及合入 GitHub，覆盖上文的仅主动报送限制。本次采用可选本地宿主日志采集，不依赖生命周期 hooks；持久化启停、检查间隔、隐私、性能和升级兼容见 AUTO_CAPTURE.md。仅合入 main，不修改历史 Release 或宣称官方上架。

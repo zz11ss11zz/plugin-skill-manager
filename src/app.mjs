@@ -9,9 +9,10 @@ const updateActivity = createActivityPanel(document.querySelector('#activity-pan
 const status = document.querySelector('#status');
 const app = new App({ name: 'plugin-skill-manager', version: packageInfo.version }, {});
 const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), args => app.callServerTool(args), receive, locale);
-let connected = false, hasData = false, lastRefresh = 0, pending = null;
+let connected = false, hasData = false, lastRefresh = 0, pending = null, autoRefresh = false;
 function receive(result) {
   const data = result.structuredContent;
+  autoRefresh = Boolean(data?.capture);
   if (result.isError || data?.mode !== 'inventory' || !Array.isArray(data.skills)) {
     status.hidden = false;
     status.textContent = t(statusKey = "统计数据暂不可读取，请重新打开Plugin & Skill Manager。");
@@ -61,4 +62,5 @@ app.connect().then(() => {
   status.textContent = t(statusKey = "管理器连接未完成，请重新打开面板。");
 });
 
-
+// Refresh visible panels while automatic capture is enabled; no overlapping calls.
+window.setInterval?.(() => { if (autoRefresh && !document.hidden) void refresh(); }, 10000);

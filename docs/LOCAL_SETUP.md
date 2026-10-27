@@ -83,3 +83,7 @@ registered 应为 false，再重载宿主。仅移除当前目录对应的注册
 遇到损坏文件/写锁/迁移失败，保留原文件和错误，停止相关服务后按迁移说明恢复；不要自动删除锁、索引或源日志。Windows 技能归档恢复不覆盖同名文件。
 
 可选 CLI 回归：`$env:SKILL_MANAGER_TEST_CODEX='1'; npm.cmd test`。测试使用隔离数据。具体范围见 [VALIDATION.md](VALIDATION.md)；问题提交至 [GitHub Issues](https://github.com/zz11ss11zz/plugin-skill-manager/issues)，只附脱敏错误和复现步骤。
+
+## Automatic capture on main / main 自动采集
+
+[启停、间隔、源码升级、隐私与 token 开销](AUTO_CAPTURE.md)。已有 v0.3.2 ZIP 不含此功能。升级 main 后重载服务，通过 configure_auto_capture 明确启用；设置保留在独立数据目录，安装和普通打开不会自动授权日志读取。

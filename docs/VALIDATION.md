@@ -406,3 +406,12 @@
 - Full regression: 64 passed, 0 failed, 0 skipped with SKILL_MANAGER_TEST_CODEX=1. Standalone bundle MCP handshake, 12 tools, resource/version consistency and persistent restart records passed.
 - Seven isolated real-CLI lifecycle checks passed using Codex CLI 0.163.0-alpha.11.2: install; app-server Skill discovery; cached server/resource and restart persistence; rejection of implicit source changes; explicit 0.3.1-to-0.3.2 source replacement retaining data; uninstall retention; reinstall retention. All test records were synthetic and isolated.
 - Native desktop conversational/UI review was not performed. No v0.3.2 portal upload, policy attestation, review submission or official directory publication is claimed. Organization local-MCP eligibility remains an external requirement.
+
+## Automatic local capture on main (after v0.3.2)
+
+- Windows / Node.js 24.14.0: 70 tests passed, zero failed or skipped with SKILL_MANAGER_TEST_CODEX=1. The portable test runner explicitly lists files and serializes filesystem fixtures.
+- Synthetic host-event tests exclude prose, wrapper source and tool-result text; cover original timestamps, failed attempts, cross-session replay, archive moves, truncation, partial lines, corruption preservation, write retry and duplicate concurrent requests. No personal activity data is committed.
+- The standalone generated plugin was tested with an isolated CODEX_HOME: configure automatic capture, append a synthetic host event, wait without query/open calls, observe the background ledger write, disable, restart and verify retained configuration/counts.
+- Persistent configuration defaults off, respects explicit opt-in/disable, supports 5–3600 seconds, overrides legacy environment defaults and preserves corrupt files. Polling uses filesystem/Node timers and makes no model/network calls.
+- Full regression exposed intermittent Windows EPERM when atomically publishing a new migrated directory. Publication now retries only EPERM/EACCES up to three times while the destination remains absent and staging exists. Existing destinations are never removed or overwritten; an injected regression covers the retry bound.
+- Added Windows Node 20.18.1/24 GitHub Actions checks. CI outcomes must be read from the PR; local results alone do not prove CI success. Native Codex sidebar visual acceptance and unlogged remote events remain outside this verification. Existing v0.3.2 Release assets are unchanged.
