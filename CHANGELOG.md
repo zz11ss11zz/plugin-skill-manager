@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — 2026-10-28
+
+- Muted teal light/dark activity palette and neutral controls; only Activity/Manage navigation.
+- Recorded 30-day summaries and daily bars linked to annual calendar selection.
+- Named daily rankings, shared highlights, preserved keyboard focus and Back to all restoring period filters.
+- Time-zone-aware windows, explicit missing coverage/zero/future states and separate plugin/Skill metrics.
+- Bilingual browser regression and reproducible synthetic screenshots; capture/data storage semantics unchanged.
+- [Release and upgrade notes](docs/releases/v0.4.0.md).
+
 ## 0.3.3 — 2026-10-28
 
 - Optional cross-chat plugin/MCP host-event capture, persistent opt-in/disable and a configurable 5–3600 second interval. No model call is made by polling.

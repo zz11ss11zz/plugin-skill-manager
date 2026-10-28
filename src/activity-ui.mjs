@@ -1,5 +1,5 @@
 import { translator } from './i18n.mjs';
-import { activityView, calendarDays } from './activity.mjs';
+import { activityView, calendarDays, activityToday, recentActivity } from './activity.mjs';
 const node = (tag, value, className) => { const el = document.createElement(tag); if (value !== undefined) el.textContent = value; if (className) el.className = className; return el; };
 export function createActivityPanel(root, locale = 'zh', checkInventory) {
   let t = translator(locale);
@@ -18,10 +18,23 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
   const caption = node('p', undefined, 'activity-caption'), scroll = node('div', undefined, 'calendar-scroll');
   const calendar = node('div', undefined, 'activity-calendar'); scroll.append(calendar);
   const tooltip = node('p', t("将鼠标移到日期上，或用键盘选择日期查看使用量。"), 'activity-tooltip'); tooltip.setAttribute('role', 'status');
-  const dailyPanel = node('div', undefined, 'daily-ranking'); dailyPanel.hidden = true;
+  const dailyPanel = node('section', undefined, 'daily-ranking'); dailyPanel.hidden = true;
+  const dailyHeading = node('div', undefined, 'daily-heading'), dailyTitle = node('h3');
+  const clearDay = node('button', t("返回全部"), 'clear-day'); clearDay.type = 'button';
+  clearDay.addEventListener('click', () => { pinnedDate = null; render(); });
+  dailyHeading.append(dailyTitle, clearDay);
+  const dailyList = node('ol', undefined, 'activity-ranking daily-list');
+  const metrics = node('div', undefined, 'activity-metrics');
+  const recent = node('section', undefined, 'recent-activity');
+  const recentHeading = node('div', undefined, 'recent-heading'), recentTitle = node('h3'), recentScope = node('span', undefined, 'activity-caption');
+  recentHeading.append(recentTitle, recentScope);
+  const recentSummary = node('p', undefined, 'activity-caption');
+  const recentChart = node('div', undefined, 'recent-chart');
+  recent.append(recentHeading, recentSummary, recentChart);
+  const yearHeading = node('h3', undefined, 'year-heading');
   const dailyGrid = node('div', undefined, 'entity-grid');
   const dailyTip = node('p', undefined, 'activity-tooltip'); dailyTip.setAttribute('role', 'status');
-  dailyPanel.append(dailyGrid, dailyTip);
+  dailyPanel.append(dailyHeading, dailyGrid, dailyTip, dailyList);
   const legend = node('div', undefined, 'activity-legend'); legend.append(node('span', t("少")));
   for (let i = 0; i < 5; i++) legend.append(node('span', undefined, `heat-swatch level-${i}`));
   legend.append(node('span', t("多")), node('span', t("斜线：无覆盖 / 未查询")));
@@ -40,7 +53,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
   const entityTip = node('p', undefined, 'activity-tooltip'); entityTip.setAttribute('role', 'status');
   entityPanel.append(entityHeading, entityCaption, entityGrid, entityTip);
   const note = node('p', undefined, 'activity-note');
-  root.append(heading, caption, scroll, tooltip, dailyPanel, legend, entityPanel, rankings, note);
+  root.append(heading, caption, metrics, recent, yearHeading, scroll, legend, tooltip, dailyPanel, entityPanel, rankings, note);
   function renderGrid(grid, tip, ranked, label) {
     grid.replaceChildren();
     tip.textContent = t("悬停或聚焦格子查看名称与次数。");
@@ -56,16 +69,32 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     if (!ranked.all.length) tip.textContent = ranked.ready ? t("当前没有可展示的项目。") : t("尚无统计数据。");
     if (!ranked.ready) tip.textContent = t("统计暂不可读取，不将失败当作零。");
   }
-  function render() {
+  function render(focusAfter) {
     if (!current) return;
     skillButton.setAttribute('aria-pressed', String(kind === 'skills')); pluginButton.setAttribute('aria-pressed', String(kind === 'plugins'));
     const adopting = metric === 'adoptions', calling = metric === 'calls';
     title.textContent = calling ? t("插件工具调用") : t("Skill 采用次数");
     const usage = calling ? current.pluginCalls : adopting ? current.adoptions : current.usage;
     const historical = (adopting ? usage?.catalog || [] : []).filter(s => !current.skills.some(p => p.id === s.id)).map(s => ({...s,historical:true,source:t("{0}（已不在当前清单）", s.source)}));
-    const view = activityView({...current,skills:[...current.skills,...historical],usage}, kind, year, metric);
+    const inventory = {...current,skills:[...current.skills,...historical],usage};
+    const view = activityView(inventory, kind, year, metric);
+    const recentView = recentActivity(inventory, kind, year, metric);
+    const today = activityToday(usage);
+    clearDay.textContent = t("返回全部");
+    yearHeading.textContent = t("年度足迹");
+    recentTitle.textContent = year === Number(today.slice(0,4)) ? t("近期活动") : t("年末活动");
+    recentScope.textContent = t("最近 30 天");
+    recentSummary.textContent = t("{0} 至 {1} · {2}", recentView.from, recentView.to, usage?.activity?.timeZone || 'UTC');
+    metrics.replaceChildren();
+    for (const [name, value] of [[calling ? t("近 30 天已记录调用") : t("近 30 天已记录采用"),recentView.total], [t("有记录天数"),recentView.activeDays], [calling ? t("有调用的插件") : t("有采用的 Skill"),recentView.usedItems]]) {
+      const item = node('div', undefined, 'activity-metric');
+      item.append(node('span', name), node('strong', recentView.ready && recentView.coverage.hasOverlap ? String(value) : '—'));
+      metrics.append(item);
+    }
+    if (!recentView.ready || !recentView.coverage.hasOverlap) recentSummary.textContent += ' · ' + t("所选日期无统计覆盖");
+    else if (recentView.coverage.partial || recentView.excluded) recentSummary.textContent += ' · ' + t("仅显示已记录活动，覆盖不完整");
     tooltip.textContent = t("将鼠标移到日期上，或用键盘选择日期查看使用量。");
-    dailyPanel.hidden = true; dailyGrid.replaceChildren(); dailyTip.textContent = '';
+    dailyPanel.hidden = true; dailyGrid.replaceChildren(); dailyTip.textContent = ''; dailyList.replaceChildren();
     const years = [...new Set([year, new Date().getFullYear(), ...(usage?.activity?.days || []).map(d => Number(d.date.slice(0, 4)))])].sort((a, b) => b - a);
     yearSelect.replaceChildren(...years.map(y => { const option = node('option', t("{0} 年", y)); option.value = String(y); return option; })); yearSelect.value = String(year);
     const label = calling ? t("工具调用尝试") : adopting ? t("采用") : metric === 'reads' ? t("读取请求") : t("显式标记");
@@ -83,21 +112,22 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     const cells = node('div', undefined, 'calendar-cells'); cells.setAttribute('aria-label', t("{0} 年每日{1}", year, label));
     const maximum = Math.max(1, ...view.days.values());
     const {start: lower, end: upper, incomplete} = view.coverage;
-    const buttons = [], dateButtons = new Map();
+    const buttons = [], dateButtons = new Map(), barButtons = new Map(), datePreviews = new Map();
     let restorePinned;
     const markPinned = () => {
-      for (const [date, button] of dateButtons) {
+      for (const [date, button] of [...dateButtons, ...barButtons]) {
         button.setAttribute('aria-pressed', String(date === pinnedDate));
         button.style.boxShadow = date === pinnedDate ? '0 0 0 2px var(--focus)' : '';
       }
     };
     for (const date of dates) {
       if (!date) { cells.append(node('span', undefined, 'heat-empty')); continue; }
-      const count = view.days.get(date) || 0;
+      const future = date > today;
+      const count = future ? 0 : view.days.get(date) || 0;
       const unknown = !count && (incomplete || !lower || !upper || date < lower || date > upper);
       const level = count ? Math.min(4, Math.max(1, Math.ceil(4 * count / maximum))) : 0;
-      const button = node('button', undefined, `heat-cell ${unknown ? 'heat-unknown' : `level-${level}`}`); button.type = 'button'; button.tabIndex = buttons.length ? -1 : 0;
-      const description = `${date}：${unknown ? t("无覆盖或未查询，不能判断使用量") : t("{0} 次{1}", count, label)}`;
+      const button = node('button', undefined, `heat-cell ${future ? 'heat-future' : unknown ? 'heat-unknown' : `level-${level}`}`); button.type = 'button'; button.tabIndex = buttons.length ? -1 : 0;
+      const description = `${date}：${future ? t("未来日期") : unknown ? t("无覆盖或未查询，不能判断使用量") : t("{0} 次{1}", count, label)}`;
       button.title = description; button.setAttribute('aria-label', description);
       dateButtons.set(date, button);
       const show = () => {
@@ -106,13 +136,32 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
         dailyGrid.setAttribute('aria-label', `${date} · ${t("{0}使用量排序", kind === 'plugins' ? t("插件") : 'Skill')}`);
         renderGrid(dailyGrid, dailyTip, ranked, label);
         dailyPanel.hidden = false;
+        dailyTitle.textContent = t("{0} · 当天排名", date);
+        clearDay.hidden = !pinnedDate;
+        dailyGrid.hidden = Boolean(pinnedDate);
+        dailyTip.hidden = Boolean(pinnedDate);
+        dailyList.hidden = !pinnedDate;
+        dailyList.replaceChildren();
+        if (pinnedDate) {
+          const entries = future ? [] : ranked.all.filter(e => e.total > 0);
+          const max = Math.max(1, ...entries.map(e=>e.total));
+          for (const [index, entry] of entries.entries()) {
+            const row = node('li'), copy = node('div');
+            copy.append(node('strong', entry.name), node('span', t(entry.detail), 'ranking-detail'));
+            const track = node('span', undefined, 'ranking-track'), fill = node('span', undefined, 'ranking-fill');
+            fill.style.width = (100 * entry.total / max) + '%'; track.append(fill); copy.append(track);
+            row.append(node('span', String(index + 1), 'ranking-position'), copy, node('span', t("{0} 次",entry.total),'ranking-count')); dailyList.append(row);
+          }
+          if (!entries.length) dailyList.append(node('li', future ? t("未来日期") : unknown ? t("无覆盖或未查询，不能判断使用量") : t("已覆盖期间无记录"), 'daily-empty'));
+        }
       };
-      const preview = () => { if (!pinnedDate) show(); };
+      const preview = () => { tooltip.textContent = description; if (!pinnedDate) show(); };
+      datePreviews.set(date, preview);
       button.addEventListener('mouseenter', preview); button.addEventListener('focus', preview);
       button.addEventListener('click', () => {
         pinnedDate = pinnedDate === date ? null : date;
         for (const other of buttons) other.tabIndex = other === button ? 0 : -1;
-        markPinned(); show();
+        markPinned(); render({date,chart:'calendar'});
       });
       if (pinnedDate === date) restorePinned = show;
       button.addEventListener('keydown', event => {
@@ -124,13 +173,43 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
       buttons.push(button); cells.append(button);
     }
     calendar.append(months, cells);
+    recentChart.replaceChildren();
+    recentChart.setAttribute('aria-label', t("每日活动柱图"));
+    recentChart.style.setProperty('--days', Math.max(1,recentView.dates.length));
+    const peak = Math.max(2,2*Math.ceil(Math.max(0,...recentView.days.values())/2));
+    const yAxis = node('div', undefined, 'recent-yaxis');
+    yAxis.append(node('span',String(peak)),node('span',String(Math.round(peak/2))),node('span','0'));
+    const plot = node('div',undefined,'recent-plot'), xAxis = node('div',undefined,'recent-xaxis');
+    const recentButtons = [];
+    recentView.dates.forEach((date,index) => {
+      const count = recentView.days.get(date) || 0;
+      const unknown = !count && (incomplete || !lower || !upper || date < lower || date > upper);
+      const button = node('button',undefined,'activity-bar'+(unknown?' bar-unknown':count?'':' bar-zero')); button.type='button';
+      button.tabIndex = index ? -1 : 0;
+      const description = dateButtons.get(date)?.title || date;
+      button.title=description;button.setAttribute('aria-label',description);
+      const fill=node('span',undefined,'bar-fill');
+      fill.style.height=count?(100*count/peak)+'%':'3px'; button.append(fill);
+      for (const event of ['mouseenter','focus']) button.addEventListener(event,()=>{ tooltip.textContent=description; if(!pinnedDate) datePreviews.get(date)?.(); });
+      button.addEventListener('click',()=>{pinnedDate=pinnedDate===date?null:date;render({date,chart:'bar'});});
+      button.addEventListener('keydown',event=>{
+        const delta={ArrowRight:1,ArrowLeft:-1,ArrowUp:1,ArrowDown:-1}[event.key];if(delta===undefined)return;
+        event.preventDefault();const next=recentButtons[Math.min(recentButtons.length-1,Math.max(0,index+delta))];button.tabIndex=-1;next.tabIndex=0;next.focus();
+      });
+      barButtons.set(date,button);recentButtons.push(button);plot.append(button);
+      if(index===0 || index===recentView.dates.length-1 || (index%7===0 && index<recentView.dates.length-3)) {
+        const tick=node('span',date.slice(5).replace('-','/'));tick.style.gridColumn=String(index+1);xAxis.append(tick);
+      }
+    });
+    recentChart.append(yAxis,plot,xAxis);
     markPinned();
     if (restorePinned) restorePinned();
     entityTitle.textContent = t("{0}使用量排序", kind === 'plugins' ? t("插件") : 'Skill');
     for (const input of [dateFrom, dateTo]) { input.min = `${year}-01-01`; input.max = `${year}-12-31`; }
     const validRange = dateFrom.value && dateTo.value && dateFrom.value <= dateTo.value && dateFrom.checkValidity() && dateTo.checkValidity();
     let rankingView = view;
-    rankings.hidden = !validRange;
+    rankings.hidden = !validRange || Boolean(pinnedDate);
+    entityPanel.hidden = Boolean(pinnedDate);
     entityGrid.replaceChildren();
     entityTip.textContent = t("悬停或聚焦格子查看名称与次数。");
     if (!validRange) {
@@ -214,6 +293,11 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     if (adopting && !usage?.coverage?.from && view.ready) entityTip.textContent = t("尚未收到 record_skill_use 记录；启用工具不会自动回填历史使用量。");
     if (calling) { note.textContent = t("插件调用与 Skill 采用分开统计，失败调用也计数。启用本机自动采集后读取宿主 McpToolCall 事件，按原调用时间统计；仅覆盖可读日志，缺失记录不代表从未调用。"); if (!view.ready) caption.textContent = t("插件调用记录暂不可读取。"); else if (!usage.coverage.from) caption.textContent = t("尚未收到插件工具调用记录；请检查自动采集状态与日志覆盖。"); }
     if (adopting) note.textContent = t("{0} 数据由助手主动记录，不是宿主独立验证；未接入记录约定的客户端可能漏记。记录开始前不补造数据，旧推断数据不混入采用次数。", kind === 'plugins' ? t("插件汇总所属 Skill 的采用次数，不含插件工具调用。") : t("每次采用分别计数，同一对话重复采用不合并。"));
+    if (focusAfter?.date) {
+      const group=focusAfter.chart==='bar'?barButtons:dateButtons;
+      for(const [date,button] of group)button.tabIndex=date===focusAfter.date?0:-1;
+      group.get(focusAfter.date)?.focus?.({preventScroll:true});
+    }
   }
   const update = inventory => { current = inventory; render(); };
   update.setLocale = next => {

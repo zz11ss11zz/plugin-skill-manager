@@ -424,3 +424,12 @@
 - Windows / Node 20.18.1: 71 tests passed, zero failures or skips with SKILL_MANAGER_TEST_CODEX=1, including standalone packaged MCP auto-capture/restart tests.
 - Seven isolated real-CLI lifecycle checks passed: install, companion Skill discovery, cached MCP resource/restart persistence, implicit source-change rejection, explicit 0.3.2-to-0.3.3 upgrade, uninstall and reinstall retaining synthetic data.
 - Native desktop sidebar acceptance and official directory submission were not performed. Automatic capture remains opt-in; personal activity/configuration was excluded from all public files.
+
+
+## 2026-10-28 v0.4.0 release validation
+
+- Built on the published v0.3.3 commit 54eb6085db9fde4c2ae17e9a6d93b780334b2c7d. Muted teal light/dark colors, recorded 30-day summaries, daily bars, shared calendar/date selection, named daily rankings and Back to all are implemented. Activity/Manage are the only navigation views.
+- Windows / Node 20.18.1: 73 tests passed, zero failures or skips with SKILL_MANAGER_TEST_CODEX=1. New regressions cover time-zone-aware inclusive windows, year boundaries, separate metrics, no-coverage values, future dates, cross-chart selection and returning to the period filter.
+- Actual headless Chrome checks passed in Chinese and English with synthetic data: hover, pin/restore, both chart highlights, named ranks, Skill switching, arrow keys/Enter with retained focus, both color schemes, 360px panel without page-level horizontal overflow and Manage/source navigation. No browser page errors. Screenshot capture disables transitions to avoid recording intermediate theme colors.
+- Seven isolated real-CLI lifecycle checks passed for v0.3.3 to v0.4.0, including companion discovery, cached MCP resource startup, preserved records across upgrade/restart/uninstall/reinstall and explicit source-replacement enforcement.
+- Capture opt-in and persisted records were not changed by the UI update. Preview fixtures are synthetic; public screenshots contain no personal activity. Native Codex sidebar UI acceptance and official-directory submission were not performed.

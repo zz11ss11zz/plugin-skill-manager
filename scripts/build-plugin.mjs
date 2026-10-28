@@ -29,7 +29,7 @@ const manifest = {
     onboardingSkill: './skills/setup/SKILL.md',
     interface: JSON.parse(await readFile('packaging/interface.json', 'utf8')),
     review: { test_cases: JSON.parse(await readFile('packaging/review-cases.json', 'utf8')) },
-    publication: { release_notes: 'Version 0.3.3: opt-in automatic local plugin-call capture across chats, persisted enable/disable and a shared 5–3600 second interval, original event timestamps and ID deduplication. Skill adoptions remain caller-reported. Activity/Manage and violet heatmaps are unchanged. Native desktop review remains pending.' },
+    publication: { release_notes: 'Version 0.4.0: muted teal activity charts, recorded 30-day summaries, daily bars linked to the annual calendar, named daily rankings and Back to all. Hover/focus, keyboard navigation and separate plugin/Skill metrics are retained. Only Activity and Manage views; capture remains opt-in. Native desktop review remains pending.' },
   } },
 };
 const mcp = { mcpServers: { 'plugin-skill-manager': { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}' } } };

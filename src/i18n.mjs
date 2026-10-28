@@ -3,6 +3,22 @@ export function resolveLocale(host, fallback = 'en') {
   return /^zh(?:[-_]|$)/i.test(value) ? 'zh' : 'en';
 }
 export const english = {
+  "返回全部": "Back to all",
+  "年度足迹": "Year in view",
+  "近期活动": "Recent activity",
+  "年末活动": "Year-end activity",
+  "最近 30 天": "Last 30 days",
+  "近 30 天已记录调用": "Recorded calls · 30 days",
+  "近 30 天已记录采用": "Recorded adoptions · 30 days",
+  "有记录天数": "Days with records",
+  "有调用的插件": "Plugins with calls",
+  "有采用的 Skill": "Skills with adoptions",
+  "{0} 至 {1} · {2}": "{0} to {1} · {2}",
+  "仅显示已记录活动，覆盖不完整": "Recorded activity only; coverage is incomplete",
+  "未来日期": "Future date",
+  "{0} · 当天排名": "{0} · Daily ranking",
+  "已覆盖期间无记录": "No records during covered period",
+  "每日活动柱图": "Daily activity bar chart",
   "核对清单": "Check inventory",
   "核对中…": "Checking…",
   "核对失败，请重试。": "Check failed. Try again.",

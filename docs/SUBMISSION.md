@@ -1,6 +1,10 @@
 # Official submission preparation / 官方提交准备
 
-Prepared 2026-10-28 for 0.3.3. **This version has not been uploaded, submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
+Prepared 2026-10-28 for 0.4.0. **This version has not been uploaded, submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
+
+## v0.4.0 package selection
+
+Current desktop-root package: `plugin-skill-manager-0.4.0-desktop-package.zip`; manual installer: `plugin-skill-manager-0.4.0-plugin.zip`; verify `SHA256SUMS-0.4.0.txt`. Teal charts and daily ranking interaction are included. Prior package-selection notes below are historical. No portal upload, native acceptance or official listing is claimed for this version.
 
 ## v0.3.3 package selection
 

@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-28",
+  "version": "0.4.0",
+  "data": "Synthetic; not native Codex",
+  "zh": {
+    "checks": [
+      "bar hover, click, cross-chart pin, daily named ranks and return to period",
+      "separate Skill metric and keyboard daily selection",
+      "light/dark palette and 360px panel without whole-page overflow",
+      "existing Manage/source navigation remains available"
+    ],
+    "errors": [],
+    "locale": "zh",
+    "viewport": 1100,
+    "narrowPanel": 360,
+    "data": "Synthetic only",
+    "nativeDesktop": "not tested"
+  },
+  "en": {
+    "checks": [
+      "bar hover, click, cross-chart pin, daily named ranks and return to period",
+      "separate Skill metric and keyboard daily selection",
+      "light/dark palette and 360px panel without whole-page overflow",
+      "existing Manage/source navigation remains available"
+    ],
+    "errors": [],
+    "locale": "en",
+    "viewport": 1100,
+    "narrowPanel": 360,
+    "data": "Synthetic only",
+    "nativeDesktop": "not tested"
+  }
+}

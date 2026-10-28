@@ -119,3 +119,24 @@ export function calendarDays(year) {
   while (result.length % 7) result.push(null);
   return result;
 }
+
+// Calendar dates follow the ledger's time zone, not the browser's UTC date.
+export function activityToday(usage, now = Date.now()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: usage?.activity?.timeZone || 'UTC', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(new Date(now)).map(p => [p.type, p.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+export function recentActivity(inventory, kind, year, metric, now = Date.now()) {
+  const today = activityToday(inventory.usage, now);
+  const end = today < `${year}-12-31` ? today : `${year}-12-31`;
+  const start = new Date(Date.parse(end) - 29 * 86400000).toISOString().slice(0, 10);
+  const from = start < `${year}-01-01` ? `${year}-01-01` : start;
+  const view = activityView(inventory, kind, year, metric, {from, to:end});
+  const dates = [];
+  for (let day = Date.parse(from); day <= Date.parse(end); day += 86400000) dates.push(new Date(day).toISOString().slice(0, 10));
+  return {...view, from, to:end, dates, today,
+    activeDays:[...view.days.values()].filter(n => n > 0).length,
+    usedItems:view.all.filter(e => e.total > 0).length};
+}
