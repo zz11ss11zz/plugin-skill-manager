@@ -59,7 +59,7 @@ for (let day=0; day<demoDays; day++) {
   batches['demo_adoption_'+String(day).padStart(6,'0')]={at,skills};
   for(let n=0;n<1+day%11;n++) {
     const plugin=['repo_demo','notes_demo','papers_demo'][n%3];
-    calls.push({id:'demo_call_'+String(day).padStart(6,'0')+'_'+String(n).padStart(4,'0'),at,plugin,tool:'mcp__codex_apps__'+plugin+'_read'});
+    calls.push({id:'demo_call_'+String(day).padStart(6,'0')+'_'+String(n).padStart(4,'0'),at,plugin,tool:'mcp__codex_apps__'+plugin+'_read',source: n % 3 === 0 ? undefined : 'host-event',status:'completed'});
   }
 }
 await file('adoptions.json',JSON.stringify({version:1,catalog,batches}));

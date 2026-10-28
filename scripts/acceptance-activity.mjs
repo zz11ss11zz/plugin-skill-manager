@@ -21,6 +21,15 @@ try{
   assert.equal(await f.locator('.activity-bar').count(),30);
   const visibleText=await f.locator('body').innerText();
   if(english)assert.ok(!/[\u3400-\u9fff]/.test(visibleText), 'English preview has untranslated UI text');
+  assert.ok((await f.locator('.activity-quality').innerText()).includes(t('宿主事件','Host events')));
+  const hostCount=await f.locator('.activity-metrics strong').first().innerText();
+  await f.getByRole('button',{name:t('助手上报','Assistant reports'),exact:true}).click();
+  assert.ok((await f.locator('.activity-quality').innerText()).includes(t('来源：助手上报','Source: Assistant reports')));
+  const reportCount=await f.locator('.activity-metrics strong').first().innerText();
+  assert.notEqual(reportCount,hostCount,'Synthetic sources must not be added');
+  await f.getByRole('button',{name:t('宿主事件','Host events'),exact:true}).click();
+  assert.equal(await f.locator('.activity-metrics strong').first().innerText(),hostCount);
+  checks.push('source tabs select independent counts and explain coverage');
   const bar=f.locator('.activity-bar').last();
   const label=await bar.getAttribute('aria-label'),date=label.slice(0,10);
   await bar.hover();

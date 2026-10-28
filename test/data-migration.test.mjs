@@ -39,7 +39,7 @@ test('migration preserves all stores and byte-identical rollback backup; restart
     assert.deepEqual(await readFile(path.join(f.source, name)), await readFile(path.join(f.target, 'migration-backup', name)));
   }
   assert.equal((await new Adoptions(path.join(f.target, 'adoptions.json')).summary()).total, 2);
-  assert.equal((await new PluginCalls(path.join(f.target, 'plugin-calls.json')).summary()).total, 1);
+  assert.equal((await new PluginCalls(path.join(f.target, 'plugin-calls.json')).summary()).sources['assistant-report'].total, 1);
   assert.equal((await new UsageIndex({ stateFile: path.join(f.target, 'usage-index.json') }).query([])).totalEvents, 0);
   await new SkillNotes(path.join(f.target, 'skill-notes.json')).save({ id: f.id, fingerprint: f.fingerprint, note: '升级后新增', retain: true, expectedRevision: 1 });
   assert.equal((await initializeData(f)).migrated, false);

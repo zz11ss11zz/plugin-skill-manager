@@ -124,7 +124,7 @@ try {
   assert.deepEqual(await hashes(persistent), original);
   assert.deepEqual(await hashes(path.join(persistent, 'migration-backup')), original);
   let opened = await tool('open_skill_manager');
-  assert.equal(opened.adoptions.total, 2); assert.equal(opened.pluginCalls.total, 1);
+  assert.equal(opened.adoptions.total, 2); assert.equal(opened.pluginCalls.sources['assistant-report'].total, 1);
   assert.equal(opened.usage.counts['explicit-marker'].events, 1);
   assert.equal(opened.skills.find(s => s.id === skill.id).annotation.note, '迁移前验收备注');
   check('installed packaged service migrates and reads all four stores');
@@ -136,7 +136,7 @@ try {
   await stop();
   await start(cached);
   opened = await tool('open_skill_manager');
-  assert.equal(opened.adoptions.total, 4); assert.equal(opened.pluginCalls.total, 2);
+  assert.equal(opened.adoptions.total, 4); assert.equal(opened.pluginCalls.sources['assistant-report'].total, 2);
   assert.equal(opened.usage.counts['explicit-marker'].events, 2);
   assert.equal(opened.skills.find(s => s.id === skill.id).annotation.note, '升级后验收备注');
   check('restart retains added notes, repeated adoptions, calls and imported signals');
@@ -156,7 +156,7 @@ try {
     await install();
     cached = await cachedPackage();
     await start(cached); opened = await tool('open_skill_manager');
-    assert.equal(opened.adoptions.total, 4); assert.equal(opened.pluginCalls.total, 2);
+    assert.equal(opened.adoptions.total, 4); assert.equal(opened.pluginCalls.sources['assistant-report'].total, 2);
     assert.deepEqual(await hashes(persistent), updated); await stop();
     check('same-version marketplace replacement retains data and starts successfully');
   }
@@ -172,7 +172,7 @@ try {
   await install();
   cached = await cachedPackage();
   await start(cached); opened = await tool('open_skill_manager');
-  assert.equal(opened.adoptions.total, 4); assert.equal(opened.pluginCalls.total, 2);
+  assert.equal(opened.adoptions.total, 4); assert.equal(opened.pluginCalls.sources['assistant-report'].total, 2);
   assert.equal(opened.usage.counts['explicit-marker'].events, 2);
   assert.equal(opened.skills.find(s => s.id === skill.id).annotation.note, '升级后验收备注');
   assert.deepEqual(await hashes(persistent), updated); await stop();
@@ -180,13 +180,13 @@ try {
   const rollback = path.join(root, 'rollback');
   await start(cached, { CODEX_SKILL_MANAGER_DATA_DIR: rollback, CODEX_SKILL_MANAGER_LEGACY_DIR: path.join(persistent, 'migration-backup') });
   opened = await tool('open_skill_manager');
-  assert.equal(opened.adoptions.total, 2); assert.equal(opened.pluginCalls.total, 1);
+  assert.equal(opened.adoptions.total, 2); assert.equal(opened.pluginCalls.sources['assistant-report'].total, 1);
   assert.equal(opened.usage.counts['explicit-marker'].events, 1);
   assert.equal(opened.skills.find(s => s.id === skill.id).annotation.note, '迁移前验收备注');
   assert.deepEqual(await hashes(persistent), updated); await stop();
   check('snapshot rollback restores original values without overwriting current data');
   await start(cached, { CODEX_SKILL_MANAGER_DATA_DIR: path.join(root, 'restore-latest'), CODEX_SKILL_MANAGER_LEGACY_DIR: path.join(root, 'stopped-backup') });
-  opened = await tool('open_skill_manager'); assert.equal(opened.adoptions.total, 4); assert.equal(opened.pluginCalls.total, 2);
+  opened = await tool('open_skill_manager'); assert.equal(opened.adoptions.total, 4); assert.equal(opened.pluginCalls.sources['assistant-report'].total, 2);
   assert.equal(opened.skills.find(s => s.id === skill.id).annotation.note, '升级后验收备注');
   await stop(); assert.deepEqual(await hashes(legacy), original);
   check('stopped backup recovers later records; original legacy files remain unchanged');

@@ -12,13 +12,13 @@ test('global panel loads without a pushed result and refreshes on return without
   const docEvents = {}, windowEvents = {}, updates = [], status = {setAttribute(){}}, doc = {documentElement:{},
     hidden:false, querySelector:()=>status, addEventListener:(name,fn)=>{docEvents[name]=fn;},
   };
-  let now = 1000, requests = 0, resolveRequest, rejectRequest;
+  let now = 1000, requests = 0, resolveRequest, rejectRequest, managing = false;
   class App {
     getHostContext(){return {locale:'zh-CN'};}
     connect() { return Promise.resolve(); }
     callServerTool() { requests++; return new Promise((resolve,reject)=>{resolveRequest=resolve;rejectRequest=reject;}); }
   }
-  vm.runInNewContext(source, {createManagementPanel:()=>Object.assign(()=>{},{setLocale(){}}),packageInfo:{version:"test"},App,navigator:{language:"zh-CN"},resolveLocale,translator,createActivityPanel:()=>Object.assign(data=>updates.push(data.adoptions.total),{setLocale(){}}),document:doc,
+  vm.runInNewContext(source, {createManagementPanel:()=>Object.assign(()=>{},{setLocale(){},isManaging:()=>managing}),packageInfo:{version:"test"},App,navigator:{language:"zh-CN"},resolveLocale,translator,createActivityPanel:()=>Object.assign(data=>updates.push(data.adoptions.total),{setLocale(){}}),document:doc,
     window:{addEventListener:(name,fn)=>{windowEvents[name]=fn;}},Date:{now:()=>now}});
   await tick(); assert.equal(requests,1);
   windowEvents.focus(); docEvents.visibilitychange(); assert.equal(requests,1);
@@ -29,6 +29,8 @@ test('global panel loads without a pushed result and refreshes on return without
   now+=2000; windowEvents.focus(); rejectRequest(new Error('temporary')); await tick();
   assert.equal(status.hidden,false); assert.match(status.textContent,/保留上次结果/); assert.deepEqual(updates,[0,3]);
   now+=2000; windowEvents.focus(); resolveRequest(result(4)); await tick(); assert.equal(status.hidden,true);
+  managing=true; now+=2000; windowEvents.focus(); docEvents.visibilitychange();
+  assert.equal(requests,4,'management interactions must not trigger full inventory polling');
 });
 
 test('an initial host result avoids a second startup scan', async () => {

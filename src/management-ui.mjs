@@ -6,15 +6,16 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
   async function checkView(force = false) {
     const target = view, check = checks[target];
     if (!check || busy || check.loading || (!force && check.at && Date.now() - check.at < 60000)) return;
-    check.loading = true; check.error = ''; busy = true; render();
+    check.loading = true; check.error = ''; render();
     try {
       const result = await callTool({ name: 'check_plugin_status', arguments: {} });
       if (result.isError) throw new Error(result.content?.find(c => c.type === 'text')?.text || text('检查失败', 'Check failed'));
       const value = result.structuredContent;
       if (value?.mode !== 'inventory') throw new Error(text('清单暂不可读取', 'Inventory unavailable'));
-      data = value; onInventory(result);
+      data = value.inventoryScope === 'management' ? { ...data, ...value } : value;
+      onInventory(result);
     } catch (error) { check.error = error.message; }
-    finally { check.at = Date.now(); check.loading = false; busy = false; render(); }
+    finally { check.at = Date.now(); check.loading = false; render(); }
   }
   function renderCheck() {
     const check = checks[view];
@@ -37,7 +38,7 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     node.addEventListener('click', action); return node;
   }
   async function invoke(name, args = {}) {
-    if (busy) return;
+    if (busy || checks.manage.loading) return;
     busy = true; feedback.textContent = text('正在处理…', 'Working…'); render();
     try {
       const result = await callTool({ name, arguments: args });
@@ -118,18 +119,11 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
   function renderSources() {
     const skills = data?.skills || [], groups = ['personal', 'system', 'plugins'];
     if (skills.some(s => sourceGroup(s) === 'other')) groups.push('other');
-    const table = el('table', '', 'source-summary');
-    table.setAttribute('aria-label', text('按来源查看 Skill', 'Browse Skills by source'));
-    const head = el('thead'), headings = el('tr');
-    for (const label of [text('来源', 'Source'), text('Skill 文件数', 'Skill files')]) {
-      const th = el('th', label); th.setAttribute('scope', 'col'); headings.append(th);
-    }
-    head.append(headings); table.append(head);
-    const rows = el('tbody');
+    const summary = el('div', '', 'manager-actions inventory-filters');
+    summary.setAttribute('aria-label', text('按来源查看 Skill', 'Browse Skills by source'));
     for (const group of [...groups, '']) {
       const total = group ? skills.filter(s => sourceGroup(s) === group).length : skills.length;
       const label = group ? groupLabel(group) : text('合计', 'Total');
-      const row = el('tr', '', group ? '' : 'source-total'), cell = el('td'); cell.setAttribute('colspan', '2');
       const action = button('', () => {
         source = group; search = ''; render();
         body.querySelector?.(`[data-source="${group}"]`)?.focus();
@@ -138,10 +132,10 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
       action.setAttribute('aria-pressed', String(source === group));
       action.setAttribute('aria-label', text(`${label}，${total} 个 Skill 文件`, `${label}, ${total} Skill ${total === 1 ? 'file' : 'files'}`));
       action.append(el('span', label), el('span', String(total), 'source-count'));
-      cell.append(action); row.append(cell); rows.append(row);
+      summary.append(action);
     }
-    table.append(rows); body.append(table);
-    body.append(el('p', text('点击来源查看下方列表。缓存中的技能不代表插件当前已启用。', 'Choose a source to filter the list below. Cached Skills do not confirm that a plugin is enabled.'), 'source-hint'));
+    body.append(summary);
+    body.append(el('p', text('点击来源查看下方列表。缓存中的技能不代表插件当前已启用。', 'Choose a source to filter the list below. Cached Skills do not confirm that a plugin is enabled.'), 'manager-meta'));
   }
   function pluginEntries() {
     const entries = new Map();
@@ -166,7 +160,7 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
   }
   function renderPlugins() {
     const entries = pluginEntries(), verified = Boolean(data?.pluginRegistry);
-    const summary = el('div', '', 'manager-actions');
+    const summary = el('div', '', 'manager-actions inventory-filters');
     summary.setAttribute('aria-label', text('插件状态筛选', 'Filter plugin status'));
     for (const state of ['', 'enabled', 'disabled', 'unknown', 'cache']) {
       const count = entries.filter(p => state ? p.state === state : p.records.length).length;
@@ -180,7 +174,7 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
       ? text(`最近核验：${data.pluginRegistry.checkedAt}。插件按唯一 ID 计数；已启用不代表当前会话已加载。`, `Last checked: ${data.pluginRegistry.checkedAt}. Plugins count unique IDs; enabled does not confirm loading in this chat.`)
       : text('安装清单尚未核验。缓存候选不代表已安装；未知数量不记为零。', 'Installation inventory is unverified. Cache candidates do not confirm installation; unknown counts are not zero.'), 'manager-meta'));
     if (checks.manage.error && verified) body.append(el('p', text('以下保留上次核验结果，可能已过期。', 'Showing the previous check; results may be stale.'), 'manager-meta'));
-    const label = el('label', text('搜索插件', 'Search plugins')), input = el('input');
+    const label = el('label', text('搜索插件', 'Search plugins'), 'inventory-search'), input = el('input');
     input.type = 'search'; input.value = pluginSearch; input.placeholder = text('名称、市场或版本', 'Name, marketplace or version'); label.append(input); body.append(label);
     const count = el('p', '', 'manager-meta'), list = el('ul', '', 'manager-list');
     count.setAttribute('aria-live', 'polite'); body.append(count, list);
@@ -213,7 +207,7 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
   function render() {
     renderNav(); body.replaceChildren(); if (view === 'activity') return;
     const toolbar = el('div', '', 'manager-toolbar'), actions = el('div', '', 'manager-actions');
-    actions.append(button(text('刷新清单', 'Refresh inventory'), () => checkView(true)));
+    actions.append(button(checks.manage.loading ? text('刷新中…', 'Refreshing…') : text('刷新清单', 'Refresh inventory'), () => checkView(true), checks.manage.loading));
     const tabs = el('div', '', 'manager-actions');
     tabs.setAttribute('aria-label', text('清单类型', 'Inventory type'));
     for (const [kind, label] of [['plugins', text('插件', 'Plugins')], ['skills', text('技能', 'Skills')]]) {
@@ -226,15 +220,13 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     if (inventoryKind === 'plugins') { renderPlugins(); return; }
     renderPlan();
     renderSources();
-    const filters = el('div', '', 'manager-filters'), searchLabel = el('label', text('搜索当前分类', 'Search this category')), input = el('input');
+    const searchLabel = el('label', text('搜索技能', 'Search skills'), 'inventory-search'), input = el('input');
     input.type = 'search'; input.value = search; searchLabel.append(input);
     input.placeholder = text('名称、说明或路径', 'Name, description or path');
-    const listHeading = el('h3', groupLabel(source), 'source-list-heading');
-    filters.append(listHeading, searchLabel);
     const count = el('p', '', 'manager-meta'), list = el('ul', '', 'manager-list');
     count.setAttribute('aria-live', 'polite');
     input.addEventListener('input', () => { search = input.value; renderList(list, count); });
-    body.append(filters, count, list); renderList(list, count);
+    body.append(searchLabel, count, list); renderList(list, count);
     body.append(el('h2', text('归档记录', 'Archives')));
     for (const archive of data?.archives || []) {
       const row = el('div', '', 'archive-row'); row.append(el('strong', archive.title), el('p', archive.original || archive.id), el('p', archive.status));
@@ -244,7 +236,11 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     if (!data?.archives?.length) body.append(el('p', text('尚无归档。', 'No archives yet.')));
     if (data?.issues?.length) { const issues = el('details'); issues.append(el('summary', text(`扫描问题：${data.issues.length}`, `Scan issues: ${data.issues.length}`))); for (const issue of data.issues) issues.append(el('p', `${issue.path}: ${issue.reason}`)); body.append(issues); }
   }
-  const update = value => { data = value; render(); };
+  const update = value => {
+    data = value.inventoryScope === 'management' ? { ...data, ...value } : value;
+    if (!checks.manage.loading) render();
+  };
+  update.isManaging = () => view === 'manage';
   update.setLocale = value => { locale = value; render(); };
   render(); return update;
 }

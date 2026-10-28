@@ -52,7 +52,7 @@ async function query(record = false) {
       assert.ok(!result.isError);
     }
     const opened = await client.callTool({ name: 'open_skill_manager', arguments: {} });
-    assert.equal(opened.structuredContent.pluginCalls.total, 1);
+    assert.equal((opened.structuredContent.pluginCalls.sources?.['assistant-report'] || opened.structuredContent.pluginCalls).total, 1);
     const entry = (await client.listTools()).tools.find(t => t.name === 'open_skill_manager');
     assert.match((await client.readResource({ uri: entry._meta.ui.resourceUri })).contents[0].text, /activity-panel/);
   } finally { await client.close(); await transport.close(); }

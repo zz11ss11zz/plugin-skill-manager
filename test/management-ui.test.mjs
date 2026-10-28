@@ -32,6 +32,11 @@ test('view checks run automatically, cache results, and offer retry only after f
   assert.equal(calls.length,0);
   assert.deepEqual(root.children[0].children.map(e=>e.textContent),['活动','管理']);
   click('管理'); assert.equal(calls.length,1); click('管理'); assert.equal(calls.length,1);
+  assert.equal(find('刷新中…').disabled,true);
+  assert.equal(find('技能').disabled,false,'inventory navigation stays usable while status is pending');
+  click('技能'); assert.equal(all().find(e=>e.type==='search').disabled,undefined);
+  click('活动'); assert.equal(activity.hidden,false,'slow refresh must not lock navigation');
+  click('管理'); assert.equal(calls.length,1,'pending refresh is reused');
   release(); await flush(); assert.equal(updated,1);
   assert.equal(find('核对插件状态'),undefined);
   click('活动'); click('管理'); assert.equal(calls.length,1);

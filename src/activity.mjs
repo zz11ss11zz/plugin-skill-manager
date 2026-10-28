@@ -34,7 +34,7 @@ export function activityCoverage(usage, year, range = {}, now = Date.now()) {
   const start = valid ? date(lower) : null, end = valid ? date(upper) : null;
   const effectiveFrom = start && (start > from ? start : from), effectiveTo = end && (end < to ? end : to);
   const hasOverlap = Boolean(valid && effectiveFrom <= effectiveTo);
-  const incomplete = !usage?.activity || Boolean(c?.pendingBytes || c?.issues?.length || c?.malformedLines || c?.oversizedLines);
+  const incomplete = !usage?.activity || c?.complete === false || Boolean(c?.pendingBytes || c?.issues?.length || c?.malformedLines || c?.oversizedLines);
   return {from,to,start,end,effectiveFrom:hasOverlap ? effectiveFrom : null,effectiveTo:hasOverlap ? effectiveTo : null,
     hasOverlap,incomplete,partial:!hasOverlap || incomplete || effectiveFrom !== from || effectiveTo !== to};
 }

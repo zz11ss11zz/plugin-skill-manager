@@ -18,7 +18,7 @@ test('plugin calls stay independent, deduplicate invocation IDs and preserve con
     assert.equal(await readFile(file,'utf8'),before);
     await assert.rejects(store.record([{...a,plugin:'slack'}]));
     await store.record([{...a,id:'test-invocation-00002'}]);
-    const summary=await new PluginCalls(file).summary({timeZone:'Asia/Shanghai'});
+    const summary=(await new PluginCalls(file).summary({timeZone:'Asia/Shanghai'})).sources['assistant-report'];
     assert.equal(summary.total,2); assert.equal(summary.tools[0].count,2);
     assert.equal((await new Adoptions(path.join(root,'adoptions.json')).summary()).total,0);
     const year=Number(summary.activity.days[0].date.slice(0,4));
@@ -31,8 +31,37 @@ test('plugin calls stay independent, deduplicate invocation IDs and preserve con
     const saved=JSON.parse(await readFile(file,'utf8'));
     saved.calls[0].at='2026-10-21T16:05:00Z'; saved.calls[1].at='2026-10-21T15:55:00Z';
     await writeFile(file,JSON.stringify(saved));
-    assert.deepEqual((await store.summary({timeZone:'Asia/Shanghai'})).activity.days.map(d=>d.date),['2026-10-21','2026-10-22']);
+    assert.deepEqual((await store.summary({timeZone:'Asia/Shanghai'})).sources['assistant-report'].activity.days.map(d=>d.date),['2026-10-21','2026-10-22']);
     await writeFile(file,'broken');
     await assert.rejects(store.record([a])); assert.equal(await readFile(file,'utf8'),'broken');
+  } finally {await rm(root,{recursive:true,force:true});}
+});
+
+test('host and assistant sources never sum; exact IDs corroborate and distinct IDs stay separate', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'call-sources-'));
+  try {
+    const store = new PluginCalls(path.join(root, 'calls.json'));
+    const report = {id:'source-report-000001',plugin:'github',tool:'mcp__codex_apps__github_get_repo'};
+    await store.record([report]);
+    const saved = await readFile(store.file, 'utf8');
+    let summary = await store.summary();
+    assert.equal(summary.total,0);
+    assert.equal(summary.sources['assistant-report'].total,1);
+    assert.equal(summary.coverage.from,null);
+    assert.equal(summary.sources['assistant-report'].coverage.complete,false);
+    assert.equal(await readFile(store.file,'utf8'),saved,'query must not migrate or overwrite old reports');
+    await store.record([{...report,id:'source-host-0000001',source:'host-event',at:'2026-10-28T01:00:00Z',status:'failed'}],{observed:true});
+    summary=await store.summary();
+    assert.equal(summary.total,1); assert.equal(summary.sources['assistant-report'].total,1);
+    assert.equal(summary.coverage.complete,false);
+    const view=activityView({skills:[],usage:summary,pluginRegistry:{plugins:[{id:'github@market'}]}},'plugins',2026,'calls');
+    assert.equal(view.coverage.incomplete,true); assert.equal(view.observation.mature,false);
+    await store.record([{...report,source:'host-event',at:'2026-10-28T02:00:00Z',status:'completed'}],{observed:true});
+    summary=await store.summary();
+    assert.equal(summary.total,2); assert.equal(summary.sources['assistant-report'].total,0);
+    assert.ok((await store.read()).calls.find(c=>c.id===report.id).reportedAt);
+    const before=await readFile(store.file,'utf8');
+    await store.record([report]); assert.equal(await readFile(store.file,'utf8'),before);
+    assert.equal((await store.summary({to:'2026-10-28T02:00:00Z'})).total,1);
   } finally {await rm(root,{recursive:true,force:true});}
 });

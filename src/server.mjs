@@ -21,16 +21,19 @@ export function createServer(roots, { queryPlugins = loadPluginStatus, usageInde
 const autoCapture = captureController;
 let pluginSnapshot = null, usageSnapshot = null;
 let usagePeriod = { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone };
-async function inventoryWithArchives() {
+async function inventoryWithArchives({ includeActivity = true } = {}) {
   let inventory = await scanInventory(roots);
+  if (includeActivity) {
   if (autoCapture) {
     try {
       const coverage = await autoCapture.refresh();
       if (coverage) inventory.capture = { ...coverage, intervalSeconds: autoCapture.current.intervalSeconds };
     }
     catch { inventory.issues.push({ path: autoCapture.collector.stateFile, reason: '自动采集失败，保留已有统计，请检查诊断状态' }); }
+    try { inventory.captureStatus = await autoCapture.info(); }
+    catch { inventory.captureStatus = { enabled: null, lastError: '无法读取采集状态' }; }
   }
-  if (pluginSnapshot) inventory = applyPluginStatus(inventory, pluginSnapshot);
+  else inventory.captureStatus = { enabled: false, coverage: null, lastError: null };
   // Restore persisted statistics after a service restart; never import chat logs on open.
   if (!usageSnapshot) {
     try { usageSnapshot = await usageIndex.query(inventory.skills, usagePeriod); }
@@ -41,8 +44,10 @@ async function inventoryWithArchives() {
   inventory.usage = usageSnapshot;
   try { inventory.pluginCalls = await pluginCalls.summary(usagePeriod); }
   catch { inventory.pluginCalls = null; inventory.issues.push({path:pluginCalls.file,reason:'插件调用记录无法读取；未将失败当作零'}); }
-  try { inventory.adoptions = await adoptions.summary(usagePeriod); }
+  try { inventory.adoptions = await adoptions.summary(usagePeriod); inventory.adoptions.coverage.complete = false; }
   catch { inventory.adoptions = null; inventory.issues.push({path:adoptions.file,reason:'采用记录无法读取；未将读取失败当作零使用'}); }
+  } else { inventory.inventoryScope = 'management'; delete inventory.usage; }
+  if (pluginSnapshot) inventory = applyPluginStatus(inventory, pluginSnapshot);
   inventory.managementSupported = process.platform === 'win32';
   try {
     const notes = await skillNotes.read();
@@ -100,17 +105,17 @@ server.registerTool('configure_auto_capture', {
 });
 server.registerTool('check_plugin_status', {
   title: '核对插件安装状态',
-  description: '显式调用官方 codex plugin list --json 核对插件安装版本和启用状态；CLI 可能查询已配置的插件市场。不上传技能文件或聊天。',
+  description: '通过官方 app-server plugin/installed 读取已安装插件版本和启用状态，不拉取远程市场目录，不扫描活动日志。',
   inputSchema: {},
   annotations: { readOnlyHint: !autoCapture, destructiveHint: false, openWorldHint: true },
 }, async () => {
   try {
     const status = await queryPlugins();
     pluginSnapshot = status;
-    const inventory = await inventoryWithArchives();
+    const inventory = await inventoryWithArchives({ includeActivity: false });
     return { content: [{ type: 'text', text: `已读取 ${status.plugins.length} 条插件安装记录；未匹配缓存不等于未安装。` }], structuredContent: inventory };
   } catch {
-    return { isError: true, content: [{ type: 'text', text: '无法读取插件安装清单。请检查 Codex CLI 是否可用、登录环境和网络；保留现有清单，不推断安装状态。' }] };
+    return { isError: true, content: [{ type: 'text', text: '无法读取插件安装清单。请检查 Codex CLI 是否支持 plugin/installed 及本地安装状态；保留现有清单，不推断安装状态。' }] };
   }
 });
 server.registerTool('import_usage', {
@@ -141,6 +146,7 @@ server.registerTool('query_usage', {
     try { result = await usageIndex.query(inventory.skills, period); }
     catch (error) { if (error.code !== 'ENOENT') throw error; }
     usagePeriod = period; usageSnapshot = result; inventory.usage = result;
+    adoptionSummary.coverage.complete = false;
     inventory.adoptions = adoptionSummary;
     inventory.pluginCalls = callSummary;
     return { content: [{ type: 'text', text: '已按期间查询统计；启用时自动采集插件宿主事件。' }], structuredContent: inventory };

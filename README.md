@@ -2,6 +2,8 @@
 
 Current release: **v0.4.0**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
+**Current main: v0.4.1 (not a new Release).** Plugins and Skills share a compact filter/search layout. Inventory refresh uses the installed-plugin endpoint and keeps navigation/search usable while waiting; a local packaged MCP check took 1.891 seconds for 28 plugins and 67 Skill files. Activity separates **Host events** from **Assistant reports** and labels Skill adoptions as assistant-reported. [Changes, compatibility and verification](docs/releases/v0.4.1.md). Existing v0.4.0 downloads remain unchanged.
+
 **New in v0.4.0:** Muted teal activity charts, recorded 30-day summaries and a daily bar chart linked to the annual calendar. Hover or focus to inspect a day; click a bar or square to pin named daily rankings, then choose **Back to all** to restore your date range. Only Activity and Manage remain.
 
 Optional automatic local host-event capture from v0.3.3 remains available, with persisted opt-in/disable and a shared 5–3600 second interval. [Setup and privacy](docs/AUTO_CAPTURE.md).

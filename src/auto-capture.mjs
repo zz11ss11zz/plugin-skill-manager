@@ -29,7 +29,8 @@ export class CallParser {
     const ms = Number.isFinite(p.started_at_ms) ? p.started_at_ms : Date.parse(record.timestamp);
     if (!Number.isFinite(ms)) return [];
     const id = /^[A-Za-z0-9_-]{16,160}$/.test(item.id) ? item.id : createHash('sha256').update(item.id).digest('hex');
-    return [{ id, plugin, tool, at: new Date(ms).toISOString(), source: 'host-event' }];
+    const status = ['completed', 'failed', 'cancelled', 'canceled'].includes(item.status) ? item.status : 'unknown';
+    return [{ id, plugin, tool, at: new Date(ms).toISOString(), source: 'host-event', status }];
   }
 }
 

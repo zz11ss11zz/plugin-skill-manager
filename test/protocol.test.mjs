@@ -49,9 +49,9 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     assert.equal((await client.callTool({name:'record_plugin_calls',arguments:callArgs})).isError,undefined);
     await client.callTool({name:'record_plugin_calls',arguments:callArgs});
     const callView=(await client.callTool({name:'query_usage',arguments:{timeZone:'Asia/Shanghai'}})).structuredContent;
-    assert.equal(callView.pluginCalls.total,1);
+    assert.equal(callView.pluginCalls.total,0); assert.equal(callView.pluginCalls.sources['assistant-report'].total,1);
     assert.equal(callView.adoptions.total,0);
-    assert.equal(callView.pluginCalls.catalog[0].name,'github');
+    assert.equal(callView.pluginCalls.sources['assistant-report'].catalog[0].name,'github');
     const skill = result.structuredContent.skills[0];
     const recordArgs = {id:'protocol-batch-000001',skills:['example','example']};
     const recorded = await client.callTool({name:'record_skill_use',arguments:recordArgs});
@@ -73,6 +73,10 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     assert.equal((await client.callTool({ name: 'open_skill_manager', arguments: {} })).structuredContent.skills[0].annotation.contentChanged, true);
     const checked = await client.callTool({ name: 'check_plugin_status', arguments: {} });
     assert.deepEqual(checked.structuredContent.pluginRegistry.plugins, []);
+    assert.equal(checked.structuredContent.inventoryScope, 'management');
+    assert.equal(checked.structuredContent.pluginCalls, undefined, 'inventory refresh does not reload activity ledgers');
+    assert.equal(checked.structuredContent.captureStatus, undefined);
+    assert.equal(Object.hasOwn(checked.structuredContent, 'usage'), false);
     const failed = await client.callTool({ name: 'check_plugin_status', arguments: {} });
     assert.equal(failed.isError, true);
     assert.equal(failed.structuredContent, undefined);
