@@ -29,7 +29,9 @@ await file('logs/demo.jsonl', JSON.stringify({ type: 'response_item', timestamp:
 // Deterministic synthetic activity for calendar, ranking and zero-state UI checks.
 for (let i = 1; i <= 6; i++) await file(`skills/unused-${i}/SKILL.md`, markdown(`unused-${i}`, '合成零使用示例'));
 const activityRows = [];
-for (let day = 0; day < 250; day++) {
+const demoYear = new Date().getUTCFullYear();
+const demoDays = Math.floor((Date.now()-Date.UTC(demoYear,0,1))/86400000)+1;
+for (let day = 0; day < demoDays; day++) {
   const timestamp = new Date(Date.UTC(new Date().getFullYear(), 0, day + 1, 12)).toISOString();
   const references = day % 4 ? ['report-demo', 'plugin-demo:chart-demo'] : ['system-demo'];
   for (let n = 0; n < (day % 7) + 1; n++) activityRows.push(JSON.stringify({type:'response_item',timestamp,payload:{type:'message',id:`heat-${day}-${n}`,role:'user',content:[{type:'input_text',text:references.map(r=>`$${r}`).join(' ')}]}}));
@@ -50,8 +52,8 @@ for (const id of ids) {
   const item = demoInventory.skills.find(s => s.id === id);
   catalog[id] = {id, name:item.name, source:item.source, fingerprint:item.fingerprint, owner:null};
 }
-for (let day=0; day<250; day++) {
-  const at = new Date(Date.UTC(2026,0,day+1,12)).toISOString();
+for (let day=0; day<demoDays; day++) {
+  const at = new Date(Date.UTC(demoYear,0,day+1,0)).toISOString();
   if (day%7===0) continue;
   const skills = Array.from({length:1+day%8},(_,n)=>ids[(day+n)%ids.length]);
   batches['demo_adoption_'+String(day).padStart(6,'0')]={at,skills};

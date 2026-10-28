@@ -2,25 +2,25 @@
 
 # Plugin & Skill Manager
 
-当前正式版本：**v0.3.3**。从旧标识 `codex-skill-manager` 升级时，请先看[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
+当前正式版本：**v0.4.0**。从旧标识 `codex-skill-manager` 升级时，请先看[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
 
-**v0.3.3 新增：**可选的本机跨聊天插件调用自动采集，读取真实宿主事件，支持持久化启停和 5–3600 秒检查间隔（默认 10 秒）。采集器不调用模型。[设置、隐私、token 开销与升级说明](docs/AUTO_CAPTURE.md)。本版完整包已包含此功能，历史 Release ZIP 保持不变。
+**v0.4.0 更新：**青绿与中性灰界面，新增近 30 天已记录统计和每日柱图，与年度格子联动。悬停或聚焦查看当天情况，点击柱子或格子固定当天的名称与次数排名，“返回全部”恢复原日期区间。仍只有活动和管理两页。
 
-**保留 v0.3.2 界面：**仅保留活动和管理两页，管理页支持点击 Skill 来源统计筛选、分类内搜索、缓存自动安装检查和紧凑操作按钮；紫色仅用于热力图色阶。
+继续保留 v0.3.3 的可选本机自动采集，启停与 5–3600 秒共享间隔持久保存。[配置与隐私](docs/AUTO_CAPTURE.md)。
 
 **给已记录的 Skill 采用和插件调用，一张看得懂的活动面板。**
 
 查看日期热力图、按时间筛选排名，分别理解 Skill 采用与插件调用尝试。记录保存在本机。
 
-[下载安装](docs/DISTRIBUTION.md) · [v0.3.3](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.3) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
+[下载安装](docs/DISTRIBUTION.md) · [v0.4.0](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.0) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
-![当前 main 演示：紫色活动热力图、来源分类、搜索与备注](docs/media/main-20261027/zh/demo.gif)
+![v0.4.0 青绿活动概览：柱图、年度格子与已记录统计；合成数据](docs/media/v040/activity-zh.png)
 
-2026-10-27 更新：30 秒展示当前 main 的插件调用、Skill 采用、管理总览、个人技能筛选、分类内搜索与来源详情。六张实际浏览器截图，每帧 5 秒；数据与路径均为合成示例。动画采集于升版前，版本标记仍显示 v0.3.1；所示界面已包含在 v0.3.3 中。[素材说明与复现](docs/media/README.md)。
+上图为 v0.4.0 实际浏览器截图，使用合成记录；包含活动／管理双页、每日柱图、年度格子与已记录统计，不是原生 Codex 截图。[验证与复现说明](docs/releases/v0.4.0.md)。
 
 ## 能帮你做什么
 
-- 查看一年中已记录的活动；悬停或聚焦日期查看当天排序，点击固定日期后继续查看各项详情。
+- 查看近 30 天与全年已记录活动；柱子和格子共享选中日期，点击显示当天完整的名称与次数排名，“返回全部”恢复区间筛选。
 - 在插件调用与 Skill 采用之间切换，避免混算。
 - 独立筛选区间排名，不与固定的单日混淆；区分没有覆盖和已记录为零。
 - 在精简的观察区查看低频候选与无记录项目，需要时展开统计说明；不会自动归档。
@@ -28,26 +28,26 @@
 - 进入管理页自动核对插件安装状态，结果缓存一分钟，失败时提供重试；仍可保存备注，预览并执行 Windows 用户技能的可逆归档与恢复。
 - 已移除独立“接入”页；配套 setup Skill 和只读记录诊断工具仍可在聊天中使用。
 
-完整产品由 **本地 MCP 服务＋活动界面＋配套 Skill** 组成。单独安装 Skill 不会安装服务；Skill 采用仍需助手主动记录；v0.3.3 中插件调用可明确启用本机日志自动采集，未启用时仍依赖调用方上报。本机日志覆盖不等于所有宿主活动的完整覆盖，不会补造采用历史。
+完整产品由 **本地 MCP 服务＋活动界面＋配套 Skill** 组成。单独安装 Skill 不会安装服务；Skill 采用仍需助手主动记录；v0.4.0 中插件调用可明确启用本机日志自动采集，未启用时仍依赖调用方上报。本机日志覆盖不等于所有宿主活动的完整覆盖，不会补造采用历史。
 
 ## 安装完整管理器
 
 已验证环境为 Windows，需要 Node.js 20.18+ 和 PATH 中可用的 Codex CLI。本项目为独立开源项目，不是 OpenAI 官方产品，尚未上架官方插件目录。
 
-下载 [v0.3.3 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.3.3/plugin-skill-manager-0.3.3-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
+下载 [v0.4.0 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.0/plugin-skill-manager-0.4.0-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-检查结果应显示已安装并启用的 0.3.3 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
+检查结果应显示已安装并启用的 0.4.0 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
 本版回归和隔离安装升级结果见验收记录。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
 ## 官方目录状态
 
-本次提供独立的 **v0.3.3 desktop-package.zip 提交包**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的 plugin.zip。
+本次提供独立的 **v0.4.0 desktop-package.zip 提交包**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的 plugin.zip。
 
 截至 2026-10-27，**0.3.1 草稿已上传**，尚未提交审核、获批或发布。门户当前提示暂不接受更多 skills-only 提交，本地 MCP 服务的识别与准入仍待确认。GitHub 发布包可手动安装；保存草稿不等于官方上架。
 

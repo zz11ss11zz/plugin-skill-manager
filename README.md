@@ -1,24 +1,24 @@
 # Plugin & Skill Manager
 
-Current release: **v0.3.3**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
+Current release: **v0.4.0**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
-**New in v0.3.3:** Optional automatic local plugin-call capture now reads real host events across chats, with persistent enable/disable and a configurable 5–3600 second interval (10 seconds by default). The collector makes no model calls. [Setup, privacy, token cost and upgrade notes](docs/AUTO_CAPTURE.md). Included in this release; historical release ZIPs remain unchanged.
+**New in v0.4.0:** Muted teal activity charts, recorded 30-day summaries and a daily bar chart linked to the annual calendar. Hover or focus to inspect a day; click a bar or square to pin named daily rankings, then choose **Back to all** to restore your date range. Only Activity and Manage remain.
 
-**Interface retained from v0.3.2:** Activity and Manage are the only views. Manage has clickable Skill source totals, category search, cached automatic installation checks and compact controls. Violet is limited to the heatmap color scale.
+Optional automatic local host-event capture from v0.3.3 remains available, with persisted opt-in/disable and a shared 5–3600 second interval. [Setup and privacy](docs/AUTO_CAPTURE.md).
 
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.3.3](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.3) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.0](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.0) · [Apache-2.0](LICENSE)
 
-![Current main: violet activity heatmaps, source categories, search and notes](docs/media/main-20261027/en/demo.gif)
+![v0.4.0 activity overview with teal bars and calendar; synthetic data](docs/media/v040/activity-en.png)
 
-*Updated 2026-10-27: a 30-second walkthrough of current main—plugin calls, Skill adoptions, Manage, personal Skills, category search, and source details. Six actual browser screenshots, five seconds each; synthetic records and example paths only. Captured before the version bump: the badge says v0.3.1, while the shown interface is included in v0.3.3. [Capture and reproduction details](docs/media/README.md).*
+*Actual v0.4.0 browser screenshot with synthetic records. Two-view navigation, daily bars, annual calendar and recorded summaries; this is not a native Codex screenshot. [Verification and reproduction](docs/releases/v0.4.0.md).*
 
 ## What it helps you do
 
-- See recorded activity over a year; hover or focus a date for its daily ranking, and click to pin it while inspecting items.
+- Compare recorded activity in the last 30 days and over a year. Bars and calendar squares share a selected date; pinned daily rankings list names and counts. Back to all restores the period filters.
 - Switch between Skill adoptions and plugin tool-call attempts without mixing the metrics.
 - Filter period rankings by date independently of the pinned day, and distinguish missing coverage from zero activity.
 - Inspect low-use candidates and items with no records in a compact observation panel. Open the counting details when needed; nothing is archived automatically.
@@ -32,20 +32,20 @@ The complete product combines a **local MCP service, an activity UI, and a compa
 
 Tested on Windows. Requires Node.js 20.18+ and the Codex CLI on PATH. This is an independent project, not an official OpenAI product or an official-directory listing.
 
-Download the [v0.3.3 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.3.3/plugin-skill-manager-0.3.3-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
+Download the [v0.4.0 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.0/plugin-skill-manager-0.4.0-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-The check should show the installed 0.3.3 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
+The check should show the installed 0.4.0 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
 
 Version-specific regression and installation results are recorded in the validation log. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
 
 ## Official directory status
 
-The **v0.3.3 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
+The **v0.4.0 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
 
 ## Optional: companion Skill
 
