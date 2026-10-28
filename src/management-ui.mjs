@@ -1,7 +1,7 @@
 // Management is a separate view; the activity homepage stays focused on counts.
 export function createManagementPanel(root, callTool, onInventory, initialLocale = 'zh') {
   let locale = initialLocale, data = null, view = 'activity', busy = false, plan = null;
-  let search = '', source = '';
+  let search = '', source = '', inventoryKind = 'plugins', pluginSearch = '', pluginFilter = '';
   const checks = { manage: { at: 0, error: '', loading: false } };
   async function checkView(force = false) {
     const target = view, check = checks[target];
@@ -143,12 +143,87 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     table.append(rows); body.append(table);
     body.append(el('p', text('点击来源查看下方列表。缓存中的技能不代表插件当前已启用。', 'Choose a source to filter the list below. Cached Skills do not confirm that a plugin is enabled.'), 'source-hint'));
   }
+  function pluginEntries() {
+    const entries = new Map();
+    for (const record of data?.pluginRegistry?.plugins || []) {
+      if (!entries.has(record.id)) entries.set(record.id, { id: record.id, records: [], skills: [] });
+      entries.get(record.id).records.push(record);
+    }
+    for (const skill of data?.skills || []) {
+      if (!skill.owner) continue;
+      const id = `${skill.owner.directory || skill.owner.name}@${skill.owner.marketplace}`;
+      if (!entries.has(id)) entries.set(id, { id, records: [], skills: [] });
+      entries.get(id).skills.push(skill);
+    }
+    return [...entries.values()].map(entry => {
+      const states = new Set(entry.records.map(r => r.enabled));
+      const state = !entry.records.length ? 'cache' : states.size !== 1 ? 'unknown' : states.has(true) ? 'enabled' : states.has(false) ? 'disabled' : 'unknown';
+      return { ...entry, state };
+    }).sort((a, b) => a.id.localeCompare(b.id));
+  }
+  function pluginStateLabel(state) {
+    return {enabled:text('已启用', 'Enabled'),disabled:text('已停用', 'Disabled'),unknown:text('状态未知', 'Unknown'),cache:text('仅缓存候选', 'Cache candidates')}[state];
+  }
+  function renderPlugins() {
+    const entries = pluginEntries(), verified = Boolean(data?.pluginRegistry);
+    const summary = el('div', '', 'manager-actions');
+    summary.setAttribute('aria-label', text('插件状态筛选', 'Filter plugin status'));
+    for (const state of ['', 'enabled', 'disabled', 'unknown', 'cache']) {
+      const count = entries.filter(p => state ? p.state === state : p.records.length).length;
+      const label = state ? pluginStateLabel(state) : text('已安装', 'Installed');
+      const action = button(`${label} · ${!verified && state !== 'cache' ? '—' : count}`, () => { pluginFilter = state; render(); });
+      action.setAttribute('aria-pressed', String(pluginFilter === state));
+      action.setAttribute('data-plugin-filter', state); summary.append(action);
+    }
+    body.append(summary);
+    body.append(el('p', verified
+      ? text(`最近核验：${data.pluginRegistry.checkedAt}。插件按唯一 ID 计数；已启用不代表当前会话已加载。`, `Last checked: ${data.pluginRegistry.checkedAt}. Plugins count unique IDs; enabled does not confirm loading in this chat.`)
+      : text('安装清单尚未核验。缓存候选不代表已安装；未知数量不记为零。', 'Installation inventory is unverified. Cache candidates do not confirm installation; unknown counts are not zero.'), 'manager-meta'));
+    if (checks.manage.error && verified) body.append(el('p', text('以下保留上次核验结果，可能已过期。', 'Showing the previous check; results may be stale.'), 'manager-meta'));
+    const label = el('label', text('搜索插件', 'Search plugins')), input = el('input');
+    input.type = 'search'; input.value = pluginSearch; input.placeholder = text('名称、市场或版本', 'Name, marketplace or version'); label.append(input); body.append(label);
+    const count = el('p', '', 'manager-meta'), list = el('ul', '', 'manager-list');
+    count.setAttribute('aria-live', 'polite'); body.append(count, list);
+    const populate = () => {
+      list.replaceChildren();
+      const category = entries.filter(p => pluginFilter ? p.state === pluginFilter : p.records.length);
+      const matches = category.filter(p => `${p.id} ${p.records.map(r => r.version).join(' ')} ${p.skills.map(s => s.owner.version).join(' ')}`.toLowerCase().includes(pluginSearch.toLowerCase()));
+      count.textContent = text(`显示 ${matches.length} / ${category.length} 个插件`, `Showing ${matches.length} of ${category.length} plugins`);
+      for (const plugin of matches) {
+        const item = el('li'), at = plugin.id.lastIndexOf('@');
+        item.append(el('h3', at < 0 ? plugin.id : plugin.id.slice(0, at)));
+        item.append(el('p', `${at < 0 ? '—' : plugin.id.slice(at + 1)} · ${pluginStateLabel(plugin.state)}`, 'manager-meta'));
+        const details = el('details'); details.append(el('summary', text('版本与关联技能', 'Versions and associated Skills')), el('p', plugin.id));
+        for (const record of plugin.records) details.append(el('p', `${record.version} · ${pluginStateLabel(record.enabled === true ? 'enabled' : record.enabled === false ? 'disabled' : 'unknown')}`));
+        const matching = plugin.skills.filter(s => plugin.records.some(r => r.version === s.owner.version));
+        const cached = plugin.skills.filter(s => !plugin.records.some(r => r.version === s.owner.version));
+        details.append(el('p', text(`匹配安装版本的 Skill 文件：${matching.length}`, `Skill files matching installed versions: ${matching.length}`)));
+        if (!matching.length) details.append(el('p', text('未扫描到匹配的 Skill 文件；插件可能仅提供工具或其他能力。', 'No matching Skill files were scanned; this plugin may provide tools or other capabilities.')));
+        for (const skill of matching) details.append(el('p', `${skill.name} · ${skill.owner.version} · ${skill.path}`));
+        if (cached.length) {
+          details.append(el('p', text(`未匹配安装版本的缓存 Skill 文件：${cached.length}`, `Cached Skill files without matching installed versions: ${cached.length}`)));
+          for (const skill of cached) details.append(el('p', `${skill.name} · ${skill.owner.version} · ${skill.path}`));
+        }
+        item.append(details); list.append(item);
+      }
+      if (!matches.length) list.append(el('p', !verified && pluginFilter !== 'cache' ? text('等待安装状态核验。', 'Awaiting installation status verification.') : text('没有匹配的插件。', 'No matching plugins.')));
+    };
+    input.addEventListener('input', () => { pluginSearch = input.value; populate(); }); populate();
+  }
   function render() {
     renderNav(); body.replaceChildren(); if (view === 'activity') return;
     const toolbar = el('div', '', 'manager-toolbar'), actions = el('div', '', 'manager-actions');
-    actions.append(button(text('刷新清单', 'Refresh inventory'), () => invoke('open_skill_manager')));
-    toolbar.append(el('h2', text('技能清单', 'Skill inventory')), actions); body.append(toolbar);
+    actions.append(button(text('刷新清单', 'Refresh inventory'), () => checkView(true)));
+    const tabs = el('div', '', 'manager-actions');
+    tabs.setAttribute('aria-label', text('清单类型', 'Inventory type'));
+    for (const [kind, label] of [['plugins', text('插件', 'Plugins')], ['skills', text('技能', 'Skills')]]) {
+      const action = button(label, () => { inventoryKind = kind; render(); });
+      action.setAttribute('aria-pressed', String(inventoryKind === kind)); tabs.append(action);
+    }
+    body.append(tabs);
+    toolbar.append(el('h2', inventoryKind === 'plugins' ? text('插件清单', 'Plugin inventory') : text('技能清单', 'Skill inventory')), actions); body.append(toolbar);
     renderCheck();
+    if (inventoryKind === 'plugins') { renderPlugins(); return; }
     renderPlan();
     renderSources();
     const filters = el('div', '', 'manager-filters'), searchLabel = el('label', text('搜索当前分类', 'Search this category')), input = el('input');
