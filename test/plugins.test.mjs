@@ -1,6 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePluginList, applyPluginStatus } from '../src/plugins.mjs';
+import { parsePluginList, parseInstalledPlugins, applyPluginStatus } from '../src/plugins.mjs';
+
+test('installed endpoint includes remote installs, prefers local versions and rejects incomplete discovery', () => {
+  const data = { marketplaces: [{ plugins: [
+    { id: 'local@bundled', installed: true, enabled: false, localVersion: '1', version: '2' },
+    { id: 'remote@curated', installed: true, enabled: true, localVersion: null, version: '3' },
+    { id: 'suggestion@curated', installed: false, version: '9' },
+  ] }], marketplaceLoadErrors: [] };
+  assert.deepEqual(parseInstalledPlugins(data), [
+    { id: 'local@bundled', version: '1', enabled: false },
+    { id: 'remote@curated', version: '3', enabled: true },
+  ]);
+  assert.throws(() => parseInstalledPlugins({ ...data, marketplaceLoadErrors: [{}] }));
+  assert.throws(() => parseInstalledPlugins({ marketplaces: [{}] }));
+});
 
 test('plugin list retains only required fields and rejects partial or malformed records', () => {
   assert.deepEqual(parsePluginList(JSON.stringify({ installed: [{ pluginId: 'demo@market', version: '2', installed: true, enabled: false, source: { path: 'private' } }] })), [{ id: 'demo@market', version: '2', enabled: false }]);

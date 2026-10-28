@@ -3,6 +3,21 @@ export function resolveLocale(host, fallback = 'en') {
   return /^zh(?:[-_]|$)/i.test(value) ? 'zh' : 'en';
 }
 export const english = {
+  "记录来源": "Record source",
+  "宿主事件": "Host events",
+  "助手上报": "Assistant reports",
+  "旧版记录，来源未确认": "Legacy records; source unverified",
+  "助手报告的 Skill 采用": "Assistant-reported Skill adoptions",
+  "来源：{0}。两种来源分别统计，不相加；不同 ID 的同一次调用可能重复。": "Source: {0}. Sources are counted separately, never added; different IDs may refer to the same call.",
+  "来源：助手主动上报。未接入宿主 Skill 调用事件，不等同官方调用次数。": "Source: assistant reports. Host Skill invocation events are not connected; these are not official invocation counts.",
+  "自动采集：{0} · 最近扫描：{1}": "Automatic capture: {0} · Last scan: {1}",
+  "已开启": "On",
+  "已关闭": "Off",
+  "未知": "Unknown",
+  "已记录事件范围：{0} 至 {1}": "Recorded event range: {0} to {1}",
+  "待处理 {0} 字节 · 读取问题 {1} · 无效或超长行 {2}": "Pending: {0} bytes · Read issues: {1} · Invalid or oversized lines: {2}",
+  "采集异常：{0}": "Capture error: {0}",
+  "仅反映已记录活动；空白不证明未使用，尚未与官方统计对账。": "Recorded activity only; blanks do not prove non-use. Not reconciled with official analytics.",
   "返回全部": "Back to all",
   "年度足迹": "Year in view",
   "近期活动": "Recent activity",

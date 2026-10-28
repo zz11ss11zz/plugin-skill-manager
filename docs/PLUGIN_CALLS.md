@@ -1,5 +1,9 @@
 # 独立插件工具调用统计
 
+## 0.4.1 来源分离
+
+活动页默认统计宿主事件，可切换助手上报；两种来源不相加。历史无 source 字段的记录属于助手上报。API 主统计 `pluginCalls` 为宿主事件，手动上报位于 `pluginCalls.sources['assistant-report']`。同一准确调用 ID 可被宿主证据核实，保留原上报时间；不同 ID 不做猜测合并。范围与对账规则见 [DATA_ACCURACY.md](DATA_ACCURACY.md)。
+
 `record_plugin_calls` 与 `record_skill_use` 使用独立文件和统计口径。前者存入持久数据目录的 `plugin-calls.json`，后者存入同目录的 `adoptions.json`。目录默认为 `$CODEX_HOME/skill-manager/data-v1`；未设置 CODEX_HOME 时为 `~/.codex/skill-manager/data-v1`，可由绝对路径 `CODEX_SKILL_MANAGER_DATA_DIR` 覆盖。旧 `.local` 仅作为显式迁移来源。两者不相加，也不互相转换。GitHub 等没有 Skill 的工具型插件可以直接进入调用排名。
 
 首页保留“插件”和“Skill”两个按钮。默认插件视图统计插件工具调用；点击 Skill 显示“Skill 采用次数”，计数仍来自 Skill 采用账本。两栏均移除统计口径下拉框，仅保留年份与日期筛选。标题随按钮同步，日历、逐项热力图和排名使用对应账本。只有记录过的插件进入调用清单，不能用此清单判断哪些插件已安装。

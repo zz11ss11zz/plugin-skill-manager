@@ -35,8 +35,17 @@ export class PluginCalls {
       for (const call of calls) {
         const {id,plugin,tool} = call;
         const old = known.get(id);
-        if (old) { if (!same(old,{plugin,tool})) throw new Error('同一调用 ID 内容冲突，拒绝覆盖'); continue; }
-        const entry = {id,plugin,tool,at: observed ? call.at : at, ...(observed ? {source:'host-event', receivedAt:at} : {})}; known.set(id,entry); state.calls.push(entry); changed = true;
+        if (old) {
+          if (!same(old,{plugin,tool})) throw new Error('同一调用 ID 内容冲突，拒绝覆盖');
+          // Exact-ID corroboration is safe; never guess matches from tool/time proximity.
+          if (observed && old.source !== 'host-event') {
+            old.reportedAt = old.at; old.at = call.at; old.source = 'host-event'; old.receivedAt = at;
+            if (call.status) old.status = call.status;
+            changed = true;
+          }
+          continue;
+        }
+        const entry = {id,plugin,tool,at: observed ? call.at : at, ...(observed ? {source:'host-event', receivedAt:at, ...(call.status ? {status:call.status} : {})} : {})}; known.set(id,entry); state.calls.push(entry); changed = true;
       }
       if (!changed) return;
       const serialized = JSON.stringify(state);
@@ -47,12 +56,24 @@ export class PluginCalls {
   }
   async summary(period = {}) {
     const state = await this.read();
+    return {
+      ...summarizeCalls(state.calls, period, 'host-event'),
+      sources: {
+        'host-event': summarizeCalls(state.calls, period, 'host-event'),
+        'assistant-report': summarizeCalls(state.calls, period, 'assistant-report'),
+      },
+    };
+  }
+}
+
+function summarizeCalls(allCalls, period, source) {
+    const calls = allCalls.filter(c => source === 'host-event' ? c.source === 'host-event' : c.source !== 'host-event');
     const from = period.from ? Date.parse(period.from) : -Infinity, to = period.to ? Date.parse(period.to) : Infinity;
     if (Number.isNaN(from) || Number.isNaN(to) || from >= to) throw new Error('插件调用统计期间无效');
     const timeZone = period.timeZone || 'UTC';
     const format = new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'});
     const catalog = new Map(), days = new Map(), tools = new Map(); let total = 0;
-    for (const call of state.calls) {
+    for (const call of calls) {
       catalog.set(call.plugin,{id:call.plugin,name:call.plugin,detail:'独立插件工具调用记录'});
       const time = Date.parse(call.at); if (time < from || time >= to) continue;
       const parts = Object.fromEntries(format.formatToParts(new Date(call.at)).map(p=>[p.type,p.value]));
@@ -61,9 +82,8 @@ export class PluginCalls {
       const entries = days.get(date); entries.set(call.plugin,(entries.get(call.plugin)||0)+1);
       tools.set(call.tool,(tools.get(call.tool)||0)+1); total++;
     }
-    return {total,catalog:[...catalog.values()],tools:[...tools].map(([name,count])=>({name,count})),
+    return {total,source,catalog:[...catalog.values()],tools:[...tools].map(([name,count])=>({name,count})),
       activity:{timeZone,excluded:0,uncertainIds:[],days:[...days].sort(([a],[b])=>a.localeCompare(b)).map(([date,entries])=>({date,entries:[...entries].map(([id,calls])=>({id,calls}))}))},
-      period:{from:period.from||null,to:period.to||null},coverage:{from:state.calls.map(c=>c.at).sort()[0]||null,to:new Date().toISOString(),pendingBytes:0,issues:[]},
+      period:{from:period.from||null,to:period.to||null},coverage:{from:calls.map(c=>c.at).sort()[0]||null,to:calls.map(c=>c.at).sort().at(-1)||null,complete:false,scope:'recorded-events-only',pendingBytes:0,issues:[]},
       limits:['宿主事件使用原始调用时间；手动上报使用接收时间。调用记录不代表成功。','同一调用 ID 去重；手动使用不同 ID 上报同一调用可能重复。自动采集只覆盖本机可读日志中的 McpToolCall 事件。']};
-  }
 }

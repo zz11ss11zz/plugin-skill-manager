@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.1 — unreleased main / local deployment candidate
+
+- Use the official app-server `plugin/installed` endpoint for inventory refresh instead of waiting for marketplace discovery. Keep navigation and search available during refresh, skip unrelated activity scans, and suspend activity polling while Manage is open.
+- Unify plugin and Skill inventory filter buttons and search layout in both languages.
+- Preserve activity charts when an inventory-only response arrives. See [update and verification notes](docs/releases/v0.4.1.md).
+- Separate host-event calls (default) from assistant-reported calls; never add the two views.
+- Label Skill adoptions as assistant-reported. Show capture state, scan freshness, event bounds and read issues in both languages.
+- Treat missing activity as unknown; recorded timestamps do not prove continuous coverage.
+- Preserve legacy reports and exact-ID corroboration evidence. API default call summaries now select host events; see docs/DATA_ACCURACY.md.
+- Official analytics reconciliation is not claimed.
+
 ## 0.4.0 — 2026-10-28
 
 - Muted teal light/dark activity palette and neutral controls; only Activity/Manage navigation.

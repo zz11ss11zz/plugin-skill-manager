@@ -12,6 +12,10 @@ const updateManagement = createManagementPanel(document.querySelector('#workspac
 let connected = false, hasData = false, lastRefresh = 0, pending = null, autoRefresh = false;
 function receive(result) {
   const data = result.structuredContent;
+  if (!result.isError && data?.mode === 'inventory' && data.inventoryScope === 'management') {
+    updateManagement(data);
+    return;
+  }
   autoRefresh = Boolean(data?.capture);
   if (result.isError || data?.mode !== 'inventory' || !Array.isArray(data.skills)) {
     status.hidden = false;
@@ -42,7 +46,7 @@ setLocale({locale});
 app.onhostcontextchanged = setLocale;
 app.ontoolresult = receive;
 async function refresh() {
-  if (!connected || pending || (hasData && Date.now() - lastRefresh < 1000)) return;
+  if (!connected || pending || updateManagement.isManaging?.() || (hasData && Date.now() - lastRefresh < 1000)) return;
   pending = app.callServerTool({ name: 'open_skill_manager', arguments: {} });
   try { receive(await pending); }
   catch {
