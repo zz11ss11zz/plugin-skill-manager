@@ -1,11 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.3.3 — 2026-10-28
 
 - Optional cross-chat plugin/MCP host-event capture, persistent opt-in/disable and a configurable 5–3600 second interval. No model call is made by polling.
 - Original call times, ID deduplication, bounded incremental reads and diagnostic coverage; Skill adoptions remain separate.
 - Node 20/24 Windows test runner, Windows CI and a body-parser security update.
-- See docs/AUTO_CAPTURE.md for setup, privacy and upgrade limits. Existing v0.3.2 ZIPs are unchanged.
+- See docs/AUTO_CAPTURE.md for setup, privacy and upgrade limits. Included in the v0.3.3 packages; existing v0.3.2 ZIPs remain unchanged.
 
 ## 0.3.2 — 2026-10-27
 

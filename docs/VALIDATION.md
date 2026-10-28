@@ -417,3 +417,10 @@
 - Added Windows Node 20.18.1/24 GitHub Actions checks. CI outcomes must be read from the PR; local results alone do not prove CI success. Native Codex sidebar visual acceptance and unlogged remote events remain outside this verification. Existing v0.3.2 Release assets are unchanged.
 
 - Panel refreshes and multiple service instances honor the shared persisted collection interval, so a visible panel cannot force 10-second log scans when collection is set to 60 seconds. Windows Node 20.18.1/24 CI passed for the initial PR revision; checks are rerun for the interval fix.
+
+## 2026-10-28 v0.3.3 release validation
+
+- Public baseline tree exactly matches main 82cc1929637a60e0324ecc9e471ff49cab7c289b (188ac2fc233bef17160d9bfdbc012ee05ad8fcd7). Only version metadata, packaging notes and public documentation changed; the violet Activity/Manage UI and capture implementation are unchanged.
+- Windows / Node 20.18.1: 71 tests passed, zero failures or skips with SKILL_MANAGER_TEST_CODEX=1, including standalone packaged MCP auto-capture/restart tests.
+- Seven isolated real-CLI lifecycle checks passed: install, companion Skill discovery, cached MCP resource/restart persistence, implicit source-change rejection, explicit 0.3.2-to-0.3.3 upgrade, uninstall and reinstall retaining synthetic data.
+- Native desktop sidebar acceptance and official directory submission were not performed. Automatic capture remains opt-in; personal activity/configuration was excluded from all public files.
