@@ -1,6 +1,10 @@
 # Official submission preparation / 官方提交准备
 
-Prepared 2026-10-27 for 0.3.2. **This version has not been uploaded, submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
+Prepared 2026-10-28 for 0.3.3. **This version has not been uploaded, submitted, approved or listed.** This file distinguishes materials ready in the repository from external conditions that remain open.
+
+## v0.3.3 package selection
+
+Use `plugin-skill-manager-0.3.3-desktop-package.zip` only for a desktop package upload; `plugin-skill-manager-0.3.3-plugin.zip` includes the manual installer and catalog. Verify SHA256SUMS-0.3.3.txt. This release includes opt-in local automatic capture; it does not claim native desktop approval, organization eligibility, or official directory publication. The earlier package-selection notes below are historical.
 
 ## v0.3.2 package selection
 

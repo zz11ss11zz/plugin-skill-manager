@@ -1,20 +1,20 @@
 # Plugin & Skill Manager
 
-Current release: **v0.3.2**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
+Current release: **v0.3.3**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
-**On main, after v0.3.2:** Optional automatic local plugin-call capture now reads real host events across chats, with persistent enable/disable and a configurable 5–3600 second interval (10 seconds by default). The collector makes no model calls. [Setup, privacy, token cost and upgrade notes](docs/AUTO_CAPTURE.md). Existing release ZIPs are unchanged.
+**New in v0.3.3:** Optional automatic local plugin-call capture now reads real host events across chats, with persistent enable/disable and a configurable 5–3600 second interval (10 seconds by default). The collector makes no model calls. [Setup, privacy, token cost and upgrade notes](docs/AUTO_CAPTURE.md). Included in this release; historical release ZIPs remain unchanged.
 
-**New in v0.3.2:** Activity and Manage are the only views. Manage has clickable Skill source totals, category search, cached automatic installation checks and compact controls. Violet is limited to the heatmap color scale.
+**Interface retained from v0.3.2:** Activity and Manage are the only views. Manage has clickable Skill source totals, category search, cached automatic installation checks and compact controls. Violet is limited to the heatmap color scale.
 
 **See which Skills were recorded as adopted, and which plugins were recorded as called.**
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.3.2](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.2) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.3.3](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.3.3) · [Apache-2.0](LICENSE)
 
 ![Current main: violet activity heatmaps, source categories, search and notes](docs/media/main-20261027/en/demo.gif)
 
-*Updated 2026-10-27: a 30-second walkthrough of current main—plugin calls, Skill adoptions, Manage, personal Skills, category search, and source details. Six actual browser screenshots, five seconds each; synthetic records and example paths only. Captured before the version bump: the badge says v0.3.1, while the shown interface is included in v0.3.2. [Capture and reproduction details](docs/media/README.md).*
+*Updated 2026-10-27: a 30-second walkthrough of current main—plugin calls, Skill adoptions, Manage, personal Skills, category search, and source details. Six actual browser screenshots, five seconds each; synthetic records and example paths only. Captured before the version bump: the badge says v0.3.1, while the shown interface is included in v0.3.3. [Capture and reproduction details](docs/media/README.md).*
 
 ## What it helps you do
 
@@ -26,26 +26,26 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 - Plugin installation status is checked automatically when entering Manage, with a one-minute cache and a retry action on failure. Save notes and preview reversible Windows user-skill archives and restores in the same view.
 - The separate Setup page has been removed. The companion setup Skill and read-only recording diagnostic tool remain available in chat.
 
-The complete product combines a **local MCP service, an activity UI, and a companion Skill**. Installing the Skill alone does not install the service. Skill adoption recording requires caller participation. Plugin calls support opt-in local host-event capture on main; without it, callers must report calls. Local logs do not establish complete host-wide coverage. Missing records do not mean a Skill was never used.
+The complete product combines a **local MCP service, an activity UI, and a companion Skill**. Installing the Skill alone does not install the service. Skill adoption recording requires caller participation. Plugin calls support opt-in local host-event capture since v0.3.3; without it, callers must report calls. Local logs do not establish complete host-wide coverage. Missing records do not mean a Skill was never used.
 
 ## Quick start: complete manager
 
 Tested on Windows. Requires Node.js 20.18+ and the Codex CLI on PATH. This is an independent project, not an official OpenAI product or an official-directory listing.
 
-Download the [v0.3.2 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.3.2/plugin-skill-manager-0.3.2-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
+Download the [v0.3.3 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.3.3/plugin-skill-manager-0.3.3-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-The check should show the installed 0.3.2 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
+The check should show the installed 0.3.3 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
 
-64 regression tests and seven isolated 0.3.1-to-0.3.2 installation/upgrade lifecycle checks passed. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
+Version-specific regression and installation results are recorded in the validation log. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
 
 ## Official directory status
 
-The **v0.3.2 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
+The **v0.3.3 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
 
 ## Optional: companion Skill
 
@@ -84,7 +84,7 @@ When the host supplies no locale, the browser language is used initially. Unsupp
 | Signal | What it means |
 | --- | --- |
 | Skill adoption | The assistant explicitly records an adoption with `record_skill_use`. Repeated adoptions count separately. |
-| Plugin tool call | A caller records an attempted tool call with `record_plugin_calls`. Failed attempts count too. |
+| Plugin tool call | An opted-in local host-event collector or an explicit caller records a tool-call attempt. Failed attempts count too. |
 | Historical read request | A separate inferred signal; reading a Skill file can also mean review or audit. |
 | Explicit mention | A separate historical intent signal, not proof of execution. |
 
@@ -92,7 +92,7 @@ Adoptions and plugin calls are separate metrics and are never added together. Sk
 
 Retries reuse the same batch or call ID for deduplication. New adoptions remain separate even within one conversation. Skill counts use file instances; same-name copies retain their source identity. Ambiguous attribution is not distributed across instances.
 
-Daily totals use the full index rather than the limited evidence list. Rankings use the intersection of the selected dates and recorded coverage. A refresh reads existing statistics; it does not import new chat logs or poll on a timer.
+Daily totals use the full index rather than the limited evidence list. Rankings use the intersection of the selected dates and recorded coverage. With automatic capture disabled, refresh reads existing statistics only. When explicitly enabled, local polling and visible-panel refresh honor the shared collection interval; coverage remains limited to readable local host events.
 
 Recording details: [Skill adoptions (Chinese)](docs/ADOPTION_RECORDING.md) · [Plugin calls (Chinese)](docs/PLUGIN_CALLS.md).
 

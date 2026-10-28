@@ -1,8 +1,8 @@
 # Automatic local plugin-call capture / 本机跨会话自动采集
 
-This feature is on **main**, after v0.3.2. Existing v0.3.2 release ZIPs are unchanged and do not contain it. Use a source checkout of main until a new complete package is released. Reopen Codex after upgrading; old processes do not hot-reload code.
+This feature is included in **v0.3.3 and later**. Existing v0.3.2 release ZIPs are unchanged and do not contain it. Use the v0.3.3 complete plugin package or its source release. Reopen Codex after upgrading; old processes do not hot-reload code.
 
-本功能位于 main，尚未进入 v0.3.2 的历史分发包。源码升级需保留旧目录及独立统计目录，移除确认过的旧 MCP 注册，从新目录执行 `npm ci --ignore-scripts`、`npm test`、`npm run setup:install`、`npm run setup:check`，然后重开 Codex。不要让旧版服务继续写入新版账本；新读取器兼容旧记录，旧读取器不支持新增的通用 MCP 名称。
+本功能已包含在 v0.3.3 及之后的完整分发包中；v0.3.2 历史包保持不变。源码升级需保留旧目录及独立统计目录，移除确认过的旧 MCP 注册，从新目录执行 `npm ci --ignore-scripts`、`npm test`、`npm run setup:install`、`npm run setup:check`，然后重开 Codex。不要让旧版服务继续写入新版账本；新读取器兼容旧记录，旧读取器不支持新增的通用 MCP 名称。
 
 ## Enable, configure and stop / 启停与间隔
 
