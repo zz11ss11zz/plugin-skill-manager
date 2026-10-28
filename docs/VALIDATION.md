@@ -433,3 +433,12 @@
 - Actual headless Chrome checks passed in Chinese and English with synthetic data: hover, pin/restore, both chart highlights, named ranks, Skill switching, arrow keys/Enter with retained focus, both color schemes, 360px panel without page-level horizontal overflow and Manage/source navigation. No browser page errors. Screenshot capture disables transitions to avoid recording intermediate theme colors.
 - Seven isolated real-CLI lifecycle checks passed for v0.3.3 to v0.4.0, including companion discovery, cached MCP resource startup, preserved records across upgrade/restart/uninstall/reinstall and explicit source-replacement enforcement.
 - Capture opt-in and persisted records were not changed by the UI update. Preview fixtures are synthetic; public screenshots contain no personal activity. Native Codex sidebar UI acceptance and official-directory submission were not performed.
+
+
+## 2026-10-28 Plugin inventory on Manage (after v0.4.0)
+
+- Manage now separates Plugins and Skills. Installed plugin totals deduplicate IDs, retain plugins without Skill files, separate unmatched cache candidates and group conflicting or missing enablement as unknown. Search does not change category totals. Failed refreshes retain the previous result with an explicit stale notice.
+- Windows / Node 20.18.1, SKILL_MANAGER_TEST_CODEX=1: 74 tests passed, zero failures or skips on the public main baseline plus this change. Regression covers multi-version IDs, old cached Skills, tool-only plugins, unknown initial counts, search, English labels, refresh failure and retry. Existing Skill source/search behavior passes.
+- Browser verification with synthetic data covered inventory, expanded version/Skill details, empty search results and the 360px layout. No private activity data is published.
+- The existing local 0.4.1 installation received only the embedded dashboard update, preserving its independent activity changes. The previous server and integrity manifest were backed up; package integrity, byte-identical served UI and installation-registry query passed. Activity/notes-related checked stores and capture settings had identical hashes across the patch. A new verification process served the updated revision; existing native sidebar sessions still require host reload and were not visually re-verified.
+- No new Release or historical release asset replacement is included.

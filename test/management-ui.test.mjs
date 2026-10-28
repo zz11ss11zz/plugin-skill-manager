@@ -61,6 +61,7 @@ test('source summary groups personal roots, filters every category, and keeps to
   const all=(e=root)=>[e,...e.children.flatMap(c=>all(c))];
   all().find(e=>e.tag==='button'&&e.textContent==='管理').listeners.click();
   await new Promise(resolve=>setImmediate(resolve));
+  all().find(e=>e.tag==='button'&&e.textContent==='技能').listeners.click();
   const rows=()=>all().filter(e=>e.className==='source-choice');
   const select=group=>rows().find(e=>e.attributes['data-source']===group).listeners.click();
   const names=()=>all().find(e=>e.className==='manager-list').children.filter(e=>e.tag==='li').map(e=>e.children[0].textContent);
@@ -78,4 +79,51 @@ test('source summary groups personal roots, filters every category, and keeps to
   assert.equal(rows()[1].attributes['aria-label'],'System skills, 1 Skill file');
   update({...inventory,skills:inventory.skills.filter(s=>s.source!=='系统技能')});
   select('system'); assert.deepEqual(names(),[]); assert.equal(rows()[1].children[1].textContent,'0');
+});
+
+test('plugin inventory deduplicates IDs, separates old caches, preserves unknown and refreshes status', async () => {
+  class Element {
+    constructor(tag){this.tag=tag;this.children=[];this.listeners={};this.attributes={};}
+    append(...items){this.children.push(...items);}
+    replaceChildren(...items){this.children=items;}
+    setAttribute(k,v){this.attributes[k]=v;}
+    addEventListener(event,fn){this.listeners[event]=fn;}
+  }
+  const root=new Element('root'), calls=[];
+  const skill=(name,version)=>({name,path:'/cache/'+name+'/'+version,owner:{name,directory:name,marketplace:'market',version}});
+  const inventory={mode:'inventory',skills:[skill('alpha','1'),skill('alpha','0'),skill('cached','1')],pluginRegistry:{checkedAt:'2026-10-28T00:00:00Z',plugins:[
+    {id:'alpha@market',version:'1',enabled:true},{id:'alpha@market',version:'2',enabled:true},
+    {id:'tools-only@market',version:'1',enabled:false},{id:'unknown@market',version:'1',enabled:null},
+    {id:'mixed@market',version:'1',enabled:true},{id:'mixed@market',version:'2',enabled:false}
+  ]}};
+  let fail=false;
+  const source=(await readFile(new URL('../src/management-ui.mjs',import.meta.url),'utf8')).replace('export function','function');
+  const context=vm.createContext({Date,document:{createElement:tag=>new Element(tag),querySelector:()=>new Element('section')}});
+  vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
+  const update=context.createPanel(root,async ({name})=>{calls.push(name);return fail?{isError:true,content:[{type:'text',text:'offline'}]}:{structuredContent:inventory};},()=>{});
+  const all=(e=root)=>[e,...e.children.flatMap(c=>all(c))];
+  const click=label=>all().find(e=>e.tag==='button'&&e.textContent===label).listeners.click();
+  const filter=state=>all().find(e=>e.attributes['data-plugin-filter']===state);
+  const names=()=>all().find(e=>e.className==='manager-list').children.filter(e=>e.tag==='li').map(e=>e.children[0].textContent);
+  const flush=()=>new Promise(resolve=>setImmediate(resolve));
+  update({mode:'inventory',skills:inventory.skills});
+  click('管理');
+  assert.equal(filter('').textContent,'已安装 · —');
+  await flush();
+  assert.equal(filter('').textContent,'已安装 · 4');
+  assert.equal(filter('enabled').textContent,'已启用 · 1');
+  assert.equal(filter('unknown').textContent,'状态未知 · 2');
+  assert.ok(names().includes('tools-only'));
+  assert.ok(all().some(e=>e.textContent==='匹配安装版本的 Skill 文件：1'));
+  assert.ok(all().some(e=>e.textContent==='未匹配安装版本的缓存 Skill 文件：1'));
+  filter('cache').listeners.click(); assert.deepEqual(names(),['cached']);
+  filter('').listeners.click();
+  const input=all().find(e=>e.type==='search');input.value='TOOLS';input.listeners.input();assert.deepEqual(names(),['tools-only']);
+  assert.equal(filter('').textContent,'已安装 · 4');
+  update.setLocale('en');assert.equal(filter('').textContent,'Installed · 4');
+  fail=true;click('Refresh inventory');await flush();
+  assert.equal(calls.at(-1),'check_plugin_status');
+  assert.ok(all().some(e=>e.textContent==='Showing the previous check; results may be stale.'));
+  fail=false;click('Retry check');await flush();
+  assert.equal(all().some(e=>e.textContent==='Showing the previous check; results may be stale.'),false);
 });
