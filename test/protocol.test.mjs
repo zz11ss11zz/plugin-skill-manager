@@ -35,6 +35,7 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     await assert.rejects(client.readResource({ uri: 'ui://plugin-skill-manager/dashboard.html' }));
     assert.equal(contents[0].mimeType, 'text/html;profile=mcp-app');
     assert.match(contents[0].text, /id="activity-panel"/);
+    assert.ok(contents[0].text.includes(`data:image/png;base64,${(await readFile(new URL('../src/assets/orbit-color.png', import.meta.url))).toString('base64')}`), 'embedded dashboard icon must match the current packaged icon');
     assert.doesNotMatch(contents[0].text, /id="(?:skills|search|archives|management-plan|usage)"/);
     assert.ok(!contents[0].text.includes('/* APP_BUNDLE */'));
     const result = await client.callTool({ name: 'open_skill_manager', arguments: {} });

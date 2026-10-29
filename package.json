@@ -1,6 +1,6 @@
 {
   "name": "plugin-skill-manager",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "private": true,
   "type": "module",
   "description": "Local skill inventory and recorded activity dashboard for Codex",

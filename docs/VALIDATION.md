@@ -467,3 +467,7 @@
 - Both call-source ranking views and Manage use plugin icons. The selected monochrome plug/wrench icon is packaged; the colored marketplace artwork remains a source asset for future use.
 - Existing recent-activity test context was updated to import the icon helper; no test assertions were removed.
 - Native sidebar and remote image delivery remain outside the automated verification claim. No official marketplace approval or analytics equivalence is claimed.
+
+## 2026-10-29 v0.4.3 consistency repair
+79 tests passed, zero skips, with SKILL_MANAGER_TEST_CODEX=1. Protocol coverage now checks that the embedded dashboard icon matches the current source PNG. Rebuilt distribution removes the stale embedded icon. Private account package retains its identity, connection configuration and presentation except the requested icon assets and patch version. Archive checks do not establish native sidebar rendering or refresh of historical chat entries.
+
