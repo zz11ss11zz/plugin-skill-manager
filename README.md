@@ -1,8 +1,8 @@
 # Plugin & Skill Manager
 
-Current release: **v0.4.0**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
+Current release: **v0.4.1**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
-**Current main: v0.4.1 (not a new Release).** Plugins and Skills share a compact filter/search layout. Inventory refresh uses the installed-plugin endpoint and keeps navigation/search usable while waiting; a local packaged MCP check took 1.891 seconds for 28 plugins and 67 Skill files. Activity separates **Host events** from **Assistant reports** and labels Skill adoptions as assistant-reported. [Changes, compatibility and verification](docs/releases/v0.4.1.md). Existing v0.4.0 downloads remain unchanged.
+**New in v0.4.1:** Plugins and Skills share a compact filter/search layout. Inventory refresh uses the installed-plugin endpoint and keeps navigation/search usable while waiting; a local packaged MCP check took 1.891 seconds for 28 plugins and 67 Skill files. Activity separates **Host events** from **Assistant reports** and labels Skill adoptions as assistant-reported. [Changes, compatibility and verification](docs/releases/v0.4.1.md). Plugin/listing and sidebar icons now use the same orange-gold double wrench.
 
 **New in v0.4.0:** Muted teal activity charts, recorded 30-day summaries and a daily bar chart linked to the annual calendar. Hover or focus to inspect a day; click a bar or square to pin named daily rankings, then choose **Back to all** to restore your date range. Only Activity and Manage remain.
 
@@ -12,7 +12,7 @@ Optional automatic local host-event capture from v0.3.3 remains available, with 
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.0](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.0) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.1](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.1) · [Apache-2.0](LICENSE)
 
 ![v0.4.0 activity overview with teal bars and calendar; synthetic data](docs/media/v040/activity-en.png)
 
@@ -30,24 +30,39 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 
 The complete product combines a **local MCP service, an activity UI, and a companion Skill**. Installing the Skill alone does not install the service. Skill adoption recording requires caller participation. Plugin calls support opt-in local host-event capture since v0.3.3; without it, callers must report calls. Local logs do not establish complete host-wide coverage. Missing records do not mean a Skill was never used.
 
+## Where it runs
+
+**The current package targets local Codex use, including the Codex desktop app. It does not run directly in ChatGPT on the web.**
+
+| Environment | Current project support |
+| --- | --- |
+| Codex desktop with a local executor | Intended UI host; Windows installation and MCP checks passed. Native sidebar interaction remains incompletely verified. |
+| Codex CLI | Local installation, registration and MCP tools are tested; the CLI does not provide the graphical dashboard. |
+| ChatGPT web / cloud execution | Not supported by this release. No hosted MCP endpoint or configured web bridge is included. |
+| Other desktop hosts / operating systems | Not verified by this project. |
+
+The service launches through local `stdio` using Node.js, reads local Codex files, and uses the Codex CLI for installed-plugin discovery. Signing in to the same account on the web does not connect these local resources. Browser screenshots and UI tests demonstrate the frontend, not a ChatGPT web deployment. Web support would require a supported remote connection or bridge plus explicit handling of local data access, authentication and permissions; changing the manifest alone is insufficient.
+
+Platform references (checked 2026-10-29): [desktop-only plugins](https://developers.openai.com/plugins/deploy/desktop-only) and [MCP host/configuration boundaries](https://learn.chatgpt.com/docs/extend/mcp). These describe platform capabilities, not certification of this project.
+
 ## Quick start: complete manager
 
 Tested on Windows. Requires Node.js 20.18+ and the Codex CLI on PATH. This is an independent project, not an official OpenAI product or an official-directory listing.
 
-Download the [v0.4.0 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.0/plugin-skill-manager-0.4.0-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
+Download the [v0.4.1 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.1/plugin-skill-manager-0.4.1-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-The check should show the installed 0.4.0 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
+The check should show the installed 0.4.1 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
 
 Version-specific regression and installation results are recorded in the validation log. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
 
 ## Official directory status
 
-The **v0.4.0 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
+The **v0.4.1 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
 
 ## Optional: companion Skill
 

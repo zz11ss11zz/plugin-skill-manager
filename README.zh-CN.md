@@ -2,9 +2,9 @@
 
 # Plugin & Skill Manager
 
-当前正式版本：**v0.4.0**。从旧标识 `codex-skill-manager` 升级时，请先看[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
+当前正式版本：**v0.4.1**。从旧标识 `codex-skill-manager` 升级时，请先看[更名与升级说明](docs/IDENTIFIER_RENAME.md)。
 
-**当前 main：v0.4.1（尚未新增 Release）。**管理页提供插件／技能切换，并统一为紧凑筛选按钮与搜索布局。清单刷新改用已安装插件接口，等待时仍可切换和搜索；本机打包后 MCP 实测 28 个插件、67 个 Skill 文件耗时 1.891 秒。活动页将“宿主事件”与“助手上报”分开统计，Skill 标明为助手报告的采用。[变更、兼容性及验证说明](docs/releases/v0.4.1.md)。现有 v0.4.0 下载包未替换。
+**v0.4.1 更新：**管理页提供插件／技能切换，并统一为紧凑筛选按钮与搜索布局。清单刷新改用已安装插件接口，等待时仍可切换和搜索；本机打包后 MCP 实测 28 个插件、67 个 Skill 文件耗时 1.891 秒。活动页将“宿主事件”与“助手上报”分开统计，Skill 标明为助手报告的采用。[变更、兼容性及验证说明](docs/releases/v0.4.1.md)。插件列表和侧边栏现已统一采用橙金色双头扳手图标。
 
 **v0.4.0 更新：**青绿与中性灰界面，新增近 30 天已记录统计和每日柱图，与年度格子联动。悬停或聚焦查看当天情况，点击柱子或格子固定当天的名称与次数排名，“返回全部”恢复原日期区间。仍只有活动和管理两页。
 
@@ -14,7 +14,7 @@
 
 查看日期热力图、按时间筛选排名，分别理解 Skill 采用与插件调用尝试。记录保存在本机。
 
-[下载安装](docs/DISTRIBUTION.md) · [v0.4.0](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.0) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
+[下载安装](docs/DISTRIBUTION.md) · [v0.4.1](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.1) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
 ![v0.4.0 青绿活动概览：柱图、年度格子与已记录统计；合成数据](docs/media/v040/activity-zh.png)
 
@@ -32,24 +32,39 @@
 
 完整产品由 **本地 MCP 服务＋活动界面＋配套 Skill** 组成。单独安装 Skill 不会安装服务；Skill 采用仍需助手主动记录；v0.4.0 中插件调用可明确启用本机日志自动采集，未启用时仍依赖调用方上报。本机日志覆盖不等于所有宿主活动的完整覆盖，不会补造采用历史。
 
+## 适用平台
+
+**当前发布包面向本地 Codex 使用（包括 Codex 桌面端），不能直接在 ChatGPT 网页端运行。**
+
+| 环境 | 本项目当前支持情况 |
+| --- | --- |
+| Codex 桌面端，本地执行 | 图形界面的目标宿主；Windows 安装与 MCP 检查已通过，原生侧栏交互尚未完整验证 |
+| Codex CLI | 已验证本地安装、注册及 MCP 工具；命令行不提供图形活动面板 |
+| ChatGPT 网页端／云端执行 | 本版不支持；未提供托管 MCP 地址或已配置的网页桥接服务 |
+| 其他桌面宿主／操作系统 | 本项目尚未验证 |
+
+服务通过本机 Node.js 以 `stdio` 启动，读取本地 Codex 文件，并调用 Codex CLI 查询已安装插件。同一账号登录网页端不会自动连接这些本机资源。README 中的浏览器截图与界面测试仅验证前端，不代表已部署到 ChatGPT 网页端。若要支持网页端，需要受支持的远程连接或桥接方案，并明确本机数据访问、认证及权限；只改 manifest 不足以实现。
+
+平台依据（2026-10-29 核对）：[仅桌面端插件](https://developers.openai.com/plugins/deploy/desktop-only)、[MCP 宿主与配置边界](https://learn.chatgpt.com/docs/extend/mcp)。这些说明平台能力，不代表本项目已获官方认证。
+
 ## 安装完整管理器
 
 已验证环境为 Windows，需要 Node.js 20.18+ 和 PATH 中可用的 Codex CLI。本项目为独立开源项目，不是 OpenAI 官方产品，尚未上架官方插件目录。
 
-下载 [v0.4.0 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.0/plugin-skill-manager-0.4.0-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
+下载 [v0.4.1 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.1/plugin-skill-manager-0.4.1-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-检查结果应显示已安装并启用的 0.4.0 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
+检查结果应显示已安装并启用的 0.4.1 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
 本版回归和隔离安装升级结果见验收记录。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
 ## 官方目录状态
 
-本次提供独立的 **v0.4.0 desktop-package.zip 提交包**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的 plugin.zip。
+本次提供独立的 **v0.4.1 desktop-package.zip 提交包**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的 plugin.zip。
 
 截至 2026-10-27，**0.3.1 草稿已上传**，尚未提交审核、获批或发布。门户当前提示暂不接受更多 skills-only 提交，本地 MCP 服务的识别与准入仍待确认。GitHub 发布包可手动安装；保存草稿不等于官方上架。
 
