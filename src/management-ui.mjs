@@ -152,8 +152,11 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     return [...entries.values()].map(entry => {
       const states = new Set(entry.records.map(r => r.enabled));
       const state = !entry.records.length ? 'cache' : states.size !== 1 ? 'unknown' : states.has(true) ? 'enabled' : states.has(false) ? 'disabled' : 'unknown';
-      return { ...entry, state };
-    }).sort((a, b) => a.id.localeCompare(b.id));
+      const displayName = entry.records.find(r => r.displayName)?.displayName || entry.skills.find(s => s.owner.name)?.owner.name || entry.id.split('@')[0];
+      const icon = entry.id.split('@')[0] === 'plugin-skill-manager' && data?.managerIcon ? data.managerIcon : entry.records.find(r => r.icon)?.icon;
+      const iconDark = entry.records.find(r => r.iconDark)?.iconDark;
+      return { ...entry, state, displayName, icon, iconDark };
+    }).sort((a, b) => a.displayName.localeCompare(b.displayName));
   }
   function pluginStateLabel(state) {
     return {enabled:text('已启用', 'Enabled'),disabled:text('已停用', 'Disabled'),unknown:text('状态未知', 'Unknown'),cache:text('仅缓存候选', 'Cache candidates')}[state];
@@ -181,11 +184,24 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     const populate = () => {
       list.replaceChildren();
       const category = entries.filter(p => pluginFilter ? p.state === pluginFilter : p.records.length);
-      const matches = category.filter(p => `${p.id} ${p.records.map(r => r.version).join(' ')} ${p.skills.map(s => s.owner.version).join(' ')}`.toLowerCase().includes(pluginSearch.toLowerCase()));
+      const matches = category.filter(p => `${p.displayName} ${p.id} ${p.records.map(r => r.version).join(' ')} ${p.skills.map(s => s.owner.version).join(' ')}`.toLowerCase().includes(pluginSearch.toLowerCase()));
       count.textContent = text(`显示 ${matches.length} / ${category.length} 个插件`, `Showing ${matches.length} of ${category.length} plugins`);
       for (const plugin of matches) {
         const item = el('li'), at = plugin.id.lastIndexOf('@');
-        item.append(el('h3', at < 0 ? plugin.id : plugin.id.slice(0, at)));
+        const heading = el('div', '', 'plugin-heading'), badge = el('span', '', 'plugin-icon');
+        if (['codex-app-tools@openai-bundled', 'unified-computer-use@openai-bundled'].includes(plugin.id)) badge.setAttribute('data-openai-mark', 'true');
+        badge.setAttribute('aria-hidden', 'true');
+        const fallback = el('span', plugin.displayName.slice(0, 1).toUpperCase()); badge.append(fallback);
+        if (typeof plugin.icon === 'string' && (/^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(plugin.icon) || /^https:\/\/files\.openai\.com\//.test(plugin.icon))) {
+          const image = el('img'); image.alt = ''; image.loading = 'lazy'; image.referrerPolicy = 'no-referrer';
+          image.addEventListener('load', () => { fallback.hidden = true; });
+          image.addEventListener('error', () => { image.hidden = true; fallback.hidden = false; });
+          image.src = plugin.icon;
+          if (typeof plugin.iconDark === 'string' && (/^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(plugin.iconDark) || /^https:\/\/files\.openai\.com\//.test(plugin.iconDark))) {
+            const picture = el('picture'), dark = el('source'); dark.media = '(prefers-color-scheme: dark)'; dark.srcset = plugin.iconDark; picture.append(dark, image); badge.append(picture);
+          } else badge.append(image);
+        }
+        heading.append(badge, el('h3', plugin.displayName)); item.append(heading);
         item.append(el('p', `${at < 0 ? '—' : plugin.id.slice(at + 1)} · ${pluginStateLabel(plugin.state)}`, 'manager-meta'));
         const details = el('details'); details.append(el('summary', text('版本与关联技能', 'Versions and associated Skills')), el('p', plugin.id));
         for (const record of plugin.records) details.append(el('p', `${record.version} · ${pluginStateLabel(record.enabled === true ? 'enabled' : record.enabled === false ? 'disabled' : 'unknown')}`));

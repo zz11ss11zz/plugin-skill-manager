@@ -1,4 +1,5 @@
 import { translator } from './i18n.mjs';
+import { activityIcon, safeActivityIcon } from './activity-icons.mjs';
 import { activityView, calendarDays, activityToday, recentActivity } from './activity.mjs';
 const node = (tag, value, className) => { const el = document.createElement(tag); if (value !== undefined) el.textContent = value; if (className) el.className = className; return el; };
 export function createActivityPanel(root, locale = 'zh', checkInventory) {
@@ -255,6 +256,22 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
       const list = node('ol', undefined, 'activity-ranking');
       for (const entry of entries) {
         const item = node('li'), badge = node('span', entry.name.slice(0, 2).toUpperCase(), 'activity-avatar'), copy = node('div');
+        if (kind === 'plugins') {
+          const visual = activityIcon(entry, current.pluginRegistry?.plugins, current.managerIcon);
+          if (safeActivityIcon(visual.icon)) {
+            const fallback = node('span', badge.textContent);
+            badge.textContent = ''; badge.append(fallback); badge.classList.add('plugin-icon');
+            if (visual.openai) badge.setAttribute('data-openai-mark', 'true');
+            const image = node('img'); image.alt = ''; image.loading = 'lazy'; image.referrerPolicy = 'no-referrer';
+            image.addEventListener('load', () => { fallback.hidden = true; });
+            image.addEventListener('error', () => { image.hidden = true; fallback.hidden = false; });
+            image.src = visual.icon;
+            if (safeActivityIcon(visual.iconDark)) {
+              const picture = node('picture'), dark = node('source'); dark.media = '(prefers-color-scheme: dark)'; dark.srcset = visual.iconDark;
+              picture.append(dark, image); badge.append(picture);
+            } else badge.append(image);
+          }
+        }
         copy.append(node('strong', entry.name), node('span', t(entry.detail), 'ranking-detail'));
         item.append(badge, copy, node('span', t("{0} 次", entry.total), 'ranking-count')); list.append(item);
       }

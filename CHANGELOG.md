@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.4.1 — unreleased main / local deployment candidate
+## 0.4.1 — 2026-10-29
+
+- Show installed plugin display names and icons in Manage and both plugin-call ranking sources; load metadata on first open and match unique display names for opaque app IDs.
+- Use a simplified monochrome plug-and-wrench app icon; retain the colored artwork for a future marketplace listing.
+- Preserve letter fallback on missing/failed images, with bounded local reads and allowlisted remote image URLs.
 
 - Use the official app-server `plugin/installed` endpoint for inventory refresh instead of waiting for marketplace discovery. Keep navigation and search available during refresh, skip unrelated activity scans, and suspend activity polling while Manage is open.
 - Unify plugin and Skill inventory filter buttons and search layout in both languages.

@@ -451,3 +451,19 @@
 - Packaged local MCP refresh measured 1,891 ms for 28 plugins and 67 Skill files; standalone file scan was about 100 ms. The old marketplace query did not finish during observation and was stopped. No speedup ratio or native frame-rate claim is made.
 - Official analytics reconciliation and native sidebar visual verification after reload remain unverified. No private activity records, logs or machine configuration are published; historical public validation entries are preserved.
 - Final full suite after the inventory-only response fix: SKILL_MANAGER_TEST_CODEX=1 npm test, 76 passed, zero failures/skips (Windows / Node 20.18.1). Regression verifies that Check inventory on Activity preserves existing coverage and chart data.
+
+## 2026-10-29 Plugin names and icons
+
+- Manage preserves the installed endpoint displayName and uses it for titles, sorting and search; IDs remain searchable and visible in details. No static app-ID mapping is used.
+- Plugin rows show official image metadata. Local images are size-bounded and constrained by real paths to the plugin source directory; remote images are limited to HTTPS files.openai.com, loaded lazily with no referrer. Missing or failed icons retain a letter fallback. MCP resource metadata declares that image origin.
+- Final Windows suite with SKILL_MANAGER_TEST_CODEX=1: 78 passed, zero failures/skips. Tests cover metadata preservation, URL rejection, local path/size boundaries, name/ID search and failed-image fallback.
+- Live installed metadata: 28 names, 9 local icons, 16 remote icon URLs, 3 fallbacks. This verifies metadata availability, not remote image delivery.
+- Local 0.4.1 runtime updated with backups; integrity, MCP handshake and resource dashboard-fddd79abea29c5dd passed. Native sidebar display and remote image rendering after reload remain unverified. No GitHub sync or new Release was performed for this batch.
+
+## 2026-10-29 v0.4.1 release candidate
+
+- Final full regression: SKILL_MANAGER_TEST_CODEX=1 npm test; 79 passed, zero failures/skips, Windows / Node 20.18.1.
+- Initial inventory now loads installed plugin metadata. Unique normalized display names resolve tool namespaces with opaque installed IDs; the manager supplies its own icon even without a catalog installation. Presentation matching does not change call identities or totals.
+- Both call-source ranking views and Manage use plugin icons. The selected monochrome plug/wrench icon is packaged; the colored marketplace artwork remains a source asset for future use.
+- Existing recent-activity test context was updated to import the icon helper; no test assertions were removed.
+- Native sidebar and remote image delivery remain outside the automated verification claim. No official marketplace approval or analytics equivalence is claimed.

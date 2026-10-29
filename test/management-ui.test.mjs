@@ -98,7 +98,7 @@ test('plugin inventory deduplicates IDs, separates old caches, preserves unknown
   const skill=(name,version)=>({name,path:'/cache/'+name+'/'+version,owner:{name,directory:name,marketplace:'market',version}});
   const inventory={mode:'inventory',skills:[skill('alpha','1'),skill('alpha','0'),skill('cached','1')],pluginRegistry:{checkedAt:'2026-10-28T00:00:00Z',plugins:[
     {id:'alpha@market',version:'1',enabled:true},{id:'alpha@market',version:'2',enabled:true},
-    {id:'tools-only@market',version:'1',enabled:false},{id:'unknown@market',version:'1',enabled:null},
+    {id:'tools-only@market',displayName:'Readable Tool',icon:'https://files.openai.com/icon.png',version:'1',enabled:false},{id:'unknown@market',version:'1',enabled:null},
     {id:'mixed@market',version:'1',enabled:true},{id:'mixed@market',version:'2',enabled:false}
   ]}};
   let fail=false;
@@ -109,7 +109,7 @@ test('plugin inventory deduplicates IDs, separates old caches, preserves unknown
   const all=(e=root)=>[e,...e.children.flatMap(c=>all(c))];
   const click=label=>all().find(e=>e.tag==='button'&&e.textContent===label).listeners.click();
   const filter=state=>all().find(e=>e.attributes['data-plugin-filter']===state);
-  const names=()=>all().find(e=>e.className==='manager-list').children.filter(e=>e.tag==='li').map(e=>e.children[0].textContent);
+  const names=()=>all().filter(e=>e.tag==='h3').map(e=>e.textContent);
   const flush=()=>new Promise(resolve=>setImmediate(resolve));
   update({mode:'inventory',skills:inventory.skills});
   click('管理');
@@ -118,12 +118,16 @@ test('plugin inventory deduplicates IDs, separates old caches, preserves unknown
   assert.equal(filter('').textContent,'已安装 · 4');
   assert.equal(filter('enabled').textContent,'已启用 · 1');
   assert.equal(filter('unknown').textContent,'状态未知 · 2');
-  assert.ok(names().includes('tools-only'));
+  assert.ok(names().includes('Readable Tool'));
+  const image=all().find(e=>e.tag==='img'); assert.equal(image.src,'https://files.openai.com/icon.png');
+  image.listeners.load(); image.listeners.error(); assert.equal(image.hidden,true);
+  assert.equal(all().find(e=>e.className==='plugin-icon'&&e.children.includes(image)).children[0].hidden,false);
   assert.ok(all().some(e=>e.textContent==='匹配安装版本的 Skill 文件：1'));
   assert.ok(all().some(e=>e.textContent==='未匹配安装版本的缓存 Skill 文件：1'));
   filter('cache').listeners.click(); assert.deepEqual(names(),['cached']);
   filter('').listeners.click();
-  const input=all().find(e=>e.type==='search');input.value='TOOLS';input.listeners.input();assert.deepEqual(names(),['tools-only']);
+  const input=all().find(e=>e.type==='search');input.value='TOOLS';input.listeners.input();assert.deepEqual(names(),['Readable Tool']);
+  input.value='readable';input.listeners.input();assert.deepEqual(names(),['Readable Tool']);
   assert.equal(filter('').textContent,'已安装 · 4');
   update.setLocale('en');assert.equal(filter('').textContent,'Installed · 4');
   fail=true;click('Refresh inventory');await flush();

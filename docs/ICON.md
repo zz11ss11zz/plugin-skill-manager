@@ -1,9 +1,9 @@
-# Color icon provenance
+# Icon assets
 
-`src/assets/orbit-color.png` was generated with the built-in ImageGen tool on 2026-10-26 for the user's request for a colorful, striking plugin icon. It is a new project asset; the earlier monochrome icon remains available in source history and its original file. The colored PNG is used by the MCP server and by both listing icon fields.
+The app uses a monochrome plug-and-wrench glyph selected on 2026-10-29. `src/assets/orbit-color.png` retains its historical filename for build compatibility; it is now the transparent 1254 x 1254 monochrome PNG used by MCP discovery, the dashboard, and packaged logo/composer fields.
 
-Final generation prompt:
+`src/assets/marketplace-plug-wrench-color.png` preserves the selected colored design for a future marketplace listing: blue/cyan cable, orange wrench, wrench head in front of the cable and handle behind it. Current packaging continues to use the monochrome icon; the color asset is not evidence of marketplace submission or approval.
 
-> Use case: logo-brand. Create a polished colorful app icon for an independent local Skill Manager plugin. Primary subject: one sculptural orbital planet with a thick tilted ring and one small satellite, a memorable simple silhouette that stays readable at 48 pixels. Style: premium 3D glass and smooth ceramic, luminous cyan and royal violet on the planet, a warm coral accent on the small satellite, clean crisp edges and restrained highlights. Composition: square 1024x1024, entire isolated centered mark with about 12 percent padding, balanced silhouette, no cropping. Background must be truly transparent. No letters, no text, no OpenAI logo, no other brand mark, no stars or background scenery, no watermark. This is the final production icon, not a presentation board.
+Both original designs were created with the built-in ImageGen tool. Design brief: a recognizable electrical plug and curved cable surrounding a wrench; the small-size version uses an enlarged two-prong plug, solid monochrome geometry, transparent background and no text. The colored version uses blue/cyan and orange/gold with two alternating crossings.
 
-The actual output is 1254 × 1254 RGBA, 1,007,074 bytes, with alpha ranging from 0 to 255. It is square, transparent and below the 5 MiB submission limit. Prompt dimensions are an instruction, not the image metadata.
+The OpenAI mark used only for OpenAI built-in tool entries comes from https://openai.com/brand/ (https://cdn.openai.com/brand/openai-logos.zip). It is not the manager's own identity.

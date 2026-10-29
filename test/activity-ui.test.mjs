@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {activityIcon,safeActivityIcon} from '../src/activity-icons.mjs';
 import {translator} from '../src/i18n.mjs';
 import {activityView,calendarDays,activityToday,recentActivity} from '../src/activity.mjs';
 
@@ -17,7 +18,7 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
     checkValidity(){return true;}
   }
   const source=(await readFile(new URL('../src/activity-ui.mjs',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace('export function','function');
-  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},activityView,calendarDays,activityToday,recentActivity,translator});
+  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},activityView,calendarDays,activityToday,recentActivity,translator,activityIcon,safeActivityIcon});
   vm.runInContext(source+'\nglobalThis.createPanel=createActivityPanel;',context);
   let checkedInventory;
   const render=context.createPanel(new Element('root'),'zh',async()=>checkedInventory || {isError:true});
