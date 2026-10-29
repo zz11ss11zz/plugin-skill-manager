@@ -1,4 +1,11 @@
 import { spawn } from 'node:child_process';
+import { readFile, realpath, stat } from 'node:fs/promises';
+import path from 'node:path';
+import { openaiIcon } from './openai-icon.mjs';
+
+function officialIcon(value) {
+  try { const u = new URL(value); return u.protocol === 'https:' && u.hostname === 'files.openai.com' && !u.username && !u.password ? u.href : undefined; } catch { return undefined; }
+}
 
 export function parseInstalledPlugins(data) {
   if (!Array.isArray(data?.marketplaces) || data.marketplaceLoadErrors?.length) throw new Error('本地插件清单不完整');
@@ -6,6 +13,9 @@ export function parseInstalledPlugins(data) {
     if (!Array.isArray(m.plugins)) throw new Error('插件市场记录格式不受支持');
     return m.plugins.filter(p => p.installed === true).map(p => ({
       pluginId: p.id, version: p.localVersion ?? p.version ?? 'unknown', installed: true, enabled: p.enabled,
+      displayName: p.interface?.displayName || p.name,
+      icon: officialIcon(p.interface?.logoUrl) || officialIcon(p.interface?.composerIconUrl),
+      iconDark: officialIcon(p.interface?.logoUrlDark),
     }));
   });
   return parsePluginList(JSON.stringify({ installed }));
@@ -50,13 +60,45 @@ export function parsePluginList(raw) {
   if (!Array.isArray(data.installed)) throw new Error('插件清单格式不受支持');
   return data.installed.map(p => {
     if (typeof p.pluginId !== 'string' || typeof p.version !== 'string' || p.installed !== true || !['boolean', 'undefined'].includes(typeof p.enabled)) throw new Error('插件清单字段不受支持');
-    return { id: p.pluginId, version: p.version, enabled: p.enabled ?? null };
+    const result = { id: p.pluginId, version: p.version, enabled: p.enabled ?? null };
+    if (typeof p.displayName === 'string' && p.displayName.trim()) result.displayName = p.displayName.trim();
+    const icon = officialIcon(p.icon); if (icon) result.icon = icon;
+    else if (['codex-app-tools@openai-bundled', 'unified-computer-use@openai-bundled'].includes(p.pluginId)) result.icon = openaiIcon;
+    const iconDark = officialIcon(p.iconDark); if (iconDark) result.iconDark = iconDark;
+    return result;
   });
 }
 
 export async function loadPluginStatus() {
   const result = await queryInstalledPlugins();
-  return { checkedAt: new Date().toISOString(), evidence: 'codex app-server plugin/installed', plugins: parseInstalledPlugins(result) };
+  const plugins = parseInstalledPlugins(result);
+  await Promise.all(plugins.map(async record => {
+    const plugin = result.marketplaces.flatMap(m => m.plugins).find(p => p.id === record.id && p.installed);
+    const icon = await localPluginIcon(plugin);
+    if (icon) record.icon = icon;
+    const dark = await localPluginIcon(plugin, true); if (dark) record.iconDark = dark;
+  }));
+  return { checkedAt: new Date().toISOString(), evidence: 'codex app-server plugin/installed', plugins };
+}
+
+// Read only a bounded image inside the plugin's own source directory. No network fetch.
+export async function localPluginIcon(plugin, dark = false) {
+  if (plugin?.source?.type !== 'local' || !plugin.source.path) return;
+  for (const candidate of dark ? [plugin.interface?.logoDark] : [plugin.interface?.logo, plugin.interface?.composerIcon]) {
+    if (typeof candidate !== 'string' || !candidate) continue;
+    try {
+      const root = await realpath(plugin.source.path);
+      const file = await realpath(path.resolve(root, candidate));
+      const relative = path.relative(root, file);
+      if (relative.startsWith('..') || path.isAbsolute(relative)) continue;
+      const mime = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml' }[path.extname(file).toLowerCase()];
+      const info = await stat(file);
+      if (!mime || !info.isFile() || info.size > 2 * 1024 * 1024) continue;
+      const bytes = await readFile(file);
+      if (bytes.length > 2 * 1024 * 1024) continue;
+      return `data:${mime};base64,${bytes.toString('base64')}`;
+    } catch { /* Missing icons do not invalidate installed state. */ }
+  }
 }
 
 export function applyPluginStatus(inventory, status) {

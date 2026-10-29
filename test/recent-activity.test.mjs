@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {activityIcon,safeActivityIcon} from '../src/activity-icons.mjs';
 import {translator} from '../src/i18n.mjs';
 import {activityView,calendarDays,activityToday,recentActivity} from '../src/activity.mjs';
 
@@ -40,7 +41,7 @@ test('bars and calendar share pinned dates, hover stays informational and back r
     focus(){this.listeners.focus?.();}
   }
   const source=(await readFile(new URL('../src/activity-ui.mjs',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace('export function','function');
-  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},activityView,calendarDays,activityToday,recentActivity,translator,Event});
+  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},activityView,calendarDays,activityToday,recentActivity,translator,Event,activityIcon,safeActivityIcon});
   vm.runInContext(source+'\nglobalThis.createPanel=createActivityPanel;',context);
   const root=new Element('root'),render=context.createPanel(root,'zh');
   const today=new Date().toISOString().slice(0,10),prior=new Date(Date.parse(today)-86400000).toISOString().slice(0,10);

@@ -20,9 +20,15 @@ import { CaptureController } from './capture-settings.mjs';
 export function createServer(roots, { queryPlugins = loadPluginStatus, usageIndex = new UsageIndex(), archiveManager = new ArchiveManager({ roots }), skillNotes = new SkillNotes(), adoptions = new Adoptions(), pluginCalls = new PluginCalls(), captureController = null } = {}) {
 const autoCapture = captureController;
 let pluginSnapshot = null, usageSnapshot = null;
+let initialPluginRead;
 let usagePeriod = { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone };
 async function inventoryWithArchives({ includeActivity = true } = {}) {
   let inventory = await scanInventory(roots);
+  inventory.managerIcon = appIcon.src;
+  if (!pluginSnapshot) {
+    initialPluginRead ||= queryPlugins().then(status => { pluginSnapshot = status; }).catch(() => {});
+    await initialPluginRead;
+  }
   if (includeActivity) {
   if (autoCapture) {
     try {

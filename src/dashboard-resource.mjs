@@ -10,6 +10,7 @@ export const dashboardFile = fileURLToPath(new URL('../dist/dashboard.html', imp
 export const dashboardRevision = html => createHash('sha256').update(html).digest('hex').slice(0, 16);
 const resourceUri = revision => `ui://plugin-skill-manager/dashboard-${revision}.html`;
 const mimeType = 'text/html;profile=mcp-app';
+const imageMeta = { ui: { csp: { resourceDomains: ['https://files.openai.com'] } } };
 
 async function atomicWrite(file, text) {
   const temporary = `${file}.${randomUUID()}.tmp`;
@@ -43,7 +44,7 @@ export function registerDashboard(server, file = dashboardFile, embedded = bundl
   const html = embedded ?? readFileSync(file, 'utf8');
   const uri = resourceUri(dashboardRevision(html));
   server.registerResource('dashboard', uri, { mimeType }, async () => ({
-    contents: [{ uri, mimeType, text: html }],
+    contents: [{ uri, mimeType, text: html, _meta: imageMeta }],
   }));
   server.registerResource('dashboard-revision', new ResourceTemplate(
     'ui://plugin-skill-manager/dashboard-{revision}.html', { list: undefined },
@@ -53,7 +54,7 @@ export function registerDashboard(server, file = dashboardFile, embedded = bundl
     // Never answer an old/unknown URI with a different revision's content.
     const text = embedded ?? await readFile(path.join(path.dirname(file), 'revisions', `${revision}.html`), 'utf8');
     if (dashboardRevision(text) !== revision) throw new Error('Dashboard revision content mismatch');
-    return { contents: [{ uri: requestedUri.href, mimeType, text }] };
+    return { contents: [{ uri: requestedUri.href, mimeType, text, _meta: imageMeta }] };
   });
   return uri;
 }
