@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { mkdtemp, mkdir, writeFile, appendFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, appendFile, rm, readFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -24,6 +24,7 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
   try {
     await client.connect(transport);
     assert.match(client.getServerVersion().icons[0].src, /^data:image\/png;base64,iVBOR/);
+    assert.equal(client.getServerVersion().icons[0].src, `data:image/png;base64,${(await readFile(new URL('../src/assets/sidebar-wrench.png', import.meta.url))).toString('base64')}`);
     const { tools } = await client.listTools();
     assert.equal(tools.length, 13);
     assert.deepEqual(tools[0]._meta['openai/ui'].entrypoints, [{ type: 'global' }]);
