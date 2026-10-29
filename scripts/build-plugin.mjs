@@ -35,6 +35,7 @@ const manifest = {
 const mcp = { mcpServers: { 'plugin-skill-manager': { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}' } } };
 for (const [name, data] of [['plugin.json', manifest], ['mcp.json', mcp]]) await writeFile(path.join(root, name), JSON.stringify(data, null, 2) + '\n');
 for (const dest of ['assets/icon.png', 'server/src/assets/orbit-color.png']) await copyFile('src/assets/orbit-color.png', path.join(root, dest));
+await copyFile('src/assets/sidebar-wrench.png', path.join(root, 'server/src/assets/sidebar-wrench.png'));
 const dependencies = new Set(Object.keys(bundle.metafile.inputs).flatMap(file => {
   const match = file.replaceAll('\\', '/').match(/^(.*node_modules\/(?:@[^/]+\/)?[^/]+)\//);
   return match ? [match[1]] : [];

@@ -12,7 +12,7 @@ import { Adoptions } from './adoptions.mjs';
 import { PluginCalls } from './plugin-calls.mjs';
 import { registerDashboard } from './dashboard-resource.mjs';
 import { initializeData } from './data-migration.mjs';
-import { appIcon } from './app-icon.mjs';
+import { appIcon, sidebarIcon } from './app-icon.mjs';
 import { recordingStatus } from './recording-status.mjs';
 import { AutoCapture } from './auto-capture.mjs';
 import { CaptureController } from './capture-settings.mjs';
@@ -67,7 +67,7 @@ async function inventoryWithArchives({ includeActivity = true } = {}) {
   catch { inventory.archives = []; inventory.issues.push({ path: archiveManager.archiveRoot, reason: '归档记录无法读取' }); }
   return inventory;
 }
-const server = new McpServer({ name: 'plugin-skill-manager', version: packageInfo.version, icons: [appIcon] });
+const server = new McpServer({ name: 'plugin-skill-manager', version: packageInfo.version, icons: [sidebarIcon] });
 const uri = registerDashboard(server);
 server.registerTool('open_skill_manager', {
   title: 'Plugin & Skill Manager',
