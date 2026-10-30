@@ -13,14 +13,15 @@ import { PluginCalls } from './plugin-calls.mjs';
 import { registerDashboard } from './dashboard-resource.mjs';
 import { initializeData } from './data-migration.mjs';
 import { appIcon, sidebarIcon } from './app-icon.mjs';
-import { recordingStatus } from './recording-status.mjs';
+import { diagnoseEnvironment, runDoctor } from './environment-health.mjs';
 import { AutoCapture } from './auto-capture.mjs';
 import { CaptureController } from './capture-settings.mjs';
 
-export function createServer(roots, { queryPlugins = loadPluginStatus, usageIndex = new UsageIndex(), archiveManager = new ArchiveManager({ roots }), skillNotes = new SkillNotes(), adoptions = new Adoptions(), pluginCalls = new PluginCalls(), captureController = null } = {}) {
+export function createServer(roots, { queryPlugins = loadPluginStatus, usageIndex = new UsageIndex(), archiveManager = new ArchiveManager({ roots }), skillNotes = new SkillNotes(), adoptions = new Adoptions(), pluginCalls = new PluginCalls(), captureController = null, diagnosticOptions = {} } = {}) {
 const autoCapture = captureController;
 let pluginSnapshot = null, usageSnapshot = null;
 let initialPluginRead;
+let healthPending = null;
 let usagePeriod = { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone };
 async function inventoryWithArchives({ includeActivity = true } = {}) {
   let inventory = await scanInventory(roots);
@@ -80,22 +81,15 @@ server.registerTool('open_skill_manager', {
   return { content: [{ type: 'text', text: `发现 ${inventory.skills.length} 个技能文件实例；${inventory.issues.length} 个扫描问题。安装和使用信号按各自核对时间展示。` }], structuredContent: inventory };
 });
 server.registerTool('check_recording_status', {
-  title: '检查记录接入状态',
-  description: '只读检查已有采用和插件调用账本，返回总数与最近接收时间。不写测试事件、不读取聊天、不证明其他会话已经接入；空账本不等于没有实际活动。',
+  title: '检查环境与记录状态',
+  description: '只读诊断运行依赖、Codex CLI、安装注册、数据目录权限、账本与采集状态，逐项返回状态和修复建议，同时保留记录总数与最近时间。CLI 查询超时后返回部分结果。不读取会话正文、不写测试记录、不修改配置；空账本不证明没有活动，也不证明原生界面已接入。',
   inputSchema: {},
   annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
 }, async () => {
-  const status = await recordingStatus(adoptions, pluginCalls);
-  if (autoCapture) {
-    try {
-      const info = await autoCapture.info();
-      status.automaticMonitoring = info.enabled;
-      status.capture = info.enabled ? 'local-host-events' : 'caller-reported';
-      status.configuration = { enabled: info.enabled, intervalSeconds: info.intervalSeconds, source: info.source };
-      status.coverage = info.coverage; status.lastError = info.lastError;
-    } catch (error) { status.lastError = error.message; }
-  }
-  return { content: [{ type: 'text', text: status.automaticMonitoring ? '本机日志自动采集已启用，覆盖和读取问题见诊断数据。' : '自动采集未启用，当前仅有主动上报记录。' }], structuredContent: { mode: 'recording-status', ...status } };
+  healthPending ??= diagnoseEnvironment({ ...diagnosticOptions, roots, stores: { adoptions, pluginCalls, skillNotes, usageIndex }, captureController: autoCapture }).finally(() => { healthPending = null; });
+  const status = await healthPending;
+  const counts = status.health.summary;
+  return { content: [{ type: 'text', text: `环境检查完成：${counts.error} 项错误，${counts.warning} 项提醒，${counts.unknown} 项未确认。逐项建议见诊断数据。` }], structuredContent: { mode: 'recording-status', ...status } };
 });
 server.registerTool('configure_auto_capture', {
   title: '配置本机全局插件调用采集',
@@ -214,13 +208,16 @@ server.registerTool('cancel_skill_plan', {
 return server;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const data = await initializeData();
-  if (process.argv.includes('--initialize-data')) console.log(JSON.stringify(data, null, 2));
+  if (process.argv.includes('--diagnose')) process.exitCode = await runDoctor({ json: process.argv.includes('--json'), locale: process.argv.includes('--zh') ? 'zh' : 'en' });
   else {
-    const captureController = new CaptureController(new AutoCapture());
-    const stop = captureController.start();
-    const service = createServer(undefined, { captureController });
-    service.server.onclose = stop;
-    await service.connect(new StdioServerTransport());
+    const data = await initializeData();
+    if (process.argv.includes('--initialize-data')) console.log(JSON.stringify(data, null, 2));
+    else {
+      const captureController = new CaptureController(new AutoCapture());
+      const stop = captureController.start();
+      const service = createServer(undefined, { captureController });
+      service.server.onclose = stop;
+      await service.connect(new StdioServerTransport());
+    }
   }
 }

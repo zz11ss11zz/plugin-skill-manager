@@ -20,7 +20,7 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
   const usageOptions = { roots: [logs], stateFile: path.join(root, 'index', 'usage.json') };
   const archiveOptions = { roots, archiveRoot: path.join(root, 'archive') };
   const code = `import {createServer} from ${JSON.stringify(new URL('../src/server.mjs', import.meta.url).href)}; import {UsageIndex} from ${JSON.stringify(new URL('../src/usage-index.mjs', import.meta.url).href)}; import {SkillNotes} from ${JSON.stringify(new URL('../src/skill-notes.mjs', import.meta.url).href)}; import {ArchiveManager} from ${JSON.stringify(new URL('../src/archive.mjs', import.meta.url).href)}; import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js'; import {Adoptions} from ${JSON.stringify(new URL('../src/adoptions.mjs', import.meta.url).href)}; import {PluginCalls} from ${JSON.stringify(new URL('../src/plugin-calls.mjs', import.meta.url).href)}; let queries = 0; await createServer(${JSON.stringify(roots)}, {pluginCalls: new PluginCalls(${JSON.stringify(path.join(root, 'plugin-calls.json'))}), adoptions: new Adoptions(${JSON.stringify(path.join(root, 'adoptions.json'))}), skillNotes: new SkillNotes(${JSON.stringify(path.join(root, 'notes.json'))}), archiveManager: new ArchiveManager(${JSON.stringify(archiveOptions)}), usageIndex: new UsageIndex(${JSON.stringify(usageOptions)}), queryPlugins: async () => { if (queries++ >= 2) throw new Error('synthetic failure'); return {plugins: [], checkedAt: '2026-01-01T00:00:00Z', evidence: 'synthetic'}; }}).connect(new StdioServerTransport());`;
-  const transport = new StdioClientTransport({ command: process.execPath, args: ['--input-type=module', '-e', code], cwd: fileURLToPath(new URL('..', import.meta.url)), stderr: 'pipe' });
+  const transport = new StdioClientTransport({ command: process.execPath, args: ['--input-type=module', '-e', code], cwd: fileURLToPath(new URL('..', import.meta.url)), stderr: 'pipe', env: { CODEX_HOME: root, CODEX_SKILL_MANAGER_DATA_DIR: root, USERPROFILE: root, HOME: root, CODEX_SKILL_MANAGER_CLI: path.join(root, 'missing-cli') } });
   try {
     await client.connect(transport);
     assert.match(client.getServerVersion().icons[0].src, /^data:image\/png;base64,iVBOR/);
@@ -47,6 +47,8 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     const initialStatus = await client.callTool({ name: 'check_recording_status', arguments: {} });
     assert.equal(initialStatus.structuredContent.adoptions.state, 'empty');
     assert.equal(initialStatus.structuredContent.hostWideCoverage, 'unknown');
+    assert.equal(initialStatus.structuredContent.health.version, 1);
+    assert.equal(initialStatus.structuredContent.health.checks.find(c => c.id === 'cli').status, 'unknown');
     const callArgs={calls:[{id:'protocol-call-00001',plugin:'github',tool:'mcp__codex_apps__github_get_repo'}]};
     assert.equal((await client.callTool({name:'record_plugin_calls',arguments:callArgs})).isError,undefined);
     await client.callTool({name:'record_plugin_calls',arguments:callArgs});
@@ -66,6 +68,7 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     const recordedStatus = (await client.callTool({ name: 'check_recording_status', arguments: {} })).structuredContent;
     assert.equal(recordedStatus.adoptions.count, 2);
     assert.equal(recordedStatus.pluginCalls.count, 1);
+    assert.equal(recordedStatus.pluginCalls.sources.assistantReports, 1);
     assert.ok(recordedStatus.adoptions.latestReceivedAt);
     const noteArgs = { id: skill.id, fingerprint: skill.fingerprint, note: 'synthetic retention reason', retain: true, expectedRevision: 0 };
     const noted = await client.callTool({ name: 'save_skill_note', arguments: noteArgs });

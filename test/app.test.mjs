@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {resolveLocale,translator} from '../src/i18n.mjs';
 import { readFile } from 'node:fs/promises';
 
-const source = (await readFile(new URL('../src/app.mjs', import.meta.url), 'utf8')).replace(/^import .*;\r?\n/gm, '');
+const source = 'const createHealthPanel=()=>({receive(){},setLocale(){}});\n' + (await readFile(new URL('../src/app.mjs', import.meta.url), 'utf8')).replace(/^import .*;\r?\n/gm, '');
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const result = total => ({structuredContent:{mode:'inventory',skills:[],adoptions:{total}}});
 

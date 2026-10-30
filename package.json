@@ -10,6 +10,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "start": "node src/server.mjs",
+    "doctor": "node scripts/doctor.mjs",
     "test": "npm run build && node scripts/test.mjs",
     "setup:check": "node scripts/setup.mjs check",
     "setup:install": "node scripts/setup.mjs install",

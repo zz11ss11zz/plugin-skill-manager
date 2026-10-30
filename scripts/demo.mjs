@@ -66,6 +66,7 @@ await file('adoptions.json',JSON.stringify({version:1,catalog,batches}));
 await file('plugin-calls.json',JSON.stringify({version:1,calls}));
 
 const service = createServer(roots, {
+  diagnosticOptions: { home: temporary, env: { ...process.env, CODEX_HOME: temporary, CODEX_SKILL_MANAGER_DATA_DIR: temporary, CODEX_SKILL_MANAGER_LEGACY_DIR: path.join(temporary, 'legacy'), CODEX_SKILL_MANAGER_CLI: path.join(temporary, 'missing-synthetic-cli'), CODEX_SKILL_MANAGER_AUTO_CAPTURE: '0', CODEX_SKILL_MANAGER_CAPTURE_INTERVAL_SECONDS: '10' } },
   pluginCalls: new PluginCalls(path.join(temporary, 'plugin-calls.json')),
   adoptions: new Adoptions(path.join(temporary, 'adoptions.json')),
   skillNotes: new SkillNotes(path.join(temporary, 'notes.json')),

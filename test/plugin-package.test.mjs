@@ -16,6 +16,7 @@ test('standalone package builds and serves MCP resources outside the source tree
   await mkdir(path.join(codexHome, 'sessions'), {recursive:true});
   await mkdir(path.join(codexHome, 'archived_sessions'));
   const persistentData = path.join(temporary, 'persistent data');
+  const diagnosticEnv = { CODEX_HOME: codexHome, CODEX_SKILL_MANAGER_DATA_DIR: persistentData, USERPROFILE: temporary, HOME: temporary, CODEX_SKILL_MANAGER_CLI: path.join(temporary, 'missing-cli') };
   const source = fileURLToPath(new URL('..', import.meta.url));
   const client = new Client({ name: 'package-test', version: '1' });
   let transport;
@@ -62,7 +63,13 @@ test('standalone package builds and serves MCP resources outside the source tree
     assert.equal(config.command, 'node');
     assert.equal(config.type, 'stdio');
     const substitute = value => value.replaceAll('${PLUGIN_ROOT}', root);
-    transport = new StdioClientTransport({ command: process.execPath, args: config.args.map(substitute), cwd: substitute(config.cwd), stderr: 'pipe', env: { CODEX_HOME: codexHome, CODEX_SKILL_MANAGER_DATA_DIR: persistentData } });
+    let doctor;
+    try { execFileSync(process.execPath, [...config.args.map(substitute), '--diagnose', '--json'], { cwd: substitute(config.cwd), env: { ...process.env, ...diagnosticEnv }, encoding: 'utf8', windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] }); }
+    catch (error) { assert.equal(error.status, 2); doctor = JSON.parse(error.stdout); }
+    assert.equal(doctor.health.checks.find(c => c.id === 'dependencies').status, 'ok');
+    assert.equal(doctor.adoptions.state, 'empty');
+    await assert.rejects(readdir(persistentData), { code: 'ENOENT' });
+    transport = new StdioClientTransport({ command: process.execPath, args: config.args.map(substitute), cwd: substitute(config.cwd), stderr: 'pipe', env: diagnosticEnv });
     await client.connect(transport);
     assert.equal(client.getServerVersion().version, pkg.version);
     const { tools } = await client.listTools();
@@ -99,7 +106,7 @@ test('standalone package builds and serves MCP resources outside the source tree
     await client.callTool({name:'configure_auto_capture',arguments:{enabled:false,intervalSeconds:60}});
     await client.close(); await transport.close();
     const restarted = new Client({ name: 'restart-test', version: '1' });
-    transport = new StdioClientTransport({ command: process.execPath, args: config.args.map(substitute), cwd: substitute(config.cwd), stderr: 'pipe', env: { CODEX_HOME: codexHome, CODEX_SKILL_MANAGER_DATA_DIR: persistentData } });
+    transport = new StdioClientTransport({ command: process.execPath, args: config.args.map(substitute), cwd: substitute(config.cwd), stderr: 'pipe', env: diagnosticEnv });
     try {
       await restarted.connect(transport);
       assert.ok(!(await restarted.callTool({ name: 'record_plugin_calls', arguments: { calls: [call] } })).isError);

@@ -87,6 +87,10 @@ Uninstall the complete plugin, preserving its local data:
 node install.mjs uninstall
 ```
 
+## Environment health (development source)
+
+Development source now includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**: a manual dashboard check and an independent `node scripts/doctor.mjs` command for dependencies, installation, data and capture problems. A failed check preserves the other results and suggests next steps. This enhancement is not included in the published v0.4.6 ZIP.
+
 ## Demo and feedback
 
 [Current demo and capture details](docs/media/README.md) · [Chinese README](README.zh-CN.md) · [Report an issue](https://github.com/zz11ss11zz/plugin-skill-manager/issues)

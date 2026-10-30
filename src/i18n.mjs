@@ -3,6 +3,19 @@ export function resolveLocale(host, fallback = 'en') {
   return /^zh(?:[-_]|$)/i.test(value) ? 'zh' : 'en';
 }
 export const english = {
+  "环境诊断": "Environment health",
+  "正常": "Healthy",
+  "说明": "Info",
+  "需留意": "Attention",
+  "需处理": "Action needed",
+  "未确认": "Unknown",
+  "检查环境": "Check environment",
+  "检查中…": "Checking…",
+  "重新检查": "Check again",
+  "检查依赖、安装、数据与采集状态，不修改设置或写入测试记录。": "Check dependencies, installation, data and capture without changing settings or writing test records.",
+  "检查未完成；已有结果保留，可重试。服务无法启动时可使用独立诊断命令。": "The check did not complete. Previous results are preserved; retry or use the standalone doctor if the service cannot start.",
+  "正在检查，其他功能仍可使用。": "Checking; other features remain available.",
+  "检查时间：{0}": "Checked: {0}",
   "记录来源": "Record source",
   "宿主事件": "Host events",
   "助手上报": "Assistant reports",

@@ -63,6 +63,10 @@ node install.mjs check
 
 本版回归和隔离安装升级结果见验收记录。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
+## 环境诊断（开发源码）
+
+开发源码已加入 **[统一环境诊断](docs/ENVIRONMENT_HEALTH.md)**：可在界面手动检查依赖、安装、数据和采集状态；服务打不开时可运行 `node scripts/doctor.mjs --zh`。单项失败仍返回其余结果并提供处理建议。已发布的 v0.4.6 ZIP 尚不含本次增强。
+
 ## 官方目录状态
 
 本次提供独立的 **v0.4.6 desktop-package.zip 提交包**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的 plugin.zip。
