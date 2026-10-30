@@ -10,3 +10,20 @@ test('activity icons resolve namespaces without changing call identities', () =>
   assert.equal(activityIcon({id:'sider_scholar'}, [{id:'app-example@remote',displayName:'Sider Scholar',icon:'data:image/png;base64,YQ=='}]).icon, 'data:image/png;base64,YQ==');
   assert.equal(safeActivityIcon('https://example.org/icon.svg'), false);
 });
+
+test('historical finance and tool-only services have embedded official icons', () => {
+  for (const id of ['moomoo_readonly', 'robinhood_trading', 'interactive_brokers_ibkr', 'binance', 'elicit', '2_2_calculator']) {
+    const entry = {id};
+    const visual = activityIcon(entry);
+    assert.ok(safeActivityIcon(visual.icon), id);
+    assert.match(visual.icon, /^data:image\//);
+    if (visual.iconDark) assert.ok(safeActivityIcon(visual.iconDark));
+    assert.equal(entry.id, id);
+    assert.equal(activityIcon({id:id.replaceAll('_','-')+'@historical'}).icon, visual.icon);
+  }
+  const icon = 'https://files.openai.com/current.png';
+  assert.equal(activityIcon({id:'binance'}, [{id:'binance@curated',icon}]).icon, icon);
+  assert.deepEqual(activityIcon({id:'unknown_service'}), {});
+  assert.equal(safeActivityIcon('data:image/x-icon;base64,AAABAA=='), true);
+  assert.equal(safeActivityIcon('data:text/html;base64,YQ=='), false);
+});

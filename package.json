@@ -1,9 +1,9 @@
 {
   "name": "plugin-skill-manager",
-  "version": "0.4.3",
+  "version": "0.4.6",
   "private": true,
   "type": "module",
-  "description": "Local skill inventory and recorded activity dashboard for Codex",
+  "description": "Inventory plugins and Skills, track usage, and identify redundancy for user-approved cleanup.",
   "engines": {
     "node": ">=20.18"
   },

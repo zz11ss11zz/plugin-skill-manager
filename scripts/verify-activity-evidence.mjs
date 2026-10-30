@@ -21,10 +21,10 @@ if(process.argv.includes('--catch-up')) {
 const client=new Client({name:'activity-evidence-verification',version:'1'});
 const transport=new StdioClientTransport({command:process.execPath,args:[path.join(root,'plugins/plugin-skill-manager/server/src/server.mjs')],stderr:'pipe'});
 try {
- await client.connect(transport); assert.equal(client.getServerVersion().version,'0.4.3');
+ await client.connect(transport); assert.equal(client.getServerVersion().version,manifest.version);
  const entry=(await client.listTools()).tools.find(t=>t.name==='open_skill_manager');
  const uri=entry._meta.ui.resourceUri, html=(await client.readResource({uri})).contents[0].text;
- assert.match(html,/v0\.4\.1/); assert.match(html,/source-tabs/);
+ assert.ok(html.includes(`版本 / Version v${manifest.version}</span>`)); assert.match(html,/source-tabs/);
  const result=await client.callTool({name:'query_usage',arguments:{timeZone:'Asia/Shanghai'}});
  assert.ok(!result.isError);
  const data=result.structuredContent;

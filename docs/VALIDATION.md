@@ -471,3 +471,12 @@
 ## 2026-10-29 v0.4.3 consistency repair
 79 tests passed, zero skips, with SKILL_MANAGER_TEST_CODEX=1. Protocol coverage now checks that the embedded dashboard icon matches the current source PNG. Rebuilt distribution removes the stale embedded icon. Private account package retains its identity, connection configuration and presentation except the requested icon assets and patch version. Archive checks do not establish native sidebar rendering or refresh of historical chat entries.
 
+
+
+## 2026-10-30 v0.4.6 source and delivery consistency
+
+- Windows / Node 20.18.1: SKILL_MANAGER_TEST_CODEX=1 npm test passed 80 tests, zero failures or skips. Package regression verifies both manifests, bilingual READMEs, MCP review cases, versioned release notes and byte-identical embedded dashboard output.
+- Seven isolated real-CLI lifecycle checks passed for 0.4.3 to 0.4.6: install, companion Skill discovery, cached MCP startup and restart persistence, source-change rejection, explicit relocated upgrade, uninstall and reinstall retaining synthetic records.
+- The complete distribution and standalone desktop package use the same built plugin directory. package.json is the version source for runtime, UI, manifests and integrity metadata. Publication of source and exact archives is verified separately through release read-back and SHA256 checks.
+- Includes service-icon fallbacks previously delivered privately, with provenance in SERVICE_ICON_SOURCES.json. Installed-registry icons retain priority; record identity and inventory totals do not change.
+- Native sidebar visual acceptance after reload and official directory approval are not established by these checks. No personal activity, account release IDs or machine configuration is included in the deliverables.

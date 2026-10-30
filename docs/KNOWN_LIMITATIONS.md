@@ -1,4 +1,4 @@
-# v0.2.0 known limitations / 已知限制
+# Known limitations / 已知限制
 
 - **Distribution / 分发**: prebuilt plugin ZIP → extract → `node install.mjs install`, with Node.js 20.18+ and compatible Codex CLI on PATH. The ZIP includes service, UI and both Skills. Source/MCP installation remains an alternative. No npm release, hosted marketplace or official directory listing; a ZIP download URL is not a marketplace URL.
 - **Host UI / 宿主界面**: protocol/resource and browser checks exist; the latest complete native sidebar interaction and desktop language switching are not automated. Service startup does not prove every desktop version displays the entry. Do not modify hidden host settings to force it.

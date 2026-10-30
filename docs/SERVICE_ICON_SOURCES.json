@@ -1,0 +1,36 @@
+{
+  "verified": "2026-10-30",
+  "purpose": "Local display fallback for tool namespaces absent from the installed plugin registry. Does not imply installation or alter usage identity.",
+  "sources": [
+    {
+      "namespace": "interactive_brokers_ibkr",
+      "source": "Codex app/list iconAssets",
+      "appId": "asdk_app_69bc11db874881918718abaca20b68ce"
+    },
+    {
+      "namespace": "binance",
+      "source": "Codex app/list iconAssets",
+      "appId": "asdk_app_6965faefe2b081919a998e14aa25f738"
+    },
+    {
+      "namespace": "elicit",
+      "source": "Codex app/list iconAssets",
+      "appId": "asdk_app_69fcf53d4d8481919b65501a96bbed02"
+    },
+    {
+      "namespace": "2_2_calculator",
+      "source": "Codex app/list iconAssets",
+      "appId": "asdk_app_6952983fa5948191b986f6b93c9e80bd"
+    },
+    {
+      "namespace": "moomoo_readonly",
+      "source": "https://www.moomooapp.com/us/",
+      "asset": "https://cdn.futustatic.com/moomoo_common/images/favicon.ico"
+    },
+    {
+      "namespace": "robinhood_trading",
+      "source": "https://robinhood.com",
+      "asset": "https://robinhood.com/us/en/rh_favicon_152.png?v=2024"
+    }
+  ]
+}
