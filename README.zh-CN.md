@@ -15,7 +15,7 @@
 
 查看日期热力图、按时间筛选排名，分别理解 Skill 采用与插件调用尝试。记录保存在本机。
 
-[下载安装](docs/DISTRIBUTION.md) · [v0.4.6](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.6) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
+[下载安装](docs/DISTRIBUTION.md) · [v0.4.6](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.6) · [Glama 目录](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
 ![v0.4.0 青绿活动概览：柱图、年度格子与已记录统计；合成数据](docs/media/v040/activity-zh.png)
 
