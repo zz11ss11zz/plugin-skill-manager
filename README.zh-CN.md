@@ -15,7 +15,7 @@
 
 查看日期热力图、按时间筛选排名，分别理解 Skill 采用与插件调用尝试。记录保存在本机。
 
-[下载安装](docs/DISTRIBUTION.md) · [v0.4.3](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.3) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
+[下载安装](docs/DISTRIBUTION.md) · [v0.4.6](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.6) · [Apache-2.0](LICENSE) · [反馈问题](https://github.com/zz11ss11zz/plugin-skill-manager/issues)
 
 ![v0.4.0 青绿活动概览：柱图、年度格子与已记录统计；合成数据](docs/media/v040/activity-zh.png)
 
@@ -52,20 +52,20 @@
 
 已验证环境为 Windows，需要 Node.js 20.18+ 和 PATH 中可用的 Codex CLI。本项目为独立开源项目，不是 OpenAI 官方产品，尚未上架官方插件目录。
 
-下载 [v0.4.3 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.3/plugin-skill-manager-0.4.3-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
+下载 [v0.4.6 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.6/plugin-skill-manager-0.4.6-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 install.mjs 的目录打开 PowerShell：
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-检查结果应显示已安装并启用的 0.4.3 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
+检查结果应显示已安装并启用的 0.4.6 插件，且注册来源匹配。重开 Codex，再让助手打开Plugin & Skill Manager或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
 本版回归和隔离安装升级结果见验收记录。浏览器管理交互通过；最新版桌面原生侧栏仍未验证。详见 [升级与卸载](docs/DISTRIBUTION.md)、[验收记录](docs/VALIDATION.md) 和 [已知限制](docs/KNOWN_LIMITATIONS.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
 ## 官方目录状态
 
-本次提供独立的 **v0.4.3 desktop-package.zip 提交包**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的 plugin.zip。
+本次提供独立的 **v0.4.6 desktop-package.zip 提交包**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的 plugin.zip。
 
 截至 2026-10-27，**0.3.1 草稿已上传**，尚未提交审核、获批或发布。门户当前提示暂不接受更多 skills-only 提交，本地 MCP 服务的识别与准入仍待确认。GitHub 发布包可手动安装；保存草稿不等于官方上架。
 

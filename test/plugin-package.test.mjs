@@ -27,7 +27,16 @@ test('standalone package builds and serves MCP resources outside the source tree
     assert.equal(manifest.name, pkg.name);
     assert.equal(manifest.author.name, manifest.extensions['com.openai'].interface.developerName);
     assert.equal(await readFile(path.join(root, 'LICENSE'), 'utf8'), await readFile(path.join(source, 'LICENSE'), 'utf8'));
-    assert.deepEqual((await readdir(root)).sort(), ['DATA_MIGRATION.md', 'LICENSE', 'NOTICE', 'README.md', 'THIRD_PARTY_NOTICES.md', 'assets', 'mcp.json', 'plugin.json', 'server', 'skills']);
+    assert.deepEqual((await readdir(root)).sort(), ['.codex-plugin', 'DATA_MIGRATION.md', 'LICENSE', 'NOTICE', 'README.md', 'README.zh-CN.md', 'THIRD_PARTY_NOTICES.md', 'assets', 'mcp.json', 'plugin.json', 'server', 'skills']);
+    const legacy = JSON.parse(await readFile(path.join(root, '.codex-plugin/plugin.json')));
+    for (const key of ['name', 'version', 'description', 'author', 'license', 'repository']) assert.deepEqual(legacy[key], manifest[key]);
+    assert.equal(manifest.description, pkg.description);
+    assert.deepEqual(legacy.interface, manifest.extensions['com.openai'].interface);
+    assert.deepEqual(legacy.extensions['com.openai'].publication, manifest.extensions['com.openai'].publication);
+    assert.equal(manifest.extensions['com.openai'].publication.release_notes, (await readFile(path.join(source, `docs/releases/v${pkg.version}.md`), 'utf8')).trim());
+    for (const [output, input] of [['README.md', 'PLUGIN_TESTING.md'], ['README.zh-CN.md', 'PLUGIN_TESTING.zh-CN.md']]) {
+      assert.equal(await readFile(path.join(root, output), 'utf8'), await readFile(path.join(source, 'docs', input), 'utf8'));
+    }
     const inventory = await scanInventory({ skills: path.join(root, 'skills'), agentSkills: path.join(temporary, 'absent-agent-skills'), cache: path.join(temporary, 'absent-cache') });
     assert.deepEqual(inventory.skills.map(s => s.name).sort(), ['setup', 'skill-manager']);
     assert.ok(await readFile(path.join(root, manifest.extensions['com.openai'].onboardingSkill)));
@@ -35,10 +44,21 @@ test('standalone package builds and serves MCP resources outside the source tree
     assert.ok(listing.displayName.length <= 30 && listing.shortDescription.length <= 30);
     assert.ok(listing.longDescription.length <= 4000);
     assert.ok(await readFile(path.join(root, listing.logo)));
-    assert.equal(manifest.extensions['com.openai'].review.test_cases.positive.length, 5);
-    assert.equal(manifest.extensions['com.openai'].review.test_cases.negative.length, 3);
     assert.ok((await readFile(path.join(root, manifest.extensions['com.openai'].interface.composerIcon))).length > 0);
-    const config = JSON.parse(await readFile(path.join(root, 'mcp.json'))).mcpServers[pkg.name];
+    const mcp = JSON.parse(await readFile(path.join(root, 'mcp.json')));
+    assert.equal(mcp.$schema, 'https://agent-plugins.org/schemas/1.0.0/mcp.schema.json');
+    const config = mcp.mcpServers[pkg.name];
+    const review = config.extensions['com.openai'].review;
+    const cases = JSON.parse(await readFile(path.join(source, 'packaging/review-cases.json')));
+    assert.equal(review.testCases.length, 5);
+    assert.equal(review.negativeTestCases.length, 3);
+    for (const [items, original] of [[review.testCases, cases.positive], [review.negativeTestCases, cases.negative]]) {
+      items.forEach((item, index) => {
+        assert.equal(item.userPrompt, original[index].prompt);
+        assert.equal(item.expectedOutput, original[index].expected_behavior);
+        assert.equal(item.toolsTriggered, original[index].tools_triggered);
+      });
+    }
     assert.equal(config.command, 'node');
     assert.equal(config.type, 'stdio');
     const substitute = value => value.replaceAll('${PLUGIN_ROOT}', root);

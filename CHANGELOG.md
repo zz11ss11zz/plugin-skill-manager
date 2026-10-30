@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.6 — 2026-10-30
+
+- Unify source, private plugin and public packages; include previously private service-icon fixes.
+- Generate both manifests, bilingual package READMEs, MCP review cases and release notes from source.
+- Check version and content consistency in package tests; remove stale version assertions.
+- Retain the prominent bilingual product purpose and concise installation guidance.
+- See [release notes](docs/releases/v0.4.6.md) for delivery and upgrade boundaries.
+
 ## 0.4.1 — 2026-10-29
 
 - Show installed plugin display names and icons in Manage and both plugin-call ranking sources; load metadata on first open and match unique display names for opaque app IDs.

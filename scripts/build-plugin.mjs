@@ -6,7 +6,7 @@ import path from 'node:path';
 const pkg = JSON.parse(await readFile('package.json', 'utf8'));
 const root = path.resolve(process.argv[2] || path.join('dist', `plugin-${pkg.version}`));
 await mkdir(root); // Fail closed if the destination already exists.
-for (const dir of ['assets', 'server/src/assets']) await mkdir(path.join(root, dir), { recursive: true });
+for (const dir of ['.codex-plugin', 'assets', 'server/src/assets']) await mkdir(path.join(root, dir), { recursive: true });
 const html = await readFile('dist/dashboard.html', 'utf8');
 const embeddedModule = path.resolve('src/bundled-dashboard.mjs');
 const bundle = await build({
@@ -22,18 +22,25 @@ const bundle = await build({
 });
 const manifest = {
   $schema: 'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json',
-  name: pkg.name, version: pkg.version, description: 'Local skill inventory and adoption records for Codex.',
+  name: pkg.name, version: pkg.version, description: pkg.description,
   author: { name: 'Zishen Wang' },
   license: 'Apache-2.0', repository: 'https://github.com/zz11ss11zz/plugin-skill-manager',
   extensions: { 'com.openai': {
     onboardingSkill: './skills/setup/SKILL.md',
     interface: JSON.parse(await readFile('packaging/interface.json', 'utf8')),
-    review: { test_cases: JSON.parse(await readFile('packaging/review-cases.json', 'utf8')) },
-    publication: { release_notes: `Version ${pkg.version}: separate host-event and assistant-report activity sources, explicit Skill adoption labels, capture status and incomplete-coverage reporting. No official analytics equivalence is claimed. Native desktop review remains pending.` },
+    publication: { release_notes: (await readFile(`docs/releases/v${pkg.version}.md`, 'utf8')).trim() },
   } },
 };
-const mcp = { mcpServers: { 'plugin-skill-manager': { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}' } } };
-for (const [name, data] of [['plugin.json', manifest], ['mcp.json', mcp]]) await writeFile(path.join(root, name), JSON.stringify(data, null, 2) + '\n');
+const cases = JSON.parse(await readFile('packaging/review-cases.json', 'utf8'));
+const reviewCase = item => ({ description: item.description, userPrompt: item.prompt, expectedOutput: item.expected_behavior,
+  ...(item.tools_triggered ? { toolsTriggered: item.tools_triggered } : {}) });
+const review = { testCases: cases.positive.map(reviewCase), negativeTestCases: cases.negative.map(reviewCase) };
+const mcp = { $schema: 'https://agent-plugins.org/schemas/1.0.0/mcp.schema.json', mcpServers: { [pkg.name]: { type: 'stdio', command: 'node', args: ['${PLUGIN_ROOT}/server/src/server.mjs'], cwd: '${PLUGIN_ROOT}',
+  extensions: { 'com.openai': { review } } } } };
+const { $schema, extensions, ...identity } = manifest;
+const { interface: listing, ...settings } = extensions['com.openai'];
+const legacy = { ...identity, skills: './skills', interface: listing, extensions: { 'com.openai': settings } };
+for (const [name, data] of [['plugin.json', manifest], ['.codex-plugin/plugin.json', legacy], ['mcp.json', mcp]]) await writeFile(path.join(root, name), JSON.stringify(data, null, 2) + '\n');
 for (const dest of ['assets/icon.png', 'server/src/assets/orbit-color.png']) await copyFile('src/assets/orbit-color.png', path.join(root, dest));
 await copyFile('src/assets/sidebar-wrench.png', path.join(root, 'server/src/assets/sidebar-wrench.png'));
 const dependencies = new Set(Object.keys(bundle.metafile.inputs).flatMap(file => {
@@ -50,6 +57,7 @@ for (const dependency of [...dependencies].sort()) {
 await writeFile(path.join(root, 'THIRD_PARTY_NOTICES.md'), notices.join('\n\n---\n\n'));
 for (const name of ['LICENSE', 'NOTICE']) await copyFile(name, path.join(root, name));
 await copyFile('docs/PLUGIN_TESTING.md', path.join(root, 'README.md'));
+await copyFile('docs/PLUGIN_TESTING.zh-CN.md', path.join(root, 'README.zh-CN.md'));
 await copyFile('docs/DATA_MIGRATION.md', path.join(root, 'DATA_MIGRATION.md'));
 await cp('skills/skill-manager', path.join(root, 'skills/skill-manager'), { recursive: true });
 await cp('skills/setup', path.join(root, 'skills/setup'), { recursive: true });

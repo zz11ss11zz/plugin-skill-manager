@@ -1,5 +1,7 @@
 # Standalone desktop plugin package
 
+**English** | [中文](README.zh-CN.md)
+
 **See which plugins and Skills are installed and used, identify redundancy, and streamline your tool environment for more efficient, controllable work.**
 
 1. **Inventory your tools in one place**  
@@ -11,7 +13,7 @@
 3. **Identify redundancy and support safe cleanup**  
    Consider overlapping functionality, duplicate installations, usage and your needs to identify plugins or Skills that could be uninstalled. You decide what to remove, reducing tool-selection noise, maintenance effort and unnecessary permissions. When cleanup reduces service startup, tool definitions or loaded instructions, it can improve runtime efficiency and reduce token consumption.
 
-Version: read plugin.json. The 0.2 release provides a complete installation
+Version: read plugin.json. The complete release provides a complete installation
 distribution containing this standalone package, a local catalog and install.mjs.
 Use the distribution's top-level installation guide for normal installation.
 Requires Node.js 20.18+ on PATH. Runtime JavaScript dependencies are bundled;
