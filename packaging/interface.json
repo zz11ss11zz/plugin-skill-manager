@@ -1,15 +1,24 @@
 {
   "displayName": "Plugin & Skill Manager",
-  "shortDescription": "Local skills and activity",
-  "longDescription": "Explore local Codex Skills and separately recorded Skill adoptions and plugin tool-call attempts. View activity heatmaps and date-filtered rankings, inspect sources, save local notes, and preview reversible Windows user-skill archives. Recording depends on explicit caller participation: this plugin does not automatically monitor every chat, and missing records do not mean no activity. Includes first-use setup guidance. Requires Node.js 20.18+ and a compatible local Codex CLI. This is an independent open-source project; native desktop compatibility and official directory review remain pending.",
+  "shortDescription": "Find redundant plugins and Skills",
+  "longDescription": "See which plugins and Skills are installed and used, identify redundancy, and streamline your tool environment. Inventory sources, versions and installation status; review cross-session usage with traceable evidence; identify overlapping, duplicate or low-use tools for user-approved cleanup. Reduce tool-selection noise, maintenance effort and unnecessary permissions. Cleanup can improve runtime efficiency and save tokens when it reduces service startup, tool definitions or loaded instructions. Includes local activity charts, notes and reversible Windows user-skill archive previews. Missing records do not prove non-use; this is decision support, not automatic uninstallation. Optional local host-event capture requires opt-in; Skill adoptions are assistant-reported. Requires Node.js 20.18+ and a compatible local Codex CLI. Independent project; native desktop compatibility and official directory review remain pending.\n\n看清插件和 Skill 的安装与使用情况，识别冗余，精简工具环境。统一盘点来源、版本与安装状态，通过跨会话记录、时间统计和来源追溯，为清理决定提供依据；综合功能重叠、重复安装、使用情况与需求，找出可卸载的插件或 Skill，由用户决定后清理，减少工具选择干扰、维护负担和不必要的权限。在减少服务启动、工具定义或指令加载时，可提高运行效率并降低 token 消耗。未记录不等于未使用；当前提供辅助判断、备注及可恢复的 Windows 用户 Skill 归档，不自动卸载。",
   "developerName": "Zishen Wang",
   "category": "Productivity",
-  "capabilities": ["Inspect local skills", "View recorded activity", "Save local notes", "Archive and restore user skills"],
+  "capabilities": [
+    "Inspect local skills",
+    "View recorded activity",
+    "Save local notes",
+    "Archive and restore user skills"
+  ],
   "websiteURL": "https://github.com/zz11ss11zz/plugin-skill-manager",
   "supportURL": "https://github.com/zz11ss11zz/plugin-skill-manager/blob/main/docs/SUPPORT.md",
   "privacyPolicyURL": "https://github.com/zz11ss11zz/plugin-skill-manager/blob/main/docs/PRIVACY.md",
   "termsOfServiceURL": "https://github.com/zz11ss11zz/plugin-skill-manager/blob/main/docs/TERMS.md",
-  "defaultPrompt": ["Open Plugin & Skill Manager and explain my recorded activity.", "Check whether Skill adoption and plugin call records have arrived.", "Show my local Skill inventory and its sources."],
+  "defaultPrompt": [
+    "Open Plugin & Skill Manager and explain my recorded activity.",
+    "Check whether Skill adoption and plugin call records have arrived.",
+    "Show my local Skill inventory and its sources."
+  ],
   "brandColor": "#245EAA",
   "composerIcon": "./assets/icon.png",
   "logo": "./assets/icon.png"

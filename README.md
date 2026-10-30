@@ -1,5 +1,16 @@
 # Plugin & Skill Manager
 
+**See which plugins and Skills are installed and used, identify redundancy, and streamline your tool environment for more efficient, controllable work.**
+
+1. **Inventory your tools in one place**  
+   Inspect plugin and Skill sources, versions, installation and enablement status. Spot duplicate installations, outdated versions and stale entries to reduce lookup and maintenance effort.
+
+2. **Track usage to inform decisions**  
+   Use cross-session records, time-based statistics and traceable sources to understand which tools are used frequently and which have had no records for a long time.
+
+3. **Identify redundancy and support safe cleanup**  
+   Consider overlapping functionality, duplicate installations, usage and your needs to identify plugins or Skills that could be uninstalled. You decide what to remove, reducing tool-selection noise, maintenance effort and unnecessary permissions. When cleanup reduces service startup, tool definitions or loaded instructions, it can improve runtime efficiency and reduce token consumption.
+
 Current release: **v0.4.3**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
 
 **New in v0.4.3:** Plugins and Skills share a compact filter/search layout. Inventory refresh uses the installed-plugin endpoint and keeps navigation/search usable while waiting; a local packaged MCP check took 1.891 seconds for 28 plugins and 67 Skill files. Activity separates **Host events** from **Assistant reports** and labels Skill adoptions as assistant-reported. [Changes, compatibility and verification](docs/releases/v0.4.3.md). Plugin/listing and sidebar icons now use the same orange-gold double wrench.
