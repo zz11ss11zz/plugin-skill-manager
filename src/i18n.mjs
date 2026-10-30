@@ -16,6 +16,7 @@ export const english = {
   "检查未完成；已有结果保留，可重试。服务无法启动时可使用独立诊断命令。": "The check did not complete. Previous results are preserved; retry or use the standalone doctor if the service cannot start.",
   "正在检查，其他功能仍可使用。": "Checking; other features remain available.",
   "检查时间：{0}": "Checked: {0}",
+  "需处理 {0} · 未确认 {1} · 需留意 {2}": "Action needed {0} · Unknown {1} · Attention {2}",
   "记录来源": "Record source",
   "宿主事件": "Host events",
   "助手上报": "Assistant reports",

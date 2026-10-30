@@ -24,10 +24,14 @@ test('health panel is manual, prevents overlapping calls, preserves results on f
   button().listeners.click(); button().listeners.click();
   assert.equal(requests, 1); assert.equal(button().disabled, true);
   panel.setLocale('en'); assert.equal(button().textContent, 'Checking…');
-  const report = { version: 1, checkedAt: '2026-10-30T00:00:00Z', status: 'ok', checks: [{ status: 'info', title: { zh: '采集设置', en: 'Capture settings' }, message: { zh: '已关闭', en: 'Off' } }] };
+  const report = { version: 1, checkedAt: '2026-10-30T00:00:00Z', status: 'unknown', checks: [
+    { status: 'info', title: { zh: '采集设置', en: 'Capture settings' }, message: { zh: '已关闭', en: 'Off' } },
+    { status: 'unknown', title: { zh: 'CLI 查询', en: 'CLI query' }, message: { zh: '超时', en: 'Timeout' } },
+  ] };
   resolve({ structuredContent: { health: report } }); await flush();
   assert.equal(button().disabled, false);
   assert.ok(all().some(e => e.textContent === 'Info · Capture settings'));
+  assert.equal(all().find(e => e.tag === 'li').children[0].textContent, 'Unknown · CLI query', 'unresolved checks must appear before informational and healthy rows');
   panel.setLocale('zh'); assert.ok(all().some(e => e.textContent === '说明 · 采集设置'));
   button().listeners.click(); reject(new Error('PRIVATE ERROR')); await flush();
   assert.ok(all().some(e => e.textContent?.includes('已有结果保留')));

@@ -14,6 +14,7 @@ export function createHealthPanel(container, locale, invoke) {
   const labels = () => ({ ok: t('正常'), info: t('说明'), warning: t('需留意'), error: t('需处理'), unknown: t('未确认') });
   const local = value => value?.[locale] || value?.en || '';
   function render() {
+    container.setAttribute('aria-label', t('环境诊断'));
     heading.textContent = t('环境诊断') + (report ? ` · ${labels()[report.status]}` : '');
     const explanation = element('p', t('检查依赖、安装、数据与采集状态，不修改设置或写入测试记录。'));
     const button = element('button', pending ? t('检查中…') : report || failed ? t('重新检查') : t('检查环境'));
@@ -30,8 +31,11 @@ export function createHealthPanel(container, locale, invoke) {
     body.replaceChildren(explanation, button, feedback);
     if (!report) return;
     body.append(element('p', t('检查时间：{0}', report.checkedAt), 'health-time'));
+    const count = state => report.checks.filter(item => item.status === state).length;
+    body.append(element('p', t('需处理 {0} · 未确认 {1} · 需留意 {2}', count('error'), count('unknown'), count('warning'))));
     const list = element('ul', '', 'health-checks');
-    for (const item of report.checks) {
+    const priority = { error: 0, unknown: 1, warning: 2, info: 3, ok: 4 };
+    for (const item of [...report.checks].sort((a, b) => priority[a.status] - priority[b.status])) {
       const row = element('li');
       row.setAttribute('data-status', item.status);
       row.append(element('strong', `${labels()[item.status]} · ${local(item.title)}`), element('p', local(item.message)));
