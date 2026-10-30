@@ -11,16 +11,6 @@
 3. **Identify redundancy and support safe cleanup**  
    Consider overlapping functionality, duplicate installations, usage and your needs to identify plugins or Skills that could be uninstalled. You decide what to remove, reducing tool-selection noise, maintenance effort and unnecessary permissions. When cleanup reduces service startup, tool definitions or loaded instructions, it can improve runtime efficiency and reduce token consumption.
 
-Current release: **v0.4.3**. Upgrading from the old `codex-skill-manager` identity? See the [rename and upgrade notes](docs/IDENTIFIER_RENAME.md).
-
-**New in v0.4.3:** Plugins and Skills share a compact filter/search layout. Inventory refresh uses the installed-plugin endpoint and keeps navigation/search usable while waiting; a local packaged MCP check took 1.891 seconds for 28 plugins and 67 Skill files. Activity separates **Host events** from **Assistant reports** and labels Skill adoptions as assistant-reported. [Changes, compatibility and verification](docs/releases/v0.4.3.md). Plugin/listing and sidebar icons now use the same orange-gold double wrench.
-
-**New in v0.4.0:** Muted teal activity charts, recorded 30-day summaries and a daily bar chart linked to the annual calendar. Hover or focus to inspect a day; click a bar or square to pin named daily rankings, then choose **Back to all** to restore your date range. Only Activity and Manage remain.
-
-Optional automatic local host-event capture from v0.3.3 remains available, with persisted opt-in/disable and a shared 5–3600 second interval. [Setup and privacy](docs/AUTO_CAPTURE.md).
-
-**See which Skills were recorded as adopted, and which plugins were recorded as called.**
-
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
 **English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.3](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.3) · [Apache-2.0](LICENSE)
