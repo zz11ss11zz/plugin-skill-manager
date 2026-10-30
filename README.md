@@ -67,6 +67,8 @@ The **v0.4.6 desktop submission ZIP** is available separately on the release pag
 
 ## Optional: companion Skill
 
+For third-party Skill directories, see the [bilingual listing kit](docs/distribution/THIRD_PARTY_LISTING.md), [dependency-aware installation guide](docs/distribution/THIRD_PARTY_INSTALL.md), and [verification status](docs/distribution/THIRD_PARTY_VALIDATION.md). These materials do not indicate a submitted or approved listing.
+
 The complete plugin already includes these Skills. For the alternative source/MCP route, install the companion instructions from your downloaded source into your chosen project. The pinned skills CLI requires **Node.js 22.20+**, independently of the manager's Node requirement:
 
 ```powershell
