@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import os from 'node:os';
 import { dataFile } from './data-path.mjs';
+import { readUsageSnapshot } from './stored-state.mjs';
 import { UsageParser, aggregateUsage } from './usage.mjs';
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -111,12 +112,8 @@ export class UsageIndex {
   constructor(options = defaultUsageOptions()) { this.options = options; }
   async query(skills, period = {}) {
     const { stateFile } = this.options;
-    const info = await lstat(stateFile);
-    if (!info.isFile() || info.isSymbolicLink() || info.size > 64 * 1024 * 1024) throw new Error('本地索引类型或大小无效');
-    const snapshot = JSON.parse(await readFile(stateFile, 'utf8'));
-    if (snapshot.version !== 2 || !snapshot.coverage || !snapshot.files || typeof snapshot.files !== 'object') throw new Error('请先导入使用信号以更新索引');
+    const snapshot = await readUsageSnapshot(stateFile);
     const states = Object.values(snapshot.files);
-    if (states.some(s => !Array.isArray(s.events))) throw new Error('本地索引损坏');
     const usage = aggregateUsage(states.flatMap(s => s.events), skills, period);
     return { ...usage, events: usage.events.slice(-100), totalEvents: usage.events.length, coverage: snapshot.coverage, limits: [...usage.limits, '仅查询已有索引，不读取新日志。覆盖信息仍为上次导入时的快照。', '期间使用起点包含、终点不包含；限定期间时排除时间未知的信号。', '计数使用全部已索引信号，证据最多展示 100 条；归属按当前清单重新核对。'] };
   }

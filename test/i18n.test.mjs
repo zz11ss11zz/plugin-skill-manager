@@ -16,7 +16,7 @@ test('translations preserve values without translating user data',()=>{
   assert.equal(translator('en')('第 {0} 名，{1}',1,'中文 skill {0}'),'Rank 1, 中文 skill {0}');
 });
 test('every literal translation key in the UI has an English message', async()=>{
- for(const file of ['app.mjs','activity-ui.mjs']){
+ for(const file of ['app.mjs','activity-ui.mjs','health-ui.mjs']){
   const ast=parse(await readFile(new URL('../src/'+file,import.meta.url),'utf8'),{ecmaVersion:'latest',sourceType:'module'});
   function walk(n){
    if(n.type==='CallExpression'&&n.callee.name==='t'&&n.arguments[0]?.type==='Literal') assert.ok(Object.hasOwn(english,n.arguments[0].value),n.arguments[0].value);

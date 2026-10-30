@@ -29,6 +29,8 @@ For a requested archive or restore, use `preview_skill_archive` or `preview_skil
 
 ## Troubleshooting boundaries
 
+Use `check_recording_status` for the unified environment report when available: diagnose dependencies, local installation/registration, data access and capture freshness together. Preserve `null`/unknown states and partial results; failed reads are not zero usage and invalid settings do not mean capture is disabled. A recent scan does not establish continuous or host-wide coverage. For startup failures, current source includes `node scripts/doctor.mjs --json`; see `docs/ENVIRONMENT_HEALTH.md` for the development-source boundary and bundled entry. Do not infer that the published v0.4.6 ZIP has this new doctor.
+
 The default data directory is `$CODEX_HOME/skill-manager/data-v1` (or `~/.codex/skill-manager/data-v1`); an explicit absolute `CODEX_SKILL_MANAGER_DATA_DIR` may override it. Do not delete data, break locks, change access controls, or reinstall automatically to resolve an error. Stop the relevant service before migration or backup restoration. MCP registration, marketplace installation, and a working native sidebar are separate checks.
 
 ## Automatic plugin capture

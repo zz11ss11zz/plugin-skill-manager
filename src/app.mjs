@@ -5,13 +5,16 @@ let t = translator(locale);
 import { App } from '@modelcontextprotocol/ext-apps';
 import { createActivityPanel } from './activity-ui.mjs';
 import { createManagementPanel } from './management-ui.mjs';
+import { createHealthPanel } from './health-ui.mjs';
 const updateActivity = createActivityPanel(document.querySelector('#activity-panel'), locale, () => app.callServerTool({name:'check_plugin_status',arguments:{}}));
 const status = document.querySelector('#status');
 const app = new App({ name: 'plugin-skill-manager', version: packageInfo.version }, {});
+const healthPanel = createHealthPanel(document.querySelector('#environment-health'), locale, args => app.callServerTool(args));
 const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), args => app.callServerTool(args), receive, locale);
 let connected = false, hasData = false, lastRefresh = 0, pending = null, autoRefresh = false;
 function receive(result) {
   const data = result.structuredContent;
+  if (data?.mode === 'recording-status') { try { healthPanel.receive(result); } catch { /* Preserve the previous health report and inventory. */ } return; }
   if (!result.isError && data?.mode === 'inventory' && data.inventoryScope === 'management') {
     updateManagement(data);
     return;
@@ -39,6 +42,7 @@ function setLocale(context = {}) {
   document.querySelector('#activity-panel').setAttribute('aria-label', t('使用活动热力图与排名'));
   updateActivity.setLocale(locale);
   updateManagement.setLocale(locale);
+  healthPanel.setLocale(locale);
   if (!status.hidden) status.textContent = t(statusKey);
 }
 let statusKey = '正在读取统计…';

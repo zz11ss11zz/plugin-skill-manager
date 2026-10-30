@@ -5,7 +5,11 @@ description: Set up or diagnose recording for Plugin & Skill Manager after insta
 
 # Set up Plugin & Skill Manager
 
-Discover this plugin's actual tool namespace. Call `check_recording_status` and `open_skill_manager` to check service access and existing records. If the tools are absent, report that the current chat cannot access the MCP service; consult the installation guide or suggest reopening Codex after installation. Installing a Skill alone does not provide the service.
+Discover this plugin's actual tool namespace. Start with `check_recording_status` to inspect environment health and existing records. Use `open_skill_manager` when the user wants the panel; if capture is already enabled, opening it may perform the normal capture refresh. If the tools are absent, report that the current chat cannot access the MCP service; consult the installation guide or suggest reopening Codex after installation. Installing a Skill alone does not provide the service.
+
+When a `health` report is returned, explain failed and unknown checks first, using the user's language. It covers runtime/dependencies, local CLI and installation, directory permissions, stored ledgers, settings and capture freshness. `info` includes valid conditions such as capture being off or optional files not yet existing. `warning` needs review; `error` identifies a local problem; `unknown` means evidence is unavailable. One failed check does not invalidate the others. An unreadable configuration leaves `automaticMonitoring: null`, never false. Passing preflight does not prove native sidebar behavior or complete host coverage.
+
+If startup fails and the user has current development source, run `node scripts/doctor.mjs --json` from that source directory in the affected environment. The doctor runs independently of MCP initialization and npm dependencies. Newly built bundles also support `node server/src/server.mjs --diagnose --json` from the plugin root. The published v0.4.6 archives do not include this enhancement; verify available source/version before suggesting commands. No test events, automatic repair, reinstall, lock deletion or capture enablement follow from a diagnostic result.
 
 Explain the observed status in the user's language:
 

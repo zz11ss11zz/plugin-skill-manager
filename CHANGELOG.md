@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Unify runtime, installation, storage, recording and capture diagnostics in `check_recording_status`, retaining existing count fields and the 13-tool surface.
+- Add a manual bilingual dashboard check and a standalone doctor that runs before data initialization and without npm dependencies.
+- Isolate failed checks, bound CLI probes, preserve unknown states and original data, and share stored-index validation with runtime readers.
+
 ## 0.4.6 — 2026-10-30
 
 - Unify source, private plugin and public packages; include previously private service-icon fixes.

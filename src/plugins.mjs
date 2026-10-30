@@ -22,23 +22,25 @@ export function parseInstalledPlugins(data) {
 }
 
 // Query installed state, not the marketplace catalog (which may wait on remote services).
-export async function queryInstalledPlugins({ cli = process.env.CODEX_SKILL_MANAGER_CLI || 'codex', timeoutMs = 10000 } = {}) {
-  const child = spawn(cli, ['app-server', '--stdio'], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+export async function queryInstalledPlugins({ env = process.env, cli = env.CODEX_SKILL_MANAGER_CLI || 'codex', timeoutMs = 10000 } = {}) {
+  const child = spawn(cli, ['app-server', '--stdio'], { env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
   return new Promise((resolve, reject) => {
-    let buffer = '', done = false;
+    let buffer = '', done = false, received = 0;
     const finish = (error, value) => {
       if (done) return;
       done = true; clearTimeout(timer); child.stdin.end(); child.kill();
       error ? reject(error) : resolve(value);
     };
-    const timer = setTimeout(() => finish(new Error('本地插件状态查询超时')), timeoutMs);
+    const timer = setTimeout(() => finish(Object.assign(new Error('本地插件状态查询超时'), { code: 'ETIMEDOUT' })), timeoutMs);
     child.on('error', error => finish(error));
     child.stdin.on('error', error => finish(error));
     child.on('exit', () => { if (!done) finish(new Error('插件状态服务提前退出')); });
     child.stderr.resume();
+    child.stdout.setEncoding('utf8');
     child.stdout.on('data', chunk => {
+      received += Buffer.byteLength(chunk);
       buffer += chunk;
-      if (buffer.length > 8 * 1024 * 1024) return finish(new Error('插件状态响应过大'));
+      if (received > 8 * 1024 * 1024) return finish(Object.assign(new Error('插件状态响应过大'), { code: 'EOUTPUTLIMIT' }));
       let end;
       while ((end = buffer.indexOf('\n')) >= 0) {
         const line = buffer.slice(0, end); buffer = buffer.slice(end + 1);

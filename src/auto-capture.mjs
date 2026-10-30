@@ -1,10 +1,11 @@
-import { readFile, writeFile, rename, unlink, mkdir, lstat } from 'node:fs/promises';
+import { writeFile, rename, unlink, mkdir, lstat } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { readUsageFile, discover, defaultUsageOptions } from './usage-index.mjs';
 import { acquireAdoptionLock } from './adoption-lock.mjs';
 import { PluginCalls } from './plugin-calls.mjs';
 import { dataFile } from './data-path.mjs';
+import { readCaptureState } from './stored-state.mjs';
 
 // Read host execution events only. Never inspect arguments, results, prose or code.
 export class CallParser {
@@ -43,14 +44,7 @@ export class AutoCapture {
     catch (error) { if (error.code === 'ENOENT') return { version: 1, files: {}, coverage: null }; throw error; }
   }
   async read() {
-    const info = await lstat(this.stateFile);
-    if (!info.isFile() || info.isSymbolicLink() || info.size > 64 * 1024 * 1024) throw new Error('自动采集索引类型或容量无效');
-    const state = JSON.parse(await readFile(this.stateFile, 'utf8'));
-    if (state.version !== 1 || !state.files || typeof state.files !== 'object' || Array.isArray(state.files)) throw new Error('自动采集索引损坏，原文件保留');
-    for (const [file, s] of Object.entries(state.files)) {
-      if (s.path !== file || !Number.isSafeInteger(s.offset) || s.offset < 0 || !Array.isArray(s.events) || s.events.length || !s.parser || !Number.isSafeInteger(s.prefixLength) || s.prefixLength < 0 || s.prefixLength > 4096 || !Number.isSafeInteger(s.anchorStart) || s.anchorStart < 0 || s.anchorStart > s.offset || s.offset - s.anchorStart > 4096) throw new Error('自动采集游标损坏，原文件保留');
-    }
-    return state;
+    return readCaptureState(this.stateFile);
   }
   refresh() {
     if (!this.inFlight) this.inFlight = this.run().finally(() => { this.inFlight = null; });
