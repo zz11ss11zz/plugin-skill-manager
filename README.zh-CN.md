@@ -71,6 +71,8 @@ node install.mjs check
 
 ## 安装配套 Skill（可选）
 
+第三方 Skill 目录的[中英文收录材料](docs/distribution/THIRD_PARTY_LISTING.md)、[依赖与安装说明](docs/distribution/THIRD_PARTY_INSTALL.md)及[验证状态](docs/distribution/THIRD_PARTY_VALIDATION.md)已单独整理。材料准备不代表已提交或获得收录。
+
 完整插件已包含配套 Skill，无需重复安装。本节仅适用于源码/MCP 安装路径；配套 Skill 提供查询和解释记录的操作约定，不会自动开启后台采集。
 
 固定版本的 skills CLI 需要 **Node.js 22.20+**，高于管理器自身要求。进入希望使用该 Skill 的项目目录，替换下方路径为实际解压的源码目录：
