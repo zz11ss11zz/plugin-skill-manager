@@ -1,6 +1,9 @@
-export function resolveLocale(host, fallback = 'en') {
-  const value = typeof host === 'string' && host.trim() ? host : fallback;
-  return /^zh(?:[-_]|$)/i.test(value) ? 'zh' : 'en';
+export function resolveLocale(host) {
+  if (typeof host !== 'string') return 'en';
+  try {
+    const tag = new Intl.Locale(host.trim().replaceAll('_', '-'));
+    return tag.language === 'zh' && (tag.script === 'Hans' || (!tag.script && ['CN', 'SG'].includes(tag.region))) ? 'zh' : 'en';
+  } catch { return 'en'; }
 }
 export const english = {
   "环境诊断": "Environment health",

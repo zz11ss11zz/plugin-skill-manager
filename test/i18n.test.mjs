@@ -3,12 +3,9 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {parse} from 'acorn';
 import {english, resolveLocale, translator} from '../src/i18n.mjs';
-test('host locale wins over browser language, including regional tags',()=>{
-  for(const tag of ['zh','zh-CN','zh-TW','zh-Hans']) assert.equal(resolveLocale(tag,'en-US'),'zh');
-  for(const tag of ['en','en-US','en-GB']) assert.equal(resolveLocale(tag,'zh-CN'),'en');
-  assert.equal(resolveLocale(undefined,'zh-CN'),'zh');
-  assert.equal(resolveLocale('fr-FR','zh-CN'),'en');
-  assert.equal(resolveLocale(null),'en');
+test('only explicit Simplified Chinese host locales select Chinese',()=>{
+  for(const tag of ['zh-CN','zh-SG','zh-Hans','zh-Hans-CN','zh_Hans_SG',' ZH-cn ']) assert.equal(resolveLocale(tag),'zh',tag);
+  for(const tag of ['zh','zh-TW','zh-HK','zh-MO','zh-Hant','zh-Hant-CN','en','en-US','fr-FR','ja-JP','de-DE','','invalid_locale',null,undefined]) assert.equal(resolveLocale(tag,'zh-CN'),'en',String(tag));
 });
 test('translations preserve values without translating user data',()=>{
   assert.equal(translator('en')('{0} 次{1}',2,'adoptions'),'2 adoptions');

@@ -12,15 +12,26 @@ test('global panel loads without a pushed result and refreshes on return without
   const docEvents = {}, windowEvents = {}, updates = [], status = {setAttribute(){}}, doc = {documentElement:{},
     hidden:false, querySelector:()=>status, addEventListener:(name,fn)=>{docEvents[name]=fn;},
   };
-  let now = 1000, requests = 0, resolveRequest, rejectRequest, managing = false;
+  let now = 1000, requests = 0, resolveRequest, rejectRequest, managing = false, appInstance;
   class App {
+    constructor() { appInstance = this; }
     getHostContext(){return {locale:'zh-CN'};}
     connect() { return Promise.resolve(); }
     callServerTool() { requests++; return new Promise((resolve,reject)=>{resolveRequest=resolve;rejectRequest=reject;}); }
   }
   vm.runInNewContext(source, {createManagementPanel:()=>Object.assign(()=>{},{setLocale(){},isManaging:()=>managing}),packageInfo:{version:"test"},App,navigator:{language:"zh-CN"},resolveLocale,translator,createActivityPanel:()=>Object.assign(data=>updates.push(data.adoptions.total),{setLocale(){}}),document:doc,
     window:{addEventListener:(name,fn)=>{windowEvents[name]=fn;}},Date:{now:()=>now}});
+  assert.equal(doc.documentElement.lang,'en','browser Chinese must not select the UI language');
   await tick(); assert.equal(requests,1);
+  assert.equal(doc.documentElement.lang,'zh');
+  appInstance.onhostcontextchanged({theme:'dark'});
+  assert.equal(doc.documentElement.lang,'zh','partial host updates retain the confirmed language');
+  for (const tag of ['zh-TW','ja-JP','en-US',null]) {
+    appInstance.onhostcontextchanged({locale:tag});
+    assert.equal(doc.documentElement.lang,'en');
+  }
+  appInstance.onhostcontextchanged({locale:'zh-Hans'});
+  assert.equal(doc.documentElement.lang,'zh');
   windowEvents.focus(); docEvents.visibilitychange(); assert.equal(requests,1);
   resolveRequest(result(0)); await tick(); assert.deepEqual(updates,[0]); assert.equal(status.hidden,true);
   now+=2000; doc.hidden=true; docEvents.visibilitychange(); assert.equal(requests,1);

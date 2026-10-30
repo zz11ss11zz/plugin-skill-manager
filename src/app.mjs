@@ -1,6 +1,6 @@
 import packageInfo from '../package.json' with { type: 'json' };
 import { resolveLocale, translator } from './i18n.mjs';
-let locale = resolveLocale(undefined, navigator.language);
+let locale = 'en';
 let t = translator(locale);
 import { App } from '@modelcontextprotocol/ext-apps';
 import { createActivityPanel } from './activity-ui.mjs';
@@ -32,7 +32,7 @@ function receive(result) {
   status.hidden = true;
 }
 function setLocale(context = {}) {
-  locale = resolveLocale(context.locale, locale);
+  if (Object.hasOwn(context, 'locale')) locale = resolveLocale(context.locale);
   t = translator(locale);
   document.documentElement.lang = locale;
   document.title = t('Plugin & Skill Manager');
@@ -46,7 +46,7 @@ function setLocale(context = {}) {
   if (!status.hidden) status.textContent = t(statusKey);
 }
 let statusKey = '正在读取统计…';
-setLocale({locale});
+setLocale();
 app.onhostcontextchanged = setLocale;
 app.ontoolresult = receive;
 async function refresh() {
