@@ -8,7 +8,14 @@ Checked: 2026-10-30. Product: v0.4.6. This document tracks actual distribution e
 | skills.sh | Official FAQ says entries appear through real user CLI installations. No separate manual submission flow was found. Repository discovery passed; directory listing/ranking not confirmed | Share the documented install route with actual users; verify the resulting public entry before claiming inclusion |
 | agentskill.sh | Submit page previously showed repository/SKILL.md import. Current fetch timed out. Browser automation stopped because it could not confidently determine the current URL | Resume through a functioning browser and verify the import result; no form was submitted |
 | SkillsMP | Current active submission route not confirmed | Secondary channel; verify before submission |
+| [Glama](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) | Listed; Glama release 0.4.6 published; search visibility confirmed by user screenshots on 2026-10-30 | Sync metadata; build a new Glama release when runtime changes |
 | Smithery | MCPB package and isolated runtime checks passed; login/namespace verified. Publishing blocked: server creation endpoints return 403 stating updates have been removed, while the release endpoint returns server not found | Resolve the platform creation workflow; see [MCPB delivery notes](MCPB.md). No successful listing claimed |
+
+## Glama evidence / Glama 收录证据
+
+User-provided screenshots on 2026-10-30 confirm a successful build from `26bebdb`, Glama release `0.4.6`, repository synchronization to `622444f`, valid `glama.json`, and a visible directory search result with 13 tools. License, quality and maintenance display A; profile completion is 83%. These platform observations do not establish full Linux or hosted-product support. A hosted container cannot access users' local Codex data; full use still requires the local Windows Codex environment.
+
+用户提供的截图确认：Glama 已收录，0.4.6 已发布，目录搜索结果可见。平台构建与评分通过不等于完整产品支持云端运行；本地 Codex 数据依赖保持不变。
 
 ## Installation evidence
 

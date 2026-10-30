@@ -13,7 +13,7 @@
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.6](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.6) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.6](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.6) · [Glama directory](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
 
 ![v0.4.0 activity overview with teal bars and calendar; synthetic data](docs/media/v040/activity-en.png)
 
