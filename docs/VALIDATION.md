@@ -538,3 +538,11 @@
 - Built the complete 0.4.11 distribution. Seven isolated real-CLI lifecycle checks passed from 0.4.6: installation, companion Skill discovery, packaged MCP/UI startup and restart persistence, source-change guard, explicit relocated upgrade retaining records, uninstall retention and reinstall retention. Synthetic records only; user data and preferences were not migrated or reset.
 - A fresh host connection independently returned version 0.4.11, all 13 tools and dashboard SHA256 4afee55dd6180e9949df28937359e6b2440ef7b17fbb0952ed97f54ad55cc6d8. The enabled private account plugin remains 0.4.11; a redundant account upload was not needed.
 - Reproducible evidence: parent .work/sync-20261101-tests.log, .work/sync-20261101-upgrade.log and outputs/sync-20261101. Native visual acceptance and official-directory review remain outside this check. Publication status is recorded in the delivery report after remote read-back.
+
+## 2026-11-01 Private v0.4.12 approved outline icon
+
+- Applied the user-approved third outline wrench to sidebar and app/listing PNG assets; preserved its SVG source. PNG inspection: 512×512 RGBA, transparent corner. SHA256 a50db42b9bc09598a05bbd34fd6a91313c41379aa8ec10931ecbc1aedb855b4a.
+- Five targeted package/protocol/installed-launcher tests passed without failures/skips. Parsed bundle comparison verifies backend changes only version, and dashboard changes only icon plus version.
+- Uploaded seven changed files as a guarded private account update. Read-back retained 17 files, PRIVATE / USER scope, both MCP configurations, both Skills and existing manifest metadata outside version/release notes.
+- Official app-server plugin/install completed. Installed runtime and image hashes match the prepared package. A fresh host connection returned version 0.4.12, all 13 tools and the exact approved sidebar icon hash; dashboard SHA256 e054fe6abe7b33186983a79a14e3442488e1d92ebaac6a69e2e8b161a3d046a3.
+- Evidence and reproducible scripts: parent outputs/sidebar-icon-install-20261101. Existing desktop connections were not force-restarted; native visual rendering and directory caches were not verified. This batch updated local source and the private installed plugin; no GitHub Release or public-directory submission was performed.
