@@ -1,11 +1,11 @@
 ---
 name: skill-manager
-description: Inspect local Codex skill and plugin inventory, explain recorded activity, query usage periods, and manage user-requested notes or reversible skill archives through Plugin & Skill Manager. Use for this manager's records and troubleshooting; not for discovering or installing unrelated skills.
+description: Manage local Codex plugins and Skills with Plugin & Skill Manager. Use for plugin inventory, skill management, usage tracking, activity summaries, installation diagnostics, notes, and reversible skill archiving. Requires the local MCP service; not a catalog for finding or installing unrelated skills.
 ---
 
 # Plugin & Skill Manager
 
-Use the connected Plugin & Skill Manager tools when available. Tool namespace prefixes vary by host; discover the actual tools instead of inventing a full name. Installing this Skill alone does not install its MCP service. If the service is absent, explain the missing dependency and use the repository's installation guide; do not manufacture records or silently modify configuration.
+Use the connected Plugin & Skill Manager tools when available. Tool namespace prefixes vary by host; discover the actual tools instead of inventing a full name. Installing this Skill alone does not install its MCP service. If the service is absent, explain the missing dependency and use the [complete plugin installation guide](https://github.com/zz11ss11zz/plugin-skill-manager/blob/main/docs/DISTRIBUTION.md); do not manufacture records or silently modify configuration.
 
 ## Inspect and explain
 
