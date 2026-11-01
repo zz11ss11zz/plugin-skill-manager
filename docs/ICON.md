@@ -1,6 +1,6 @@
 # Icon assets
 
-The current v0.4.1 plugin uses a transparent orange-gold double open-ended wrench, oriented lower-left to upper-right. Both `src/assets/orbit-color.png` (historical filename) and `src/assets/sidebar-wrench.png` contain the same ImageGen artwork selected on 2026-10-29.
+Version 0.4.12 uses the user-approved third outline wrench: charcoal #303030 on a transparent background, a slender handle and restrained curves. `src/assets/sidebar-wrench.svg` is the editable vector source (24-unit grid, effective 1.35-unit stroke). Both `src/assets/orbit-color.png` (historical filename) and `src/assets/sidebar-wrench.png` are identical 512×512 RGBA exports. The approved preview and renderer are in the parent workspace at `outputs/sidebar-icon-preview-20261101-v3`.
 
 `appIcon` supplies the dashboard/listing icon and packaged logo/composer fields; `sidebarIcon` supplies MCP discovery. Build output copies the same artwork into all three packaged icon locations.
 

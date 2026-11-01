@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.4.12 — 2026-11-01
+
+- Replace sidebar and plugin icons with the approved charcoal outline wrench, retaining the Plugin & Skill Manager name and existing data/configuration.
+
 ## 0.4.11 — 2026-11-01
 
 - Synchronize public source and complete installation packages with the installed 0.4.11 runtime. Includes the diagnostics, redundancy reports and account-version launcher developed since 0.4.6.
