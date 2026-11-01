@@ -44,8 +44,11 @@ test('standalone package builds and serves MCP resources outside the source tree
     const listing = manifest.extensions['com.openai'].interface;
     assert.ok(listing.displayName.length <= 30 && listing.shortDescription.length <= 30);
     assert.ok(listing.longDescription.length <= 4000);
-    assert.ok(await readFile(path.join(root, listing.logo)));
-    assert.ok((await readFile(path.join(root, manifest.extensions['com.openai'].interface.composerIcon))).length > 0);
+    const expectedIcon = await readFile(path.join(source, 'src/assets/sidebar-wrench.png'));
+    for (const reference of [listing.logo, listing.composerIcon]) {
+      assert.ok(reference.startsWith('./assets/'));
+      assert.deepEqual(await readFile(path.join(root, reference)), expectedIcon);
+    }
     const mcp = JSON.parse(await readFile(path.join(root, 'mcp.json')));
     assert.equal(mcp.$schema, 'https://agent-plugins.org/schemas/1.0.0/mcp.schema.json');
     const config = mcp.mcpServers[pkg.name];

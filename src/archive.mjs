@@ -13,7 +13,7 @@ async function directory(dir) {
   if (!info.isDirectory() || info.isSymbolicLink()) throw new Error('目录不能是链接或非目录对象');
   return realpath(dir);
 }
-async function treeSnapshot(root) {
+export async function treeSnapshot(root, includeEntries = false) {
   await directory(root);
   const entries = [];
   let bytes = 0;
@@ -35,7 +35,7 @@ async function treeSnapshot(root) {
   }
   await walk(root);
   entries.sort((a, b) => a.path.localeCompare(b.path));
-  return { fingerprint: hash(JSON.stringify(entries)), files: entries.filter(e => e.type === 'file').length, bytes };
+  return { fingerprint: hash(JSON.stringify(entries)), files: entries.filter(e => e.type === 'file').length, bytes, ...(includeEntries ? { entries } : {}) };
 }
 export async function moveDirectory(source, destination, sourceRoot, destinationRoot) {
   if (process.platform !== 'win32') throw new Error('归档移动目前仅支持已验证的 Windows 环境');

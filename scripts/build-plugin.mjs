@@ -41,7 +41,7 @@ const { $schema, extensions, ...identity } = manifest;
 const { interface: listing, ...settings } = extensions['com.openai'];
 const legacy = { ...identity, skills: './skills', interface: listing, extensions: { 'com.openai': settings } };
 for (const [name, data] of [['plugin.json', manifest], ['.codex-plugin/plugin.json', legacy], ['mcp.json', mcp]]) await writeFile(path.join(root, name), JSON.stringify(data, null, 2) + '\n');
-for (const dest of ['assets/icon.png', 'server/src/assets/orbit-color.png']) await copyFile('src/assets/orbit-color.png', path.join(root, dest));
+for (const dest of ['assets/icon.png', 'assets/plugin-skill-manager-wrench.png', 'server/src/assets/orbit-color.png']) await copyFile('src/assets/orbit-color.png', path.join(root, dest));
 await copyFile('src/assets/sidebar-wrench.png', path.join(root, 'server/src/assets/sidebar-wrench.png'));
 const dependencies = new Set(Object.keys(bundle.metafile.inputs).flatMap(file => {
   const match = file.replaceAll('\\', '/').match(/^(.*node_modules\/(?:@[^/]+\/)?[^/]+)\//);

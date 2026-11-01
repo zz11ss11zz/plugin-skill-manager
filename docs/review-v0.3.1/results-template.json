@@ -1,0 +1,160 @@
+{
+  "candidateVersion": "0.3.1",
+  "candidateSha256": "c5d3ffce8fd4146c6a2be42ce9bbc1ac8485b2084a5e0791a146126d7457d068",
+  "hostProduct": null,
+  "hostVersion": null,
+  "windowsVersion": null,
+  "nodeVersion": null,
+  "cliVersion": null,
+  "operator": null,
+  "startedAt": null,
+  "profileIsolation": null,
+  "installationMethod": null,
+  "demoUrl": null,
+  "cases": [
+    {
+      "id": "H01",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "H02-new",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "H02-existing",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "P01",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "P02",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "P03",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "H03",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "P04",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "P05a",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "P05b",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "P05c",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "N01",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "N02",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "N03",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "H04",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    },
+    {
+      "id": "H05",
+      "status": "not_run",
+      "actualTools": [],
+      "actualResult": null,
+      "evidence": [],
+      "videoTimecode": null,
+      "reason": null
+    }
+  ]
+}

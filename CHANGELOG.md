@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.4.11 — 2026-11-01
+
+- Synchronize public source and complete installation packages with the installed 0.4.11 runtime. Includes the diagnostics, redundancy reports and account-version launcher developed since 0.4.6.
+
+- Private 0.4.11 simplifies activity source labels to host auto-capture and assistant reports, with a short separate-counts hint; removes the redundant plugin status box and preserves independent counts.
+- Add a stable account-plugin compatibility launcher that resolves the enabled installed version at startup and rejects stale-cache guesses. Diagnose hard-coded manual-entry conflicts separately from the verified launcher.
+- Private runtime updates 0.4.7 through 0.4.10 retain the public-release boundary; directory icon metadata and native reload acceptance require separate verification.
+- Refresh listing references to a dedicated wrench PNG and verify both references against the packaged MCP icon. Remote directory URLs still returned null after the 0.4.10 update; the directory fallback icon is not claimed fixed.
+
+- Add a Manage → Inventory / Redundancy candidates view with separate plugin and Skill reports, bounded directory comparison, evidence excerpts, retention marks, session deferral and existing archive previews.
+- Keep long-term inactivity unclassified until continuous coverage and first-seen evidence exist; preserve local comparisons when plugin-status verification fails.
+
 - Unify runtime, installation, storage, recording and capture diagnostics in `check_recording_status`, retaining existing count fields and the 13-tool surface.
 - Add a manual bilingual dashboard check and a standalone doctor that runs before data initialization and without npm dependencies.
 - Isolate failed checks, bound CLI probes, preserve unknown states and original data, and share stored-index validation with runtime readers.

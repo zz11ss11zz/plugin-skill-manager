@@ -110,11 +110,26 @@ test('registration distinguishes plugin installation, disabled, legacy, mismatch
   const entry = fileURLToPath(new URL('../src/server.mjs', import.meta.url));
   const registration = { name: 'plugin-skill-manager', enabled: true, transport: { type: 'stdio', command: process.execPath, args: [entry], env: { PRIVATE_TOKEN: 'SECRET' } } };
   assert.equal(registrationCheck(fulfilled([registration]), fulfilled([])).code, 'registered');
-  assert.equal(registrationCheck(fulfilled([registration]), fulfilled(installed)).code, 'multiple-installations');
+  const conflict = registrationCheck(fulfilled([registration]), fulfilled(installed));
+  assert.equal(conflict.code, 'manual-plugin-conflict');
+  assert.match(conflict.message.en, /older manual entry/);
+  assert.doesNotMatch(JSON.stringify(conflict), /SECRET|PRIVATE_TOKEN/);
+  assert.equal(registrationCheck(fulfilled([{ ...registration, enabled: false }]), fulfilled(installed)).code, 'multiple-installations');
+  assert.equal(registrationCheck(fulfilled([registration]), fulfilled([{ ...installed[0], enabled: false }])).code, 'multiple-installations');
   registration.transport.args = ['other-entry'];
   const mismatch = registrationCheck(fulfilled([registration]), fulfilled([]));
   assert.equal(mismatch.code, 'different-entry');
   assert.doesNotMatch(JSON.stringify(mismatch), /SECRET|PRIVATE_TOKEN|other-entry/);
+});
+
+test('account bridge is accepted only when the running entry matches the enabled installed version', () => {
+  const root=path.resolve('synthetic-codex'),bridgeEntry=path.join(root,'skill-manager/launch-installed-plugin.mjs');
+  const registration={name:'plugin-skill-manager',enabled:true,transport:{type:'stdio',command:process.execPath,args:[bridgeEntry]}};
+  const account={id:'plugin-skill-manager@created-by-me-remote',version:'0.4.9',enabled:true};
+  const entry=path.join(root,'plugins/cache/created-by-me-remote/plugin-skill-manager/0.4.9/server/src/server.mjs');
+  assert.equal(registrationCheck(fulfilled([registration]),fulfilled([account]),{entry,bridgeEntry}).code,'account-version-bridge');
+  assert.equal(registrationCheck(fulfilled([registration]),fulfilled([{...account,version:'0.5.0'}]),{entry,bridgeEntry}).code,'manual-plugin-conflict');
+  assert.equal(registrationCheck(fulfilled([registration]),failed,{entry,bridgeEntry}).status,'warning');
 });
 
 test('capture separates disabled, no scan, stale, clock skew, backlog, runtime failure and recent snapshot', async t => {

@@ -20,6 +20,6 @@
     "Show my local Skill inventory and its sources."
   ],
   "brandColor": "#245EAA",
-  "composerIcon": "./assets/icon.png",
-  "logo": "./assets/icon.png"
+  "composerIcon": "./assets/plugin-skill-manager-wrench.png",
+  "logo": "./assets/plugin-skill-manager-wrench.png"
 }

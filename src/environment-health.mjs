@@ -66,15 +66,26 @@ export async function probeCli(kind, { env = process.env, timeoutMs = 3000 } = {
   return registrations;
 }
 
-export function registrationCheck(mcp, plugins, { entry = fileURLToPath(new URL('./server.mjs', import.meta.url)), executable = process.execPath, platform = process.platform } = {}) {
+export function registrationCheck(mcp, plugins, { entry = fileURLToPath(new URL('./server.mjs', import.meta.url)), executable = process.execPath, platform = process.platform, bridgeEntry = null } = {}) {
   const title = text('管理器安装与注册', 'Manager installation and registration');
   const list = mcp.status === 'fulfilled' ? mcp.value.filter(r => ['plugin-skill-manager', 'codex-skill-manager'].includes(r.name)) : [];
   const installed = plugins.status === 'fulfilled' ? plugins.value.filter(p => /^(plugin-skill-manager|codex-skill-manager)@/.test(p.id)) : [];
   const facts = { registrations: list.length, installedPlugins: installed.length, mcpChecked: mcp.status === 'fulfilled', pluginsChecked: plugins.status === 'fulfilled' };
   const action = text('核对当前来源和版本，保留需要的一份安装；仅在确认后调整注册。', 'Review the source and version, keep the intended installation, and change registration only after confirmation.');
   if (list.some(r => r.name === 'codex-skill-manager') || installed.some(p => p.id.startsWith('codex-skill-manager@'))) return check('registration', title, 'warning', 'legacy-registration', text('发现旧名称安装或注册。', 'A legacy installation or registration was found.'), action, facts);
-  if (list.length + installed.length > 1) return check('registration', title, 'warning', 'multiple-installations', text('发现多个管理器来源，需要核对是否重复。', 'Multiple manager sources were found; check for duplication.'), action, facts);
   const normalize = value => platform === 'win32' ? path.resolve(value).toLowerCase() : path.resolve(value);
+  const transport = list[0]?.transport, account = installed[0];
+  if (bridgeEntry && list.length === 1 && installed.length === 1 && list[0].enabled === true && account.enabled === true && account.id === 'plugin-skill-manager@created-by-me-remote'
+    && transport?.type === 'stdio' && typeof transport.command === 'string' && path.isAbsolute(transport.command) && normalize(transport.command) === normalize(executable)
+    && transport.args?.length === 1 && typeof transport.args[0] === 'string' && path.isAbsolute(transport.args[0]) && normalize(transport.args[0]) === normalize(bridgeEntry)
+    && typeof account.version === 'string' && /^[\w.+-]+$/.test(account.version)
+    && normalize(entry) === normalize(path.join(path.dirname(path.dirname(bridgeEntry)), 'plugins/cache/created-by-me-remote/plugin-skill-manager', account.version, 'server/src/server.mjs'))) {
+    return check('registration', title, 'ok', 'account-version-bridge', text('兼容启动器已连接当前启用的插件版本。', 'The compatibility launcher is running the enabled installed plugin version.'), null, facts);
+  }
+  if (list.some(r => r.enabled === true) && installed.some(p => p.enabled === true)) return check('registration', title, 'warning', 'manual-plugin-conflict',
+    text('手动 MCP 注册与已启用插件并存，侧边栏可能仍启动手动入口中的旧版本。', 'A manual MCP registration coexists with an enabled plugin; the sidebar may still launch an older manual entry.'),
+    text('先核对 codex mcp get plugin-skill-manager 的入口和插件版本；若沿用插件安装，移除过期手动注册后重载宿主。保留数据目录，并重新核验实际页面版本与图标。', 'Compare codex mcp get plugin-skill-manager with the installed plugin. If using the plugin installation, remove the obsolete manual registration and reload the host. Preserve the data directory and verify the actual page version and icon.'), facts);
+  if (list.length + installed.length > 1) return check('registration', title, 'warning', 'multiple-installations', text('发现多个管理器来源，需要核对是否重复。', 'Multiple manager sources were found; check for duplication.'), action, facts);
   const current = list[0];
   if (current) {
     const transport = current.transport;
@@ -195,7 +206,7 @@ export async function diagnoseEnvironment({ env = process.env, home = os.homedir
       ? check(id, label, 'ok', 'available', text('本机 CLI 查询成功。', 'Local CLI query succeeded.'), null, id === 'cli' ? { version: result.value } : {})
       : check(id, label, 'unknown', errorCode(result.reason), failureMessage(errorCode(result.reason)), retry));
   }
-  checks.push(registrationCheck(mcp, plugins, { platform }));
+  checks.push(registrationCheck(mcp, plugins, { platform, bridgeEntry: codexHome && path.join(codexHome, 'skill-manager/launch-installed-plugin.mjs') }));
   const captureTitle = text('采集运行情况', 'Capture activity');
   const captureAction = text('检查服务是否正在运行及日志目录权限，再检查一次；此诊断不会启动采集或导入历史。', 'Check that the service is running and can access log directories, then retry; diagnostics do not start capture or import history.');
   const checked = Date.parse(coverage?.checkedAt), age = now - checked;

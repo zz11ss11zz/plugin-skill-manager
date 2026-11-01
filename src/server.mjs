@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { pathToFileURL } from 'node:url';
 import { scanInventory } from './inventory.mjs';
+import { redundancyReport } from './redundancy.mjs';
 import { loadPluginStatus, applyPluginStatus } from './plugins.mjs';
 import { UsageIndex } from './usage-index.mjs';
 import { ArchiveManager } from './archive.mjs';
@@ -23,10 +24,10 @@ let pluginSnapshot = null, usageSnapshot = null;
 let initialPluginRead;
 let healthPending = null;
 let usagePeriod = { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone };
-async function inventoryWithArchives({ includeActivity = true } = {}) {
+async function inventoryWithArchives({ includeActivity = true, resolvePlugins = true } = {}) {
   let inventory = await scanInventory(roots);
   inventory.managerIcon = appIcon.src;
-  if (!pluginSnapshot) {
+  if (!pluginSnapshot && resolvePlugins) {
     initialPluginRead ||= queryPlugins().then(status => { pluginSnapshot = status; }).catch(() => {});
     await initialPluginRead;
   }
@@ -105,15 +106,22 @@ server.registerTool('configure_auto_capture', {
 });
 server.registerTool('check_plugin_status', {
   title: '核对插件安装状态',
-  description: '通过官方 app-server plugin/installed 读取已安装插件版本和启用状态，不拉取远程市场目录，不扫描活动日志。',
-  inputSchema: {},
+  description: '通过官方 app-server plugin/installed 核对安装状态。includeReport=true 时只读比较冗余候选的技能目录与已有记录，days 为 30/60/90；不执行脚本、不拉取远程市场目录、不扫描活动日志。',
+  inputSchema: { includeReport: z.boolean().optional(), days: z.union([z.literal(30), z.literal(60), z.literal(90)]).optional() },
   annotations: { readOnlyHint: !autoCapture, destructiveHint: false, openWorldHint: true },
-}, async () => {
+}, async ({ includeReport = false, days = 90 }) => {
   try {
-    const status = await queryPlugins();
-    pluginSnapshot = status;
-    const inventory = await inventoryWithArchives({ includeActivity: false });
-    return { content: [{ type: 'text', text: `已读取 ${status.plugins.length} 条插件安装记录；未匹配缓存不等于未安装。` }], structuredContent: inventory };
+    let status, pluginStatusFresh = true;
+    try { status = await queryPlugins(); pluginSnapshot = status; }
+    catch (error) { if (!includeReport) throw error; pluginStatusFresh = false; }
+    const inventory = await inventoryWithArchives({ includeActivity: false, resolvePlugins: false });
+    if (includeReport) {
+      const period = { from: new Date(Date.now() - days * 86400000).toISOString(), timeZone: 'UTC' };
+      const records = await Promise.allSettled([adoptions.summary(period), pluginCalls.summary(period)]);
+      inventory.redundancy = await redundancyReport(inventory, { days, adoptions: records[0].status === 'fulfilled' ? records[0].value : null, calls: records[1].status === 'fulfilled' ? records[1].value : null });
+      inventory.redundancy.pluginStatusFresh = pluginStatusFresh;
+    }
+    return { content: [{ type: 'text', text: pluginStatusFresh ? `已读取 ${status.plugins.length} 条插件安装记录；未匹配缓存不等于未安装。` : '插件安装状态核验失败；已返回本地候选比较，旧状态可能过期。' }], structuredContent: inventory };
   } catch {
     return { isError: true, content: [{ type: 'text', text: '无法读取插件安装清单。请检查 Codex CLI 是否支持 plugin/installed 及本地安装状态；保留现有清单，不推断安装状态。' }] };
   }

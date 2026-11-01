@@ -48,3 +48,29 @@ test data. See DATA_MIGRATION.md for backup, rollback and verification steps.
 
 The project is licensed under Apache-2.0; see LICENSE and NOTICE in this package.
 Third-party dependencies retain their own licenses in THIRD_PARTY_NOTICES.md.
+
+## Upgrade verification
+
+An installed version alone does not establish which server the sidebar uses.
+Compare the plugin registry, `codex mcp get plugin-skill-manager`, and fresh
+host MCP discovery. An old manual entry can keep launching its own bundle.
+Only remove it without replacement after confirming the packaged MCP is
+actually discovered: a tested private-account host exposed the Skills but
+did not automatically start the package's local MCP server.
+
+Where that compatibility entry is necessary, install the source project's
+standalone `scripts/launch-installed-plugin.mjs` at
+`CODEX_HOME/skill-manager/launch-installed-plugin.mjs`, and register that stable
+file as the single manual `plugin-skill-manager` entry. It resolves the enabled
+installed account version at startup through the official installed-plugin
+endpoint, verifies its manifest, and refuses stale-cache guesses. Preserve the
+data directory. Reload the host and check a newly opened panel's version and
+icon; a process that is already running cannot be upgraded by changing files.
+
+Account updates should include the referenced logo/composer-icon files along
+with changed manifests, even when the PNG bytes are unchanged. Read back the
+directory metadata and verify usable icon URLs; retained archive files alone
+do not establish that the directory resolved its images. A complete private
+0.4.8 upload still returned empty directory icon fields; that host/backend issue
+remains unresolved. Also verify the MCP
+server version, resource revision and embedded icon against the installed bundle.

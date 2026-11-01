@@ -1,5 +1,7 @@
 # Repository development instructions
 
+2026-10-30 非 OpenAI 官方渠道的知名度与推广工作，先读 docs/PROJECT_MEMORY.md 的四周规划及 docs/distribution/THIRD_PARTY_STATUS.md 的实际状态；后续从规划表下一未完成项接续。agentskill.sh 保持用户指定的暂停，发布与外联依相应授权执行，不把规划记成已执行。
+
 2026-10-26 后续工作按 docs/PUBLIC_RELEASE_PLAN.md 的六阶段顺序执行；用户已明确授权推进并由 Agent 验证。下方旧版本计划与历史节点保留为来源记录，新阶段状态以该计划及实际验收记录为准。
 
 后续开发先阅读 docs/V0.1.0_PLAN.md、docs/ROADMAP.md 和 docs/VALIDATION.md，以实际文件和最新验收记录为准。
