@@ -42,8 +42,10 @@ find-skills 是搜索与安装辅助 Skill，不是独立收录库。本机该 S
 - D1 已完成有效搜索基线：恢复普通网络下 TLS 与 Node 22.20.0 / skills 1.7.4 CLI。产品名搜索未命中；skill-manager、codex plugins、skill usage、manage skills 前 10 条均未返回本项目；作者限定检索返回有效空结果。预期详情页 HTTP 200，但正文为 404/条目不可用，不能标收录成功。
 - D2 已完成本地源码改动并提交 [PR #24](https://github.com/zz11ss11zz/plugin-skill-manager/pull/24)：主 Skill 简介改为真实任务表述，保留 skill-manager 标识及本地 MCP 依赖；安装指引改为可从独立安装位置访问的绝对链接。新增 [搜索与安装记录](distribution/SKILLS_SH.md)。YAML 实际解析通过，业务行为及发布包未改。
 - D3 仍未完成：隔离项目尝试公开 GitHub 安装，关闭测试遥测，失败于 clone 的 connection reset。未重复安装到用户环境、未伪造安装遥测；官方 FAQ 的真实 CLI 安装收录机制不等于已提交或已收录，未找到独立手工提交入口。
-- PR #24 的 Node 20.18.1 / Node 24 检查全部通过。合并 main 的工具调用被自动审批拒绝：本次推进指令未被认定为明确授权合并公开主分支。main 读回仍是旧内容，来源分支 codex/skills-sh-discovery 保留；等待用户明确批准合并，不改道绕过。已发布安装包不变。
-- 下一步：用户批准后合并 PR #24、读回 main 并核实全部内容纳入后清理来源分支；真实有需要的独立配套 Skill 用户通过官方 CLI 安装，有实际安装或索引变化后再核对目录和搜索。不要求已经安装完整插件的用户重复安装，不自动恢复 agentskill.sh。
+- PR #24 的 Node 20.18.1 / Node 24 检查全部通过。10-30 合并曾被自动审批阻止；11-01 用户明确批准后已成功 squash 合并，提交 c6c4bd6bb70c08e5214a629a6b22e05034b143ee。两个变更文件在 main 与来源提交的 blob SHA 完全一致，已确认纳入；不再等待合并批准。已发布安装包不变。
+- 2026-11-01 下一阶段实测：skills.sh 作者限定检索返回有效空结果，产品名仍只返回其他项目；收录尚未完成。通过 GitHub 插件读回 main 的主 Skill，在隔离目录用 Node 22.20.0 / skills 1.7.4 实际本地安装成功，安装前后 SHA256 一致，测试遥测关闭。固定合并提交的 codeload 归档远程安装超时，未声称远程安装成功。
+- 2026-11-01 同步收尾：已再次核对 PR #24 已合并，来源分支两项文件与 main 无内容差异；远端现仅保留 main。本轮 0.4.11 同步 PR #25 也已合并并清理来源分支，完整包正式发布。保留其他任务的本地改动和原始证据。
+- 下一步：真实有需要的独立配套 Skill 用户通过官方 CLI 安装，有实际安装或索引变化后再核对目录和搜索。不要求已安装完整插件的用户重复安装，不自动恢复 agentskill.sh。新增试验日志在 .work/skills-sh-archive-probe-20261101 和 .work/skills-sh-local-probe-20261101。
 
 核验依据：[skills.sh FAQ](https://www.skills.sh/docs/faq)、[Skills CLI 文档](https://www.skills.sh/docs/cli)及本机已安装 find-skills 指令、缓存 CLI 实现。搜索工具请求失败不能当成零结果。
 

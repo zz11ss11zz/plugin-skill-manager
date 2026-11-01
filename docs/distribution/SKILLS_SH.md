@@ -2,6 +2,12 @@
 
 Checked: 2026-10-30 (Asia/Shanghai). This is a discovery snapshot, not a claim of listing or ranking.
 
+## Follow-up: 2026-11-01
+
+PR #24 was merged as `c6c4bd6bb70c08e5214a629a6b22e05034b143ee` after all Node 20.18.1 / 24 checks passed. Both changed files were read back from main and match the source commit's blob hashes.
+
+Live owner-scoped search still returns zero results; the product-name search returns another project. Listing is still outstanding. A pinned-commit codeload archive installation timed out. The merged main Skill, retrieved through the GitHub connector, was successfully installed from local source in an isolated directory using Node 22.20.0 / skills 1.7.4, with identical SHA256 before and after installation and test telemetry disabled. This verifies the local-source fallback, not remote installation, catalog inclusion, or MCP host execution. The original snapshot below is retained for provenance.
+
 ## What users should install
 
 Plugin & Skill Manager inventories local Codex plugins and Skills, explains recorded usage, and supports notes and reversible archives of eligible user Skills. Missing records do not mean never used.
