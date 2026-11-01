@@ -19,11 +19,12 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
   heading.append(title, tabs, yearSelect);
   const sourceTabs = node('div', undefined, 'activity-tabs source-tabs');
   sourceTabs.setAttribute('aria-label', t('记录来源'));
-  const hostButton = node('button', t('宿主事件')), reportButton = node('button', t('助手上报'));
+  const hostButton = node('button', t('宿主自动采集')), reportButton = node('button', t('助手主动上报'));
   for (const [button, source] of [[hostButton, 'host-event'], [reportButton, 'assistant-report']]) {
     button.type = 'button'; sourceTabs.append(button);
     button.addEventListener('click', () => { callSource = source; pinnedDate = null; render(); });
   }
+  const sourceHint = node('span', t('分开统计'), 'activity-caption'); sourceTabs.append(sourceHint);
   const quality = node('div', undefined, 'activity-quality'); quality.setAttribute('role', 'status');
   const caption = node('p', undefined, 'activity-caption'), scroll = node('div', undefined, 'calendar-scroll');
   const calendar = node('div', undefined, 'activity-calendar'); scroll.append(calendar);
@@ -87,21 +88,16 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     const usage = calling ? (current.pluginCalls?.sources?.[callSource] ?? current.pluginCalls) : adopting ? current.adoptions : current.usage;
     sourceTabs.hidden = !calling || !current.pluginCalls?.sources;
     sourceTabs.setAttribute('aria-label', t('记录来源'));
-    hostButton.textContent = t('宿主事件'); reportButton.textContent = t('助手上报');
+    hostButton.textContent = t('宿主自动采集'); reportButton.textContent = t('助手主动上报');
+    sourceHint.textContent = t('分开统计');
     hostButton.setAttribute('aria-pressed', String(callSource === 'host-event'));
     reportButton.setAttribute('aria-pressed', String(callSource === 'assistant-report'));
-    const capture = current.captureStatus, coverage = capture?.coverage;
+    quality.hidden = calling;
     quality.replaceChildren();
-    quality.append(node('p', calling
-      ? t('来源：{0}。两种来源分别统计，不相加；不同 ID 的同一次调用可能重复。', t(usage?.source === 'host-event' ? '宿主事件' : usage?.source === 'assistant-report' ? '助手上报' : '旧版记录，来源未确认'))
-      : t('来源：助手主动上报。未接入宿主 Skill 调用事件，不等同官方调用次数。')));
-    if (calling) {
-      quality.append(node('p', t('自动采集：{0} · 最近扫描：{1}', t(capture?.enabled === true ? '已开启' : capture?.enabled === false ? '已关闭' : '未知'), coverage?.checkedAt || '—')));
-      quality.append(node('p', t('已记录事件范围：{0} 至 {1}', usage?.coverage?.from || '—', usage?.coverage?.to || '—')));
-      if (coverage) quality.append(node('p', t('待处理 {0} 字节 · 读取问题 {1} · 无效或超长行 {2}', coverage.pendingBytes ?? '—', coverage.issues?.length ?? 0, (coverage.malformedLines || 0) + (coverage.oversizedLines || 0))));
-      if (capture?.lastError) quality.append(node('p', t('采集异常：{0}', capture.lastError)));
+    if (!calling) {
+      quality.append(node('p', t('来源：助手主动上报。未接入宿主 Skill 调用事件，不等同官方调用次数。')));
+      quality.append(node('p', t('仅反映已记录活动；空白不证明未使用，尚未与官方统计对账。')));
     }
-    quality.append(node('p', t('仅反映已记录活动；空白不证明未使用，尚未与官方统计对账。')));
     const historical = (adopting ? usage?.catalog || [] : []).filter(s => !current.skills.some(p => p.id === s.id)).map(s => ({...s,historical:true,source:t("{0}（已不在当前清单）", s.source)}));
     const inventory = {...current,skills:[...current.skills,...historical],usage};
     const view = activityView(inventory, kind, year, metric);

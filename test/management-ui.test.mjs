@@ -3,6 +3,50 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 
+test('candidate views retain inventory kind, defer without mutations, preserve evidence and gate archive execution', async () => {
+  class Element {
+    constructor(tag){this.tag=tag;this.children=[];this.listeners={};this.attributes={};}
+    append(...items){this.children.push(...items);}
+    replaceChildren(...items){this.children=items;}
+    setAttribute(k,v){this.attributes[k]=v;}
+    addEventListener(event,fn){this.listeners[event]=fn;}
+  }
+  const root=new Element('root'), calls=[];
+  const member={id:'a',name:'sample',source:'用户技能',path:'/fixture/sample/SKILL.md',fingerprint:'f',tree:{complete:true,files:2,bytes:10},dependencyHints:[],references:[],activity:{count:0,last:null}};
+  const group={id:'group1',types:['documents'],members:[member],totalMembers:1,complete:true,directoryEqual:true,retained:[],differences:[],differenceCount:0,documentDifference:[]};
+  const report={checkedAt:'2026-10-30',days:90,skills:[group],plugins:[],limits:{directoriesScanned:1,shownSkillGroups:1,skillGroups:1}};
+  const inventory={mode:'inventory',inventoryScope:'management',skills:[],notesAvailable:true,managementSupported:true};
+  const source=(await readFile(new URL('../src/management-ui.mjs',import.meta.url),'utf8')).replace('export function','function');
+  const context=vm.createContext({Date,document:{createElement:tag=>new Element(tag),createTextNode:text=>({textContent:text,children:[]}),querySelector:()=>new Element('section')}});
+  vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
+  const update=context.createPanel(root,async call=>{
+    calls.push(call);
+    if(call.name==='preview_skill_archive')return {structuredContent:{mode:'management-plan',plan:{title:'sample',action:'archive',original:'/fixture/sample',destination:'/fixture/archive',files:2,bytes:10,token:'preview',expiresAt:Date.now()+60000}}};
+    if(call.name==='save_skill_note'){member.annotation={retain:call.arguments.retain,revision:1};return {structuredContent:inventory};}
+    if(call.name==='cancel_skill_plan')return {structuredContent:{mode:'management-cancelled'}};
+    return {structuredContent:{...inventory,...(call.arguments.includeReport?{redundancy:report}:{})}};
+  },()=>{});
+  const all=(e=root)=>[e,...e.children.flatMap(c=>all(c))];
+  const find=label=>all().find(e=>e.tag==='button'&&e.textContent===label);
+  const click=label=>{const b=find(label);assert.ok(b,label);assert.equal(b.disabled,false,label);b.listeners.click();};
+  const flush=()=>new Promise(resolve=>setImmediate(resolve));
+  update(inventory);click('管理');await flush();click('技能');click('冗余候选');await flush();
+  assert.equal(calls.at(-1).arguments.includeReport,true);
+  assert.equal(find('技能').attributes['aria-pressed'],'true');
+  assert.equal(all().filter(e=>e.className==='report-card').length,1);
+  const before=calls.length;click('本次暂缓');assert.equal(calls.length,before);
+  assert.equal(all().filter(e=>e.className==='report-card').length,0);
+  click('本次暂缓 · 1');click('恢复本次显示');click('全部 · 1');
+  click('长期无记录 · —');assert.ok(all().some(e=>e.textContent?.includes('覆盖待积累')));
+  click('全部 · 1');click('预览归档');await flush();assert.ok(find('确认归档'));
+  assert.equal(calls.some(c=>c.name==='execute_skill_plan'),false);click('取消');await flush();
+  click('标记保留');await flush();await flush();assert.equal(find('预览归档').disabled,true);
+  assert.equal(calls.find(c=>c.name==='save_skill_note').arguments.retain,true);
+  click('清单');assert.equal(find('技能').attributes['aria-pressed'],'true');
+  click('冗余候选');click('插件');assert.equal(find('插件').attributes['aria-pressed'],'true');
+  update.setLocale('en');assert.ok(find('Inventory'));assert.ok(find('Redundancy candidates'));
+});
+
 test('view checks run automatically, cache results, and offer retry only after failure', async () => {
   class Element {
     constructor(tag){this.tag=tag;this.children=[];this.listeners={};}

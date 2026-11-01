@@ -2,24 +2,27 @@
 export function createManagementPanel(root, callTool, onInventory, initialLocale = 'zh') {
   let locale = initialLocale, data = null, view = 'activity', busy = false, plan = null;
   let search = '', source = '', inventoryKind = 'plugins', pluginSearch = '', pluginFilter = '';
+  let section = 'inventory', reportFilter = '', reportSearch = '', reportDays = 90;
+  const deferred = new Set(), expanded = new Set();
   const checks = { manage: { at: 0, error: '', loading: false } };
   async function checkView(force = false) {
     const target = view, check = checks[target];
     if (!check || busy || check.loading || (!force && check.at && Date.now() - check.at < 60000)) return;
     check.loading = true; check.error = ''; render();
+    const reportRequested = section === 'redundancy';
     try {
-      const result = await callTool({ name: 'check_plugin_status', arguments: {} });
+      const result = await callTool({ name: 'check_plugin_status', arguments: section === 'redundancy' ? {includeReport:true, days:reportDays} : {} });
       if (result.isError) throw new Error(result.content?.find(c => c.type === 'text')?.text || text('检查失败', 'Check failed'));
       const value = result.structuredContent;
       if (value?.mode !== 'inventory') throw new Error(text('清单暂不可读取', 'Inventory unavailable'));
-      data = value.inventoryScope === 'management' ? { ...data, ...value } : value;
+      data = value.inventoryScope === 'management' ? { ...data, ...value, redundancy:value.redundancy } : value;
       onInventory(result);
     } catch (error) { check.error = error.message; }
-    finally { check.at = Date.now(); check.loading = false; render(); }
+    finally { check.at = Date.now(); check.loading = false; render(); if(view==='manage'&&section==='redundancy'&&!reportRequested&&!check.error&&!data?.redundancy)void checkView(true); }
   }
   function renderCheck() {
     const check = checks[view];
-    if (check.loading) body.append(el('p', text('正在自动检查…', 'Checking automatically…'), 'manager-meta'));
+    if (check.loading) body.append(el('p', section==='redundancy'?text('正在核对清单并比较候选…','Checking inventory and comparing candidates…'):text('正在自动检查…', 'Checking automatically…'), 'manager-meta'));
     else if (check.error) {
       const warning = el('div'); warning.setAttribute('role', 'status');
       warning.append(el('p', text('自动检查未完成：', 'Automatic check failed: ') + check.error), button(text('重试检查', 'Retry check'), () => checkView(true)));
@@ -220,19 +223,116 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     };
     input.addEventListener('input', () => { pluginSearch = input.value; populate(); }); populate();
   }
+  function renderReport() {
+    const report = data?.redundancy;
+    body.append(el('p', text('候选不是删除建议。相同文档不等于完整 Skill 相同；插件还可能提供独有工具。', 'Candidates are not removal recommendations. Identical documents do not imply identical Skills; plugins may provide unique tools.'), 'manager-meta'));
+    if (!report) {
+      body.append(el('p', text('尚未生成报告。只读比较文件，不执行技能脚本。', 'No report yet. Comparison reads files without executing Skill scripts.')),
+        button(text('生成候选报告','Generate candidate report'), () => checkView(true),checks.manage.loading)); return;
+    }
+    const isSkill = inventoryKind === 'skills', groups = report[inventoryKind] || [];
+    if(report.pluginStatusFresh===false)body.append(el('p',text('插件安装状态核验未完成。下方旧状态可能过期；本地文件比较仍可查看。','Plugin status verification failed. Previous states may be stale; local file comparisons remain available.'),'manager-meta'));
+    body.append(el('p', text(`核验时间：${report.checkedAt} · 已比较 ${report.limits.directoriesScanned} 个技能目录`, `Checked: ${report.checkedAt} · ${report.limits.directoriesScanned} Skill directories compared`), 'manager-meta'));
+    const types = isSkill ? [['documents',text('相同文档','Identical documents')],['names',text('同名差异','Same-name differences')],['overlap',text('功能重叠线索','Overlap clues')]] : [['versions',text('来源／版本候选','Source / version candidates')]];
+    const filters=el('div','','manager-actions report-filters');
+    for (const [id,label] of [['',text('全部','All')],...types,['inactive',text('长期无记录','Long-term inactivity')],['deferred',text('本次暂缓','Deferred this session')]]) {
+      const count = id === 'inactive' ? '—' : groups.filter(g=>id==='deferred'?deferred.has(g.id):!deferred.has(g.id)&&(!id||g.types.includes(id))).length;
+      const b=button(`${label} · ${count}`,()=>{reportFilter=id;render();}); b.setAttribute('aria-pressed',String(reportFilter===id));filters.append(b);
+    }
+    body.append(filters);
+    if(reportFilter==='inactive') {
+      const label=el('label',text('观察窗口','Observation window')), select=el('select');
+      for(const n of [30,60,90]) {const option=el('option',text(`近 ${n} 天`,`Last ${n} days`));option.value=String(n);select.append(option);}select.value=String(reportDays);
+      select.disabled=checks.manage.loading;select.addEventListener('change',()=>{reportDays=Number(select.value);void checkView(true);});label.append(select);body.append(label);
+      body.append(el('p',text('覆盖待积累：当前没有连续监测区间和项目首次出现时间，不能确认哪些项目长期未用。记录起止时间不作为连续覆盖，零记录不列为清理候选。','Coverage needs evidence: continuous monitoring intervals and first-seen dates are unavailable. Record timestamps do not establish continuous coverage; zero records are not cleanup candidates.')));
+      body.append(el('p',text('Skill 采用依赖主动报送；插件调用记录不能替代 Skill 使用证据。','Skill adoptions rely on explicit reporting; plugin calls do not establish Skill usage.'),'manager-meta'));return;
+    }
+    const searchLabel=el('label',text('搜索候选','Search candidates'),'inventory-search'), input=el('input');input.type='search';input.value=reportSearch;searchLabel.append(input);body.append(searchLabel);
+    const list=el('div','','report-list');body.append(list);
+    const populate=()=>{
+      list.replaceChildren();
+      const matches=groups.filter(g=>(reportFilter==='deferred'?deferred.has(g.id):!deferred.has(g.id)&&(!reportFilter||g.types.includes(reportFilter)))&&JSON.stringify(g.members.map(m=>[m.name,m.path,m.pluginId,m.owner])).toLowerCase().includes(reportSearch.toLowerCase()));
+      if(!matches.length) list.append(el('p',text('当前筛选没有候选；不代表不存在重复或重叠。','No candidates match this filter; this does not establish that none exist.')));
+      for(const g of matches){
+        const card=el('article','','report-card');
+        const title=[...new Set(g.members.map(m=>m.name))].slice(0,3).join(' / ');
+        card.append(el('h3',title),el('p',`${g.members.length}${g.totalMembers>g.members.length?` / ${g.totalMembers}`:''} ${text('个实例','instances')}`,'manager-meta'));
+        const tags=el('div','','report-tags');for(const type of g.types)tags.append(el('span',types.find(t=>t[0]===type)?.[1]||type,'report-tag'));
+        if(isSkill) tags.append(el('span',!g.complete?text('比较不完整','Comparison incomplete'):g.directoryEqual?text('目录内容一致','Directory content matches'):text('目录存在差异','Directory differences'),'report-tag'));
+        card.append(tags);
+        const brief=el('div','','report-brief');
+        g.members.forEach((m,i)=>brief.append(el('p',`${i+1}. ${isSkill?sourceLabel(m.source):m.pluginId} · ${isSkill?(m.owner?`${m.owner.version} · ${m.owner.marketplace}`:m.path.replaceAll('\\','/').split('/').slice(-2,-1)[0]):m.version}`)));
+        card.append(brief);
+        card.append(el('p',isSkill && g.retained?.length ? text('已有用户保留标记；不自动选择其他实例替代。','User retention marks exist; no replacement is selected automatically.') : isSkill&&g.directoryEqual ? text('目录内容一致：可选定常用来源标记保留，归档其他实例前仍需核对运行环境与依赖。','Directory contents match: mark your preferred source to retain; review runtime context and dependencies before archiving other instances.') : text('建议暂时保留，核对差异、运行环境和依赖后再决定。','Keep for now; review differences, runtime context and dependencies before deciding.')));
+        const details=el('details');details.open=expanded.has(g.id);details.append(el('summary',text('展开对比','Compare instances')));details.addEventListener('toggle',()=>{if(details.open)expanded.add(g.id);else expanded.delete(g.id);});
+        const grid=el('div','','report-grid');
+        for(const m of g.members){
+          const column=el('section','','report-instance');column.append(el('h4',`${g.members.indexOf(m)+1}. ${m.name}`));
+          if(isSkill){
+            column.append(el('p',sourceLabel(m.source)),el('p',m.owner?`${m.owner.name} · ${m.owner.version} · ${m.owner.marketplace}`:text('个人／系统独立目录','Standalone personal / system directory')));
+            column.append(el('p',m.owner ? m.pluginStatus?.enabled===true?text('匹配版本已启用','Matching version enabled'):text('安装／启用状态待核对','Installation / enablement unconfirmed'):text('本地存在，是否加载未知','Present locally; loading unknown')));
+            column.append(el('p',m.tree.complete?text(`${m.tree.files} 个文件 · ${m.tree.bytes} 字节`,`${m.tree.files} files · ${m.tree.bytes} bytes`):text('目录未完整读取；不可判断一致','Incomplete directory read; equality unknown')));
+            column.append(el('p',m.activity.count===null?text('采用记录读取失败／不可用','Adoption records unavailable'):text(`近 ${report.days} 天已记录采用：${m.activity.count} · 最近记录：${m.activity.last||'无'}`,`Recorded adoptions in ${report.days} days: ${m.activity.count} · Latest record: ${m.activity.last||'none'}`)));
+            column.append(el('p',text('依赖未完整核验。以下工具名仅为文档静态引用线索：','Dependencies are not fully verified. Tool names below are static document references only:')+' '+(m.dependencyHints.join(', ')||text('未提取到','none extracted'))));
+            if(m.references?.length)column.append(el('p',text('文档文件引用（未跟随读取）：','Document file references (not followed): ')+m.references.join(', ')));
+            const location=el('details');location.append(el('summary',text('来源路径','Source path')),el('p',m.path));column.append(location);
+            if(m.annotation?.retain)column.append(el('strong',text('已标记保留','Marked to retain')));
+            column.append(button(m.annotation?.retain?text('取消保留标记','Clear retention mark'):text('标记保留','Mark to retain'),async()=>{
+              const result=await invoke('save_skill_note',{id:m.id,fingerprint:m.fingerprint,note:m.annotation?.note||'',retain:!m.annotation?.retain,expectedRevision:m.annotation?.revision||0});
+              if(result)void checkView(true);
+            },!data.notesAvailable||checks.manage.loading));
+            const manageable=['用户技能','用户 .agents 技能'].includes(m.source)&&data.managementSupported;
+            if(manageable)column.append(button(text('预览归档','Preview archive'),()=>invoke('preview_skill_archive',{skillId:m.id}),Boolean(plan)||Boolean(m.annotation?.retain)||checks.manage.loading));
+            else column.append(el('p',text('系统和插件内 Skill 不在此直接归档。','System and plugin Skills cannot be archived here.')));
+          }else{
+            column.append(el('p',m.pluginId),el('p',m.version),el('p',m.installed?m.enabled===true?text('已安装 · 已启用','Installed · Enabled'):m.enabled===false?text('已安装 · 已停用','Installed · Disabled'):text('已安装 · 状态未知','Installed · Unknown'):text('仅缓存，不证明已安装','Cache only; installation unconfirmed')));
+            if(m.installRecords>1)column.append(el('p',text(`同版本存在 ${m.installRecords} 条安装记录，需核对来源，不能直接认定重复安装。`,`${m.installRecords} installation records for this version; verify sources before treating them as duplicate installations.`)));
+            column.append(el('p',text('扫描到的关联技能：','Scanned associated Skills: ')+(m.skills.map(s=>s.name).join(', ')||text('无；可能仅提供工具','none; may provide tools only'))));
+            column.append(el('p',text('工具清单、外部依赖和独有能力未完整核验，不建议据此卸载。','Tools, external dependencies and unique capabilities are unverified; this is not an uninstall recommendation.')));
+          }
+          grid.append(column);
+        }
+        details.append(grid);
+        if(isSkill){
+          const evidence=el('details');evidence.append(el('summary',text('分组依据','Grouping evidence')),el('p',text('标签表示组内部分实例的关系，不表示所有实例彼此相同。','Tags describe relationships within this group, not equality between every instance.')));
+          for(const relation of g.relations||[]){const positions=relation.ids.map(id=>g.members.findIndex(m=>m.id===id)+1).filter(Boolean);evidence.append(el('p',`${positions.join(', ')} · ${types.find(t=>t[0]===relation.type)?.[1]||relation.type}${relation.sharedTerms?' · '+relation.sharedTerms.join(', '):''}`));}details.append(evidence);
+          if(g.documentDifference?.length){const docs=el('details');docs.append(el('summary',text('查看文档差异片段','View document difference excerpts')));for(const excerpt of g.documentDifference){const name=g.members.find(m=>m.id===excerpt.id)?.name;docs.append(el('h4',`${name} · ${text('行','Line')} ${excerpt.line}`),el('pre',excerpt.excerpt??text('不可读取','Unreadable')));}docs.append(el('p',text('从首个不同的行起，每项最多 25 行／4000 字符；片段不是完整差异。','Up to 25 lines / 4000 characters per instance from the first differing line; excerpts are not the full diff.')));details.append(docs);}
+          const diff=el('details');diff.append(el('summary',text(`差异路径：${g.differenceCount}（最多显示 100 条）`,`Differing paths: ${g.differenceCount} (up to 100 shown)`)));
+          for(const f of g.differences){const row=el('div','','report-difference');row.append(el('strong',f.path));f.instances.forEach((v,i)=>row.append(el('p',`${i+1}. ${g.members[i].name}: ${v.state==='unknown'?text('未知','Unknown'):v.state==='missing'?text('缺失','Missing'):text('存在','Present')}${v.hash?' · '+v.hash.slice(0,12):''}`)));diff.append(row);}details.append(diff);
+          if(!g.complete)details.append(el('p',text('缺失的扫描结果不计为缺失文件；差异数量也可能不完整。','Unread instances are not missing files; difference counts may also be incomplete.')));
+        }else {
+          details.append(el('p',text('关联技能按名称比较，不证明内容或插件整体一致。','Associated Skill names do not establish matching content or equivalent plugins.')));
+          for(const s of g.sharedSkills||[])details.append(el('p',`${s.name} · ${s.instances===1?text('仅在一个实例扫描到','Scanned in one instance only'):text(`在 ${s.instances} 个实例扫描到`,`Scanned in ${s.instances} instances`)}`));
+        }
+        card.append(details,button(deferred.has(g.id)?text('恢复本次显示','Show again'):text('本次暂缓','Defer this session'),()=>{if(deferred.has(g.id))deferred.delete(g.id);else deferred.add(g.id);render();},Boolean(plan)));
+        list.append(card);
+      }
+    };input.addEventListener('input',()=>{reportSearch=input.value;populate();});populate();
+    const scope=el('details');scope.append(el('summary',text('比较范围与判断依据','Comparison scope and evidence')),
+      el('p',text(`最多显示 50 组、每组 20 个实例，比较 40 个目录。当前技能组 ${report.limits.shownSkillGroups}/${report.limits.skillGroups}；暂缓仅作用于当前面板，已核验内容变化后重新展示。`,`Up to 50 groups, 20 instances per group and 40 directories. Skill groups shown: ${report.limits.shownSkillGroups}/${report.limits.skillGroups}. Deferral lasts for this panel; changes in verified content restore visibility.`)),
+      el('p',text('功能重叠仅按描述词语筛选，最多比较 500 个实例；不是语义等价判断。目录比较未完整读取的部分保持未知。','Overlap uses description terms from up to 500 instances, not semantic equivalence. Unread directory content remains unknown.')));body.append(scope);
+  }
   function render() {
     renderNav(); body.replaceChildren(); if (view === 'activity') return;
     const toolbar = el('div', '', 'manager-toolbar'), actions = el('div', '', 'manager-actions');
-    actions.append(button(checks.manage.loading ? text('刷新中…', 'Refreshing…') : text('刷新清单', 'Refresh inventory'), () => checkView(true), checks.manage.loading));
+    actions.append(button(checks.manage.loading ? text('刷新中…', 'Refreshing…') : section==='redundancy'?text('刷新报告','Refresh report'):text('刷新清单', 'Refresh inventory'), () => checkView(true), checks.manage.loading));
+    const sections = el('div', '', 'manager-actions manager-sections');
+    sections.setAttribute('aria-label', text('管理视图', 'Management view'));
+    for (const [id, label] of [['inventory',text('清单','Inventory')],['redundancy',text('冗余候选','Redundancy candidates')]]) {
+      const tab = button(label, () => { section=id; render(); if (id === 'redundancy' && !data?.redundancy) void checkView(true); });
+      tab.setAttribute('aria-pressed', String(section===id)); sections.append(tab);
+    }
+    body.append(sections);
     const tabs = el('div', '', 'manager-actions');
     tabs.setAttribute('aria-label', text('清单类型', 'Inventory type'));
     for (const [kind, label] of [['plugins', text('插件', 'Plugins')], ['skills', text('技能', 'Skills')]]) {
-      const action = button(label, () => { inventoryKind = kind; render(); });
+      const action = button(label, () => { inventoryKind = kind; reportFilter=''; render(); });
       action.setAttribute('aria-pressed', String(inventoryKind === kind)); tabs.append(action);
     }
     body.append(tabs);
-    toolbar.append(el('h2', inventoryKind === 'plugins' ? text('插件清单', 'Plugin inventory') : text('技能清单', 'Skill inventory')), actions); body.append(toolbar);
+    toolbar.append(el('h2', section === 'redundancy' ? (inventoryKind === 'plugins' ? text('插件冗余候选','Plugin redundancy candidates') : text('技能冗余候选','Skill redundancy candidates')) : inventoryKind === 'plugins' ? text('插件清单', 'Plugin inventory') : text('技能清单', 'Skill inventory')), actions); body.append(toolbar);
     renderCheck();
+    if (section === 'redundancy') { renderPlan(); renderReport(); return; }
     if (inventoryKind === 'plugins') { renderPlugins(); return; }
     renderPlan();
     renderSources();
@@ -253,7 +353,7 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     if (data?.issues?.length) { const issues = el('details'); issues.append(el('summary', text(`扫描问题：${data.issues.length}`, `Scan issues: ${data.issues.length}`))); for (const issue of data.issues) issues.append(el('p', `${issue.path}: ${issue.reason}`)); body.append(issues); }
   }
   const update = value => {
-    data = value.inventoryScope === 'management' ? { ...data, ...value } : value;
+    data = value.inventoryScope === 'management' ? { ...data, ...value, redundancy:value.redundancy } : value;
     if (!checks.manage.loading) render();
   };
   update.isManaging = () => view === 'manage';

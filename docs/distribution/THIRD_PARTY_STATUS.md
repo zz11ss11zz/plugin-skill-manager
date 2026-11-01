@@ -5,7 +5,7 @@ Checked: 2026-10-30. Product: v0.4.6. This document tracks actual distribution e
 | Channel | Observed status | Next step |
 | --- | --- | --- |
 | Public GitHub source | Bilingual listing kit, dependency-aware guide and validation record prepared for publication with this change | Read the files on main after merge |
-| skills.sh | Official FAQ says entries appear through real user CLI installations. No separate manual submission flow was found. Repository discovery passed; directory listing/ranking not confirmed | Share the documented install route with actual users; verify the resulting public entry before claiming inclusion |
+| skills.sh | Search baseline now verified: tested queries do not return this project; owner-scoped search is empty; expected detail page renders unavailable despite HTTP 200. Remote CLI installation still fails at GitHub clone | Source description and standalone installation link improved; see [search evidence and next steps](SKILLS_SH.md). Real installation and catalog inclusion remain separate outstanding checks |
 | agentskill.sh | Submit page previously showed repository/SKILL.md import. Current fetch timed out. Browser automation stopped because it could not confidently determine the current URL | Resume through a functioning browser and verify the import result; no form was submitted |
 | SkillsMP | Current active submission route not confirmed | Secondary channel; verify before submission |
 | [Glama](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) | Listed; Glama release 0.4.6 published; search visibility confirmed by user screenshots on 2026-10-30 | Sync metadata; build a new Glama release when runtime changes |

@@ -1,5 +1,14 @@
 # 验收记录
 
+## 2026-10-30 私有 0.4.10 图标引用更新与目录阻塞
+
+- 原生目录返回空图片 URL，源包中存在正确扳手 PNG。同步两份 manifest 使用专用资源路径 `./assets/plugin-skill-manager-wrench.png`，显式上传并读回后仍返回空目录图片字段，未标记图标修复成功。
+- 本机已提取的 Codex 前端缺图回退算法对该远端插件 ID 选择第 20 项蓝色盾牌；这解释了用户报告的图案。该判断来自代码和目录数据，未冒充当前页面截图验证。
+- 5 项打包、MCP 协议和安装版本启动器测试通过，0 失败、0 跳过。官方 `plugin/install` 完成 0.4.10 安装；新 app-server 发现 13 个工具，握手与页面均为 0.4.10。
+- 缓存的运行包、图标及两份 MCP 配置与上传包哈希一致。扳手 SHA256 为 `2f7c498b09bf45a23d4e0a3a9a18d1de70846db76b0769309fce123fb49e2c55`。
+- 当前目录图标视觉验收未完成：浏览器连接报告 `Debugger unattached` 或超时；可用 Plugin Creator 接口未生成目录图片 URL。用户记录、分享范围和权限未变，未公开发布。
+- 完整证据位于工作区 `outputs/icon-reference-20261030-v0410/REPAIR.md`。本机新启动服务通过不等于当前桌面已有连接已热更新。
+
 ## 2026-10-22 独立插件工具调用统计
 
 - 新增独立 `record_plugin_calls` 接口、`.local/plugin-calls.json` 账本和插件调用视图；无 Skill 的 GitHub 可单独统计。采用账本和历史信号不变，不回填之前的 GitHub 操作。
@@ -489,3 +498,43 @@
 - Chromium headless: actual health component and dashboard styles, synthetic backend responses, Chinese light at 1100px, English dark at 1100px and Chinese at an actual 380px iframe viewport. Manual-only invocation, retained results after failure, re-enabled retry and horizontal-overflow checks passed; screenshots inspected. Reproduce with `CHROME_PATH` pointing to Chromium and `node scripts/acceptance-health.mjs <output-directory>`.
 - One read-only local smoke completed 23 checks in 1,731ms and returned actionable warnings without known errors or unresolved checks. This is one local observation, not a benchmark or a claim of complete host coverage. Personal results are not published.
 - Existing public v0.4.6 archives and installed copies were not upgraded by this source change. Browser component and MCP tests do not establish native sidebar acceptance. See [environment health](ENVIRONMENT_HEALTH.md) for usage, exit codes and boundaries.
+
+## 2026-10-30 Redundancy candidate report (development source, phase 1)
+
+- Windows / Node 20.18.1: final `SKILL_MANAGER_TEST_CODEX=1 npm test` passed 99 tests, zero failures or skips. Build, isolated real-CLI checks, 13-tool MCP protocol, packaging and existing archive/restore checks passed.
+- New regression covers identical documents with different scripts, whole-directory equality without semantic equivalence, unreadable/changed directories, same-name/document group deduplication, plugin source/version candidates versus unrelated shared Skill documents, instance-scoped adoption counts, unsupported continuous-coverage claims and bounded group truncation.
+- Management interaction checks cover retained plugin/Skill selection, session-only deferral/restoration, existing note revision arguments, retained-item archive gating, preview/cancel without execution, and English labels. Protocol checks verify optional report parameters and local report availability when plugin-status queries fail.
+- Chromium headless passed four synthetic cases: Chinese 1100px, English dark 1100px, Chinese actual 380px iframe and English plugin candidates 1100px. Screenshots were inspected; no horizontal overflow or untranslated English management labels was detected. Reproduce with `scripts/acceptance-redundancy.mjs` and CHROME_PATH; local evidence is in `outputs/redundancy-20261030` in the parent workspace.
+- Scope: structural candidate report, static reference clues, retention marks, current-panel deferral and existing archive previews. Continuous observation/first-seen history, a complete dependency graph and complete plugin tool inventories are not implemented. Long-term inactivity stays unclassified. Existing installed plugins and published ZIPs were not changed; native Codex sidebar acceptance remains unverified.
+- See [REDUNDANCY_REPORT.md](REDUNDANCY_REPORT.md) for limits, data meaning and reproduction. Final regression log is retained locally as `.work/redundancy-tests-20261030.log` in the parent workspace.
+
+## 2026-10-30 Private 0.4.9 runtime-selection repair
+
+- Root cause: the private account package was upgraded, while a separate manual MCP registration continued launching a 0.4.3 bundle through a historical version directory. Direct isolated handshakes established 0.4.3 versus 0.4.7; both already contained the same wrench PNG. Package installation alone did not verify the effective sidebar service.
+- Removing the old manual entry was insufficient in the tested host: fresh official app-server discovery exposed no manager server despite the enabled private plugin. A stable standalone compatibility launcher now resolves the enabled account installation through plugin/installed at each startup, verifies its manifest and entry, and refuses disabled, incomplete, ambiguous or mismatched states. It does not choose the highest cached version. The discovery subprocess disables only this manual entry via a non-persistent override to avoid recursion.
+- Windows / Node 20.18.1: final SKILL_MANAGER_TEST_CODEX=1 npm test passed **103 tests**, zero failures/skips. New regression covers version switching with a higher stale cache, the installed endpoint's null localVersion fallback, disabled/ambiguous state, unsafe paths, registry/manifest mismatch and recognition of the current compatibility entry.
+- Private 0.4.9 was uploaded and read back, retaining identity, audience, MCP configuration and prompts. The installed runtime matched the packaged bytes. Fresh official app-server discovery through the deployed stable entry returned all 13 tools and the exact 0.4.9 resource revision; its HTML hash matched the package. Read-only diagnostics reported registration/account-version-bridge as ok. This is a fresh-host protocol check, not native visual acceptance.
+- Full private uploads retained valid square wrench images and manifest references, but forced directory reads still returned empty logo/composer-icon metadata. Directory icon display is **unresolved**. Browser page-control attempts timed out; no native screenshot or post-restart UI pass is claimed. Existing desktop processes require a host reload to replace their old connections.
+- No GitHub publication or official-directory submission was performed. Local evidence and the old registration backup are under outputs/sidebar-sync-20261030 and outputs/sidebar-sync-20261030-v049 in the parent workspace; test log: .work/sidebar-sync-v049-tests-20261030.log.
+
+## 2026-10-30 Activity source labels (local development)
+
+- Plugin source buttons now read 宿主自动采集 / 助手主动上报 with the short hint 分开统计; the redundant plugin status box is removed from view. Skill-specific evidence text remains available.
+- Build and 12 targeted activity/UI/localization tests passed on Windows / Node 20.18.1. Source switching still selects independent counts and clears the selected day.
+- Chromium synthetic component checks passed at Chinese 1100px, Chinese 360px and English 360px. Screenshots inspected: no visible plugin status box or page overflow; English hint wraps naturally. Evidence: parent workspace outputs/activity-source-copy-20261030.
+- This validates local source and generated dashboard only; the installed plugin and native host were not updated or verified in this batch.
+
+## 2026-11-01 Private v0.4.11 activity source update
+
+- Built and installed private v0.4.11 with the concise source labels and no redundant plugin status box. The 16 targeted activity, localization, installed-launcher and standalone-package tests passed with zero failures/skips.
+- Parsed bundle comparison confirms the server differs from installed 0.4.10 only in embedded dashboard and version. The three-file update preserves existing metadata except version/release notes; remote read-back confirms the 17-file inventory, unchanged MCP configurations and bundled Skills, and PRIVATE / USER scope.
+- Official app-server plugin/install succeeded. The enabled-installation resolver now selects 0.4.11; installed server SHA256 matches the prepared bundle (7c77bf4cb2db65e21b157bd10f2baff2484f594f762707c98ac63ad159908ed8).
+- A fresh Codex app-server connection discovered all 13 tools and served dashboard-4afee55dd6180e99.html with v0.4.11. Resource SHA256 matches the build. Evidence and reproducible checks: parent workspace outputs/activity-source-update-20261101.
+- Existing desktop connections/panels were not force-restarted; native visual rendering after reopening is not claimed. No GitHub Release or public-directory submission was performed.
+
+## 2026-11-01 Public 0.4.11 synchronization candidate
+
+- Windows / Node 20.18.1, SKILL_MANAGER_TEST_CODEX=1: all 103 tests passed, zero failures/skips. Diff whitespace validation passed with CRLF recognized.
+- Built the complete 0.4.11 distribution. Seven isolated real-CLI lifecycle checks passed from 0.4.6: installation, companion Skill discovery, packaged MCP/UI startup and restart persistence, source-change guard, explicit relocated upgrade retaining records, uninstall retention and reinstall retention. Synthetic records only; user data and preferences were not migrated or reset.
+- A fresh host connection independently returned version 0.4.11, all 13 tools and dashboard SHA256 4afee55dd6180e9949df28937359e6b2440ef7b17fbb0952ed97f54ad55cc6d8. The enabled private account plugin remains 0.4.11; a redundant account upload was not needed.
+- Reproducible evidence: parent .work/sync-20261101-tests.log, .work/sync-20261101-upgrade.log and outputs/sync-20261101. Native visual acceptance and official-directory review remain outside this check. Publication status is recorded in the delivery report after remote read-back.
