@@ -1,16 +1,16 @@
 # Demo assets
 
-## Current English usage — 2026-11-02
+## Current bilingual usage — 2026-11-02
 
-The English README now uses `current-20261102/activity-en.png`: the actual v0.4.12 application rendered in a local Chromium host, using a sanitized snapshot of the maintainer's real aggregate records. This is not a native Codex screenshot. The image is cropped before inventory-dependent rankings; only the activity overview is shown. No chart values or application labels were painted onto the screenshot.
+The English and Chinese READMEs use `current-20261102/activity-en.png` and `current-20261102/activity-zh.png`, respectively: the actual v0.4.14 application rendered in a local Chromium host, using a sanitized snapshot of the maintainer's real aggregate records. This is not a native Codex screenshot. The image is cropped before inventory-dependent rankings; only the activity overview is shown. No chart values or application labels were painted onto the screenshot.
 
-- Snapshot: November 2, 2026 at 09:45:37, Asia/Shanghai. The visible 30-day range is October 4–November 2; the last day is partial.
+- Snapshot: November 2, 2026. The visible 30-day range is October 4–November 2; the last day is partial.
 - Source: **Host auto-capture**, 1,504 recorded call attempts, 15 dates with records, 8 tool-service identities. Failed attempts are included. Assistant reports and Skill adoptions are separate metrics, not added to this total.
 - Observed event range: October 10–November 2. Coverage remains incomplete. Earlier unobserved dates retain hatching; no synthetic values, smoothing, randomized filler or inferred backfill was added.
 - Capture input omits inventory, paths, descriptions, notes, session identifiers and raw evidence. Only the aggregate activity needed for the image is supplied to the actual dashboard. Private raw ledgers and the working snapshot are not included in the repository media folder.
-- Verification: daily aggregates sum to the displayed total; English visible-text check, browser-error check and 390 px overflow check passed. `capture.json` records the scope and rendered bar labels. Narrow rendering is a layout check, not a native-host acceptance result.
+- Verification: daily aggregates sum to the displayed total; English and Chinese language checks, browser-error check and 390 px overflow check passed. `capture.json` and `capture-zh.json` record the scope and rendered bar labels. Narrow rendering is a layout check, not a native-host acceptance result.
 
-To reproduce with your own sanitized aggregate snapshot, build the application and run `node scripts/capture-usage-snapshot.mjs <snapshot.json> <output-directory>`. Set `PLAYWRIGHT_MODULE` and `CHROME_PATH` if needed. The script uses a frozen snapshot date, binds to loopback, blocks external browser requests and never reads live ledgers or writes usage records. Supply an `open_skill_manager`-shaped response restricted to aggregate plugin calls; do not supply a raw inventory response.
+To reproduce with your own sanitized aggregate snapshot, build the application and run `node scripts/capture-usage-snapshot.mjs <snapshot.json> <output-directory>` (append `--zh` for Chinese). Set `PLAYWRIGHT_MODULE` and `CHROME_PATH` if needed. The script uses a frozen snapshot date, binds to loopback, blocks external browser requests and never reads live ledgers or writes usage records. Supply an `open_skill_manager`-shaped response restricted to aggregate plugin calls; do not supply a raw inventory response.
 
 `architecture-en.svg` describes the current source implementation: local evidence inputs, the Node.js MCP service, host UI and companion Skills, separate JSON stores, read-only diagnosis and authorized reversible management. Its arrows show data and command flow, not remote hosting or complete automatic coverage.
 
@@ -72,7 +72,7 @@ For English capture, run `node scripts/demo.mjs --lang=en` and use browser local
 
 ## 0.2 management and setup
 
-`v020/en` and `v020/zh` contain language-matched screenshots and `walkthrough.webm`: a four-second-per-state sequence of six actual browser UI screenshots. It is a demonstration video, not native desktop capture or conversational review evidence. `capture.json` records the stages and browser errors. Paths displayed by the synthetic harness use `C:\demo\skill-manager`; actual fixture operations remain isolated in a temporary directory.
+`v020/en` and `v020/zh` contain language-matched screenshots and `walkthrough.webm`: a four-second-per-state sequence of six actual browser UI screenshots. It is a demonstration video, not native desktop capture or conversational review evidence. `capture.json` and `capture-zh.json` record the stages and browser errors. Paths displayed by the synthetic harness use `C:\demo\skill-manager`; actual fixture operations remain isolated in a temporary directory.
 
 Reproduce with `scripts/capture-walkthrough.mjs <demo-url> <output-directory>` (add `--zh` for Chinese), using Playwright and Chrome. If Playwright is not installed in the project, set `PLAYWRIGHT_MODULE` to its absolute `index.mjs`; `CHROME_PATH` selects the browser executable. `scripts/acceptance-ui.mjs <demo-url> <output-directory>` separately checks actual note, archive, restore and narrow-panel behavior. Neither requires a private account or real activity data.
 

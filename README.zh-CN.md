@@ -15,7 +15,7 @@
 
 [English](README.md) | **中文** · [下载安装](docs/DISTRIBUTION.md) · [Release v0.4.11](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.11) · [Glama 目录](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
 
-![v0.4.12 英文活动面板：1,504 次真实调用记录，涵盖 15 个活跃日期和 8 个工具服务](docs/media/current-20261102/activity-en.png)
+![v0.4.14 中文活动面板：1,504 次真实调用记录，涵盖 15 个活跃日期和 8 个工具服务](docs/media/current-20261102/activity-zh.png)
 
 ## 能帮你做什么
 
@@ -101,7 +101,7 @@ node install.mjs uninstall
 
 已发布的 v0.4.11 包包含 **[统一环境诊断](docs/ENVIRONMENT_HEALTH.md)**：可在界面手动检查依赖、安装、数据和采集状态；也可独立运行 `node scripts/doctor.mjs`，中文输出使用 `--zh`。单项失败仍返回其余结果并提供处理建议。
 
-上方截图为 v0.4.12 界面。当前 main 源码与已验证的私有安装版本为 v0.4.14，保留细线扳手图标，更新了日历标签并精简活动说明；公开完整下载包仍为 v0.4.11。具体边界见[验收记录](docs/VALIDATION.md)。
+上方截图为 v0.4.14 中文界面。当前 main 源码与已验证的私有安装版本为 v0.4.14，保留细线扳手图标，更新了日历标签并精简活动说明；公开完整下载包仍为 v0.4.11。具体边界见[验收记录](docs/VALIDATION.md)。
 
 ## 演示与反馈
 

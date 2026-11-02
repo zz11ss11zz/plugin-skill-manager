@@ -6,6 +6,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import assert from 'node:assert/strict';
 const input = path.resolve(process.argv[2]), output = path.resolve(process.argv[3]);
+const zh = process.argv.includes('--zh'), language = zh ? 'zh' : 'en';
 const snapshot = JSON.parse(await readFile(input, 'utf8'));
 const data = snapshot.structuredContent;
 assert.equal(data.mode, 'inventory');
@@ -17,7 +18,7 @@ const expected = data.pluginCalls.activity.days.reduce((sum,d) => sum+d.entries.
 assert.equal(expected, data.pluginCalls.total);
 const bridge = await build({entryPoints:[fileURLToPath(new URL('./preview-host.mjs',import.meta.url))],bundle:true,write:false,format:'esm',platform:'browser'});
 const dashboard = await readFile(new URL('../dist/dashboard.html',import.meta.url));
-const host = `<!doctype html><html lang="en-US"><meta charset="utf-8"><title>Recorded usage snapshot</title><style>body{margin:0;background:#edf1f4;font:13px system-ui;color:#40515b}header{padding:16px 22px;display:flex;justify-content:space-between;gap:12px}iframe{display:block;border:0;background:white;width:100%;height:1250px}button{display:none}</style><header><strong>REAL USAGE · ${data.scannedAt.slice(0,10)} · Asia/Shanghai</strong><span>Local browser capture · recorded events only</span><span id="host-status"></span><button id="narrow"></button><button id="wide"></button></header><iframe id="app" title="Plugin & Skill Manager"></iframe><script type="module" src="/bridge.js"></script></html>`;
+const host = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en-US'}"><meta charset="utf-8"><title>Plugin & Skill Manager</title><style>body{margin:0;background:white}iframe{display:block;border:0;background:white;width:100%;height:1250px}</style><div hidden><span id="host-status"></span><button id="narrow"></button><button id="wide"></button></div><iframe id="app" title="Plugin & Skill Manager"></iframe><script type="module" src="/bridge.js"></script></html>`;
 const server=createServer(async(req,res)=>{
  res.setHeader('Cache-Control','no-store');
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(host);}
@@ -32,7 +33,7 @@ const browser=await chromium.launch({executablePath:process.env.CHROME_PATH,head
 const errors=[];
 try {
  await mkdir(output,{recursive:true});
- const page=await browser.newPage({viewport:{width:1100,height:1300},locale:'en-US',timezoneId:'Asia/Shanghai',colorScheme:'light',deviceScaleFactor:2});
+ const page=await browser.newPage({viewport:{width:1100,height:1300},locale:zh ? 'zh-CN' : 'en-US',timezoneId:data.pluginCalls.activity.timeZone || 'UTC',colorScheme:'light',deviceScaleFactor:2});
  // Reproduce the snapshot date instead of advancing the chart on later reruns.
  await page.clock.setFixedTime(new Date(data.scannedAt));
  await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
@@ -42,15 +43,16 @@ try {
  await frame.locator('.activity-bar').last().waitFor();
  await page.mouse.move(1,1);
  const visible=await frame.locator('body').innerText();
- assert.ok(!/[\u3400-\u9fff]/.test(visible),'Untranslated visible text');
+ if (!zh) assert.ok(!/[\u3400-\u9fff]/.test(visible),'Untranslated visible text');
+ assert.ok(!/Asia\/|REAL USAGE|Local browser capture/.test(visible),'Unexpected location or capture banner');
  assert.equal(Number(await frame.locator('.activity-metrics strong').first().innerText()),expected);
  const bars=await frame.locator('.activity-bar').evaluateAll(els=>els.map(e=>e.getAttribute('aria-label')));
- assert.deepEqual((await frame.locator('.calendar-months span').allTextContents()).filter(Boolean),['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']);
- assert.deepEqual(await frame.locator('.calendar-weekdays span').allTextContents(),['Mon','','Wed','','Fri','','']);
+ assert.deepEqual((await frame.locator('.calendar-months span').allTextContents()).filter(Boolean),zh ? Array.from({length:12},(_,i)=>String(i+1)+'月') : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']);
+ assert.deepEqual(await frame.locator('.calendar-weekdays span').allTextContents(),zh ? ['周一','','周三','','周五','',''] : ['Mon','','Wed','','Fri','','']);
  const countHelp=frame.locator('.calendar-counting');
  await countHelp.locator('summary').click();
  assert.equal(await countHelp.getAttribute('open'),'');
- assert.match(await countHelp.innerText(),/include failures/);
+ assert.match(await countHelp.innerText(),zh ? /失败调用/ : /include failures/);
  await countHelp.locator('summary').click();
  await page.mouse.move(1,1);
  const height=await frame.locator('body').evaluate(e=>e.scrollHeight);
@@ -58,16 +60,16 @@ try {
  // Crop before rankings: the exported snapshot intentionally omits inventory,
  // so low-use/installed counts below this point are outside the capture scope.
  const boundary=await frame.locator('.entity-panel').boundingBox();
- await page.screenshot({path:path.join(output,'activity-en.png'),clip:{x:0,y:0,width:1100,height:Math.floor(boundary.y)},animations:'disabled'});
+ await page.screenshot({path:path.join(output,'activity-'+language+'.png'),clip:{x:0,y:0,width:1100,height:Math.floor(boundary.y)},animations:'disabled'});
  const calendarBox=await frame.locator('.calendar-scroll').boundingBox();
  const footerBox=await frame.locator('.calendar-footer').boundingBox();
- await page.screenshot({path:path.join(output,'calendar-en.png'),clip:{x:calendarBox.x-8,y:calendarBox.y-8,width:calendarBox.width+16,height:footerBox.y+footerBox.height-calendarBox.y+16},animations:'disabled'});
+ await page.screenshot({path:path.join(output,'calendar-'+language+'.png'),clip:{x:calendarBox.x-8,y:calendarBox.y-8,width:calendarBox.width+16,height:footerBox.y+footerBox.height-calendarBox.y+16},animations:'disabled'});
  await page.setViewportSize({width:390,height:1100});
  const overflow=await frame.locator('body').evaluate(e=>e.scrollWidth>innerWidth);
  assert.equal(overflow,false,'Narrow view overflows');
- await page.screenshot({path:path.join(output,'narrow-en.png'),fullPage:true,animations:'disabled'});
+ await page.screenshot({path:path.join(output,'narrow-'+language+'.png'),fullPage:true,animations:'disabled'});
  assert.deepEqual(errors,[]);
- const evidence={capturedAt:data.scannedAt,version:JSON.parse(await readFile(new URL('../package.json',import.meta.url))).version,timeZone:'Asia/Shanghai',source:'host-event',total:expected,recordedDays:data.pluginCalls.activity.days.length,recordedPlugins:data.pluginCalls.catalog.length,coverage:data.pluginCalls.coverage,browserErrors:errors,narrowOverflow:overflow,bars,scope:'Actual application rendered from sanitized real aggregate records; not native Codex. Inventory and private evidence omitted from capture input.'};
- await writeFile(path.join(output,'capture.json'),JSON.stringify(evidence,null,2)+'\n');
+ const evidence={capturedAt:data.scannedAt,version:JSON.parse(await readFile(new URL('../package.json',import.meta.url))).version,timeZone:data.pluginCalls.activity.timeZone || 'UTC',source:'host-event',total:expected,recordedDays:data.pluginCalls.activity.days.length,recordedPlugins:data.pluginCalls.catalog.length,coverage:data.pluginCalls.coverage,browserErrors:errors,narrowOverflow:overflow,bars,scope:'Actual application rendered from sanitized real aggregate records; not native Codex. Inventory and private evidence omitted from capture input.'};
+ await writeFile(path.join(output,'capture-'+language+'.json'),JSON.stringify(evidence,null,2)+'\n');
  console.log(JSON.stringify({total:expected,days:evidence.recordedDays,plugins:evidence.recordedPlugins,height,errors}));
 } finally {await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}

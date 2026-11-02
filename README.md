@@ -15,7 +15,7 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 
 **English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.11](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.11) · [Glama directory](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
 
-![v0.4.12 English activity dashboard showing 1,504 real recorded call attempts across 15 days and 8 tool services](docs/media/current-20261102/activity-en.png)
+![v0.4.14 English activity dashboard showing 1,504 real recorded call attempts across 15 days and 8 tool services](docs/media/current-20261102/activity-en.png)
 
 ## What it helps you do
 
@@ -97,7 +97,7 @@ node install.mjs uninstall
 
 ## Environment health
 
-The published v0.4.11 package includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**: a manual dashboard check and an independent `node scripts/doctor.mjs` command for dependencies, installation, data and capture problems. A failed check preserves the other results and suggests next steps. The image above shows v0.4.12. Current main source and the verified private installation are v0.4.14, retaining the outline wrench artwork, updating calendar labels and simplifying activity captions. The public complete download remains v0.4.11; see [validation](docs/VALIDATION.md) for the boundaries.
+The published v0.4.11 package includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**: a manual dashboard check and an independent `node scripts/doctor.mjs` command for dependencies, installation, data and capture problems. A failed check preserves the other results and suggests next steps. The image above shows v0.4.14. Current main source and the verified private installation are v0.4.14, retaining the outline wrench artwork, updating calendar labels and simplifying activity captions. The public complete download remains v0.4.11; see [validation](docs/VALIDATION.md) for the boundaries.
 
 ## Demo and feedback
 
