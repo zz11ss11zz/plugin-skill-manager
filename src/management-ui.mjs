@@ -223,30 +223,71 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     };
     input.addEventListener('input', () => { pluginSearch = input.value; populate(); }); populate();
   }
+  function groupPresentation(g) {
+    const vocabulary={
+      'scientific-figures':text('科研绘图','Scientific plotting'),
+      'peer-review':text('论文审稿','Manuscript review'),
+      'manuscript-writing':text('论文写作','Manuscript writing'),
+      'literature-search':text('文献检索','Literature search'),
+      'reference-verification':text('引用核验','Reference verification'),
+      'paper-reading':text('论文精读','Paper reading'),
+      translation:text('论文翻译','Translation'),
+      'statistical-review':text('统计审查','Statistical review'),
+      'review-response':text('审稿回复','Review response'),
+    };
+    const terms=[...new Set((g.relations||[]).flatMap(r=>r.sharedTerms||[]))];
+    const functions=terms.filter(term=>vocabulary[term]).map(term=>vocabulary[term]);
+    const names=new Set(g.members.map(m=>m.name));
+    if(!functions.length&&names.has('scientific-visualization')&&names.has('matplotlib'))functions.push(vocabulary['scientific-figures']);
+    const label=functions.length?functions.join(' / '):g.types.includes('documents')?text('相同技能文档','Identical Skill documents'):g.types.includes('names')?text('同名技能','Same-name Skills'):text('用途相近','Related functions');
+    const evidence=g.types.includes('documents')?text('入口文档内容相同，仍需核对随附资源和运行环境。','Entrypoint documents match; supporting resources and runtime context still need review.'):functions.length?text(`任务交集：${functions.join('、')}。这是用途线索，不代表完整能力相同。`,`Shared tasks: ${functions.join(', ')}. This indicates overlap, not equivalent capabilities.`):text(`描述共同词：${terms.slice(0,8).join('、')||'同名入口'}；需结合各项用途判断。`,`Shared description terms: ${terms.slice(0,8).join(', ')||'same-name entrypoints'}; compare each purpose before deciding.`);
+    const directory=!g.complete?text('目录比较不完整，内容一致性未知。','Directory comparison is incomplete; content equality is unknown.'):g.directoryEqual?text('已读取的目录内容一致。','The compared directory contents match.'):text(`目录内容不同，发现 ${g.differenceCount} 条差异路径。`,`Directory contents differ across ${g.differenceCount} paths.`);
+    let advice=g.directoryEqual?text('选定常用来源后再评估其他副本；保留独有依赖和运行环境。','Choose a preferred source before reviewing other copies; preserve distinct dependencies and runtime contexts.'):text('先按输入、产物和使用场景选择主要入口；用途有交集时仍应保留独有能力。','Choose a primary entrypoint by inputs, outputs and context; preserve capabilities that remain distinct.');
+    if(names.has('scientific-visualization')&&names.has('matplotlib'))advice=text('建议两者保留、按任务分工：scientific-visualization 负责科研图设计、多面板布局与质量检查；matplotlib 负责绘图实现和元素微调。两者互补，不建议仅因都能画图而归档。','Keep both with distinct roles: scientific-visualization covers figure design, multi-panel layout and quality checks; matplotlib covers plotting implementation and fine control. Shared plotting capability alone is not a reason to archive either.');
+    else if(g.members.length>1&&g.members.every(m=>m.parentSkillId&&m.parentSkillId===g.members[0].parentSkillId))advice=text('属于同一套件的内部工作流。编排流程会调用专业模块，功能交集可能来自分工与依赖；建议保留，通过父 Skill 选择任务入口。','These are workflows within one suite. Orchestration may call specialist modules; overlap can reflect roles and dependencies. Keep them and choose the task through the parent Skill.');
+    else if(names.has('academic-paper')&&names.has('ingest-literature'))advice=text('建议保留并区分阶段：academic-paper 服务论文写作及引用检查；ingest-literature 负责文献核验、登记与入库。引用核验有交集，交付目的不同。','Keep both with different stages: academic-paper supports writing and citation checks; ingest-literature verifies, registers and imports references. Citation verification overlaps, but their outputs differ.');
+    if(g.retained?.length)advice+=' '+text('已有保留标记，优先遵循该选择。','Existing retention marks take precedence.');
+    return {label,evidence,directory,advice};
+  }
+  function memberPurpose(m) {
+    const purposes={
+      'scientific-visualization':text('科研图设计、多面板布局、数据表达与质量检查。','Scientific figure design, multi-panel layout, data presentation and quality checks.'),
+      matplotlib:text('用 Matplotlib 实现绘图，精细控制图形元素并导出。','Implement plots with Matplotlib, control individual elements and export figures.'),
+      'academic-pipeline':text('编排研究、写作、审稿与返修的端到端流程。','Orchestrate research, writing, review and revision from end to end.'),
+      'academic-paper-reviewer':text('从不同审稿视角评估论文，形成审稿意见。','Assess a manuscript from multiple reviewer perspectives and produce review findings.'),
+      'academic-paper':text('论文写作、结构组织、引用检查与修改。','Manuscript writing, structure, citation checks and revision.'),
+      'ingest-literature':text('核验文献身份，去重、归档、登记并同步资料库。','Verify references, deduplicate, archive, register and synchronize the library.'),
+    };
+    return purposes[m.name]||m.description||text('用途说明未提供；请查看技能入口。','No purpose description provided; inspect the Skill entrypoint.');
+  }
   function renderReport() {
     const report = data?.redundancy;
+    body.append(el('p', text('统计用户安装的插件、独立 Skill 及内部技能／工作流。排除系统和已识别的官方组件；官方市场中的第三方插件仍纳入。同一插件包内的不同 Skill 不互作冗余候选。', 'Includes user-installed plugins, standalone Skills and internal Skills/workflows. System and identified official components are excluded; third-party plugins in the official marketplace remain included. Different Skills within one plugin package are not compared as redundant.'), 'manager-meta'));
     body.append(el('p', text('候选不是删除建议。相同文档不等于完整 Skill 相同；插件还可能提供独有工具。', 'Candidates are not removal recommendations. Identical documents do not imply identical Skills; plugins may provide unique tools.'), 'manager-meta'));
     if (!report) {
       body.append(el('p', text('尚未生成报告。只读比较文件，不执行技能脚本。', 'No report yet. Comparison reads files without executing Skill scripts.')),
         button(text('生成候选报告','Generate candidate report'), () => checkView(true),checks.manage.loading)); return;
     }
     const isSkill = inventoryKind === 'skills', groups = report[inventoryKind] || [];
+    const idle=report.inactivity?.[inventoryKind]||[], inactive=idle.filter(m=>m.state==='inactive'), pending=idle.filter(m=>['insufficient-history','records-unavailable'].includes(m.state));
     if(report.pluginStatusFresh===false)body.append(el('p',text('插件安装状态核验未完成。下方旧状态可能过期；本地文件比较仍可查看。','Plugin status verification failed. Previous states may be stale; local file comparisons remain available.'),'manager-meta'));
-    body.append(el('p', text(`核验时间：${report.checkedAt} · 已比较 ${report.limits.directoriesScanned} 个技能目录`, `Checked: ${report.checkedAt} · ${report.limits.directoriesScanned} Skill directories compared`), 'manager-meta'));
+    body.append(el('p', text(`核验时间：${report.checkedAt} · 纳入 ${report.scope?.eligiblePlugins??0} 个插件、${report.scope?.eligibleSkills??0} 个 Skill、${report.scope?.components??0} 个内部组件；候选完整目录比对 ${report.limits.directoriesScanned} 个`, `Checked: ${report.checkedAt} · ${report.scope?.eligiblePlugins??0} plugins, ${report.scope?.eligibleSkills??0} Skills and ${report.scope?.components??0} internal components included; ${report.limits.directoriesScanned} candidate directories compared`), 'manager-meta'));
+    if(report.scope?.componentIssues?.length)body.append(el('p',text(`内部组件扫描存在 ${report.scope.componentIssues.length} 处读取失败或范围限制；候选结果不完整。`,`Internal component scan has ${report.scope.componentIssues.length} read issues or scope limits; candidate coverage is incomplete.`)));
     const types = isSkill ? [['documents',text('相同文档','Identical documents')],['names',text('同名差异','Same-name differences')],['overlap',text('功能重叠线索','Overlap clues')]] : [['versions',text('来源／版本候选','Source / version candidates')]];
     const filters=el('div','','manager-actions report-filters');
-    for (const [id,label] of [['',text('全部','All')],...types,['inactive',text('长期无记录','Long-term inactivity')],['deferred',text('本次暂缓','Deferred this session')]]) {
-      const count = id === 'inactive' ? '—' : groups.filter(g=>id==='deferred'?deferred.has(g.id):!deferred.has(g.id)&&(!id||g.types.includes(id))).length;
+    for (const [id,label] of [['',text('全部','All')],...types,['inactive',text('闲置待评估','Inactivity review')],['insufficient',text('记录不足','Insufficient history')],['deferred',text('本次暂缓','Deferred this session')]]) {
+      const count = id === 'inactive' ? inactive.length : id==='insufficient'?pending.length : groups.filter(g=>id==='deferred'?deferred.has(g.id):!deferred.has(g.id)&&(!id||g.types.includes(id))).length+(!id?inactive.length:0);
       const b=button(`${label} · ${count}`,()=>{reportFilter=id;render();}); b.setAttribute('aria-pressed',String(reportFilter===id));filters.append(b);
     }
     body.append(filters);
-    if(reportFilter==='inactive') {
-      const label=el('label',text('观察窗口','Observation window')), select=el('select');
-      for(const n of [30,60,90]) {const option=el('option',text(`近 ${n} 天`,`Last ${n} days`));option.value=String(n);select.append(option);}select.value=String(reportDays);
-      select.disabled=checks.manage.loading;select.addEventListener('change',()=>{reportDays=Number(select.value);void checkView(true);});label.append(select);body.append(label);
-      body.append(el('p',text('覆盖待积累：当前没有连续监测区间和项目首次出现时间，不能确认哪些项目长期未用。记录起止时间不作为连续覆盖，零记录不列为清理候选。','Coverage needs evidence: continuous monitoring intervals and first-seen dates are unavailable. Record timestamps do not establish continuous coverage; zero records are not cleanup candidates.')));
-      body.append(el('p',text('Skill 采用依赖主动报送；插件调用记录不能替代 Skill 使用证据。','Skill adoptions rely on explicit reporting; plugin calls do not establish Skill usage.'),'manager-meta'));return;
-    }
+    const renderIdle=(items)=>{
+      body.append(el('p',text(`闲置门槛：超过一个日历月无使用记录；本次分界 ${report.inactivity?.cutoff||'—'}。首次观察不是安装日期，记录不完整时不能断言从未使用。`,`Inactivity threshold: no usage record for more than one calendar month; cutoff ${report.inactivity?.cutoff||'—'}. First observation is not installation time; incomplete records cannot prove non-use.`),'manager-meta'));
+      if(!report.scope?.presenceAvailable)body.append(el('p',text('首次观察记录不可用；无历史使用记录的项目暂不能判断闲置时长。','First-observation records unavailable; inactivity duration is unknown for items with no usage history.')));
+      for(const m of items){const card=el('article','','report-card');card.append(el('h3',m.name),el('p',m.path||m.pluginId),el('p',text(`最近使用记录：${m.lastRecorded||'未记录'} · 首次观察：${m.firstSeen||'未知'}`,`Latest usage record: ${m.lastRecorded||'none recorded'} · First observed: ${m.firstSeen||'unknown'}`)),el('p',m.state==='inactive'?text('超过一个月无记录，待评估；记录覆盖不完整，不等于确认未使用。','No record for over one month; review needed. Coverage is incomplete; non-use is unconfirmed.'):m.state==='records-unavailable'?text('使用账本不可用，不能按零次计算。','Usage ledger unavailable; do not count as zero.'):text('观察不足一个月或历史时间未知，暂不判为闲置。','Less than one month observed or history unknown; not classified as inactive.')));body.append(card);}
+      if(!items.length)body.append(el('p',text('当前没有符合该条件的项目。','No items meet this condition.')));
+      body.append(el('p',text('Skill 采用依赖主动报送；插件调用记录不能替代内部 Skill 的使用证据。','Skill adoptions rely on reporting; plugin calls do not establish internal Skill usage.'),'manager-meta'));
+    };
+    if(['inactive','insufficient'].includes(reportFilter)){renderIdle(reportFilter==='inactive'?inactive:pending);return;}
     const searchLabel=el('label',text('搜索候选','Search candidates'),'inventory-search'), input=el('input');input.type='search';input.value=reportSearch;searchLabel.append(input);body.append(searchLabel);
     const list=el('div','','report-list');body.append(list);
     const populate=()=>{
@@ -255,20 +296,38 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
       if(!matches.length) list.append(el('p',text('当前筛选没有候选；不代表不存在重复或重叠。','No candidates match this filter; this does not establish that none exist.')));
       for(const g of matches){
         const card=el('article','','report-card');
-        const title=[...new Set(g.members.map(m=>m.name))].slice(0,3).join(' / ');
-        card.append(el('h3',title),el('p',`${g.members.length}${g.totalMembers>g.members.length?` / ${g.totalMembers}`:''} ${text('个实例','instances')}`,'manager-meta'));
+        const names=[...new Set(g.members.map(m=>m.name))];
+        const title=names.slice(0,3).join(' / ')+(names.length>3?text(` 等 ${names.length} 项`,` and ${names.length-3} more`):'');
+        const presentation=isSkill?groupPresentation(g):null;
+        if(isSkill){
+          const heading=el('div','','report-heading');heading.append(el('h3',presentation.label,'report-category'),el('span',text(`${g.members.length}${g.totalMembers>g.members.length?` / ${g.totalMembers}`:''} 个 Skill / 工作流`,`${g.members.length}${g.totalMembers>g.members.length?` / ${g.totalMembers}`:''} Skills / workflows`),'report-count'));card.append(heading);
+        }else card.append(el('h3',title),el('p',`${g.members.length}${g.totalMembers>g.members.length?` / ${g.totalMembers}`:''} ${text('个实例','instances')}`,'manager-meta'));
         const tags=el('div','','report-tags');for(const type of g.types)tags.append(el('span',types.find(t=>t[0]===type)?.[1]||type,'report-tag'));
         if(isSkill) tags.append(el('span',!g.complete?text('比较不完整','Comparison incomplete'):g.directoryEqual?text('目录内容一致','Directory content matches'):text('目录存在差异','Directory differences'),'report-tag'));
         card.append(tags);
-        const brief=el('div','','report-brief');
-        g.members.forEach((m,i)=>brief.append(el('p',`${i+1}. ${isSkill?sourceLabel(m.source):m.pluginId} · ${isSkill?(m.owner?`${m.owner.version} · ${m.owner.marketplace}`:m.path.replaceAll('\\','/').split('/').slice(-2,-1)[0]):m.version}`)));
+        const brief=el('div','',isSkill?'report-overview':'report-brief');
+        g.members.forEach((m,i)=>{
+          if(!isSkill){brief.append(el('p',`${i+1}. ${m.pluginId} · ${m.version}`));return;}
+          const item=el('section','','report-skill');
+          item.append(el('h4',m.name),el('p',memberPurpose(m),'report-purpose'));
+          const origin=m.parentSkillId?text(`安装父项：${m.parentSkillName}`,`Installation parent: ${m.parentSkillName}`):m.owner?text(`安装父项：${m.owner.name}`,`Installation parent: ${m.owner.name}`):text('安装父项：无（独立 Skill）','Installation parent: none (standalone Skill)');
+          item.append(el('p',origin,'report-origin'),el('p',text(`来源：${sourceLabel(m.source)}`,`Source: ${sourceLabel(m.source)}`),'report-source'));
+          if(m.declaredAuthor)item.append(el('p',text(`文档署名：${m.declaredAuthor}`,`Document author: ${m.declaredAuthor}`),'report-source'));
+          if(m.owner)item.append(el('p',`${m.owner.version} · ${m.owner.marketplace}`,'report-source'));
+          const location=el('details','','report-location');location.append(el('summary',text('查看本地路径','Local path')),el('p',m.path));item.append(location);brief.append(item);
+        });
         card.append(brief);
-        card.append(el('p',isSkill && g.retained?.length ? text('已有用户保留标记；不自动选择其他实例替代。','User retention marks exist; no replacement is selected automatically.') : isSkill&&g.directoryEqual ? text('目录内容一致：可选定常用来源标记保留，归档其他实例前仍需核对运行环境与依赖。','Directory contents match: mark your preferred source to retain; review runtime context and dependencies before archiving other instances.') : text('建议暂时保留，核对差异、运行环境和依赖后再决定。','Keep for now; review differences, runtime context and dependencies before deciding.')));
+        if(isSkill){
+          const assessment=el('section','','report-assessment');assessment.append(el('h4',text('判断依据与建议','Assessment and recommendation')));
+          assessment.append(el('p',presentation.evidence+' '+presentation.directory,'report-evidence'),el('p',presentation.advice,'report-advice'));card.append(assessment);
+        }else card.append(el('p',text('建议暂时保留，核对差异、运行环境和依赖后再决定。','Keep for now; review differences, runtime context and dependencies before deciding.')));
         const details=el('details');details.open=expanded.has(g.id);details.append(el('summary',text('展开对比','Compare instances')));details.addEventListener('toggle',()=>{if(details.open)expanded.add(g.id);else expanded.delete(g.id);});
         const grid=el('div','','report-grid');
         for(const m of g.members){
           const column=el('section','','report-instance');column.append(el('h4',`${g.members.indexOf(m)+1}. ${m.name}`));
           if(isSkill){
+            if(m.parentSkillId)column.append(el('p',text(`内部${m.componentKind==='workflow'?'工作流':'技能'} · 所属 ${m.parentSkillName}；不是独立安装项。`,`Internal ${m.componentKind==='workflow'?'workflow':'Skill'} · Parent ${m.parentSkillName}; not a separate installation.`)),el('p',m.path));
+            if(m.description)column.append(el('p',m.description));
             column.append(el('p',sourceLabel(m.source)),el('p',m.owner?`${m.owner.name} · ${m.owner.version} · ${m.owner.marketplace}`:text('个人／系统独立目录','Standalone personal / system directory')));
             column.append(el('p',m.owner ? m.pluginStatus?.enabled===true?text('匹配版本已启用','Matching version enabled'):text('安装／启用状态待核对','Installation / enablement unconfirmed'):text('本地存在，是否加载未知','Present locally; loading unknown')));
             column.append(el('p',m.tree.complete?text(`${m.tree.files} 个文件 · ${m.tree.bytes} 字节`,`${m.tree.files} files · ${m.tree.bytes} bytes`):text('目录未完整读取；不可判断一致','Incomplete directory read; equality unknown')));
@@ -280,10 +339,10 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
             column.append(button(m.annotation?.retain?text('取消保留标记','Clear retention mark'):text('标记保留','Mark to retain'),async()=>{
               const result=await invoke('save_skill_note',{id:m.id,fingerprint:m.fingerprint,note:m.annotation?.note||'',retain:!m.annotation?.retain,expectedRevision:m.annotation?.revision||0});
               if(result)void checkView(true);
-            },!data.notesAvailable||checks.manage.loading));
-            const manageable=['用户技能','用户 .agents 技能'].includes(m.source)&&data.managementSupported;
+            },Boolean(m.parentSkillId)||!data.notesAvailable||checks.manage.loading));
+            const manageable=!m.parentSkillId&&['用户技能','用户 .agents 技能'].includes(m.source)&&data.managementSupported;
             if(manageable)column.append(button(text('预览归档','Preview archive'),()=>invoke('preview_skill_archive',{skillId:m.id}),Boolean(plan)||Boolean(m.annotation?.retain)||checks.manage.loading));
-            else column.append(el('p',text('系统和插件内 Skill 不在此直接归档。','System and plugin Skills cannot be archived here.')));
+            else column.append(el('p',text('内部组件和插件内 Skill 不在此单独归档；需保留父级依赖关系。','Internal components and plugin Skills cannot be archived separately; parent dependencies must be preserved.')));
           }else{
             column.append(el('p',m.pluginId),el('p',m.version),el('p',m.installed?m.enabled===true?text('已安装 · 已启用','Installed · Enabled'):m.enabled===false?text('已安装 · 已停用','Installed · Disabled'):text('已安装 · 状态未知','Installed · Unknown'):text('仅缓存，不证明已安装','Cache only; installation unconfirmed')));
             if(m.installRecords>1)column.append(el('p',text(`同版本存在 ${m.installRecords} 条安装记录，需核对来源，不能直接认定重复安装。`,`${m.installRecords} installation records for this version; verify sources before treating them as duplicate installations.`)));
@@ -308,9 +367,10 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
         list.append(card);
       }
     };input.addEventListener('input',()=>{reportSearch=input.value;populate();});populate();
+    if(!reportFilter&&inactive.length)renderIdle(inactive);
     const scope=el('details');scope.append(el('summary',text('比较范围与判断依据','Comparison scope and evidence')),
       el('p',text(`最多显示 50 组、每组 20 个实例，比较 40 个目录。当前技能组 ${report.limits.shownSkillGroups}/${report.limits.skillGroups}；暂缓仅作用于当前面板，已核验内容变化后重新展示。`,`Up to 50 groups, 20 instances per group and 40 directories. Skill groups shown: ${report.limits.shownSkillGroups}/${report.limits.skillGroups}. Deferral lasts for this panel; changes in verified content restore visibility.`)),
-      el('p',text('功能重叠仅按描述词语筛选，最多比较 500 个实例；不是语义等价判断。目录比较未完整读取的部分保持未知。','Overlap uses description terms from up to 500 instances, not semantic equivalence. Unread directory content remains unknown.')));body.append(scope);
+      el('p',text('功能重叠按描述词语或明确的中英文任务词汇筛选，最多比较 500 项；不是语义等价或可替代性结论。内部工作流只作为父 Skill 的组件，不是额外安装项。','Overlap uses description terms or explicit bilingual task vocabulary from up to 500 items, not semantic equivalence or substitutability. Internal workflows are parent Skill components, not additional installations.')));body.append(scope);
   }
   function render() {
     renderNav(); body.replaceChildren(); if (view === 'activity') return;

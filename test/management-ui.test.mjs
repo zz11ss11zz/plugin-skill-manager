@@ -34,10 +34,16 @@ test('candidate views retain inventory kind, defer without mutations, preserve e
   assert.equal(calls.at(-1).arguments.includeReport,true);
   assert.equal(find('技能').attributes['aria-pressed'],'true');
   assert.equal(all().filter(e=>e.className==='report-card').length,1);
+  assert.ok(all().some(e=>e.textContent?.includes('官方市场中的第三方插件仍纳入')));
+  assert.ok(all().some(e=>e.className==='report-skill'));
+  assert.ok(all().some(e=>e.className==='report-category'&&e.textContent==='相同技能文档'));
+  assert.ok(all().some(e=>e.className==='report-source'&&e.textContent==='来源：用户技能'));
+  assert.ok(all().some(e=>e.className==='report-assessment'));
   const before=calls.length;click('本次暂缓');assert.equal(calls.length,before);
   assert.equal(all().filter(e=>e.className==='report-card').length,0);
   click('本次暂缓 · 1');click('恢复本次显示');click('全部 · 1');
-  click('长期无记录 · —');assert.ok(all().some(e=>e.textContent?.includes('覆盖待积累')));
+  click('闲置待评估 · 0');assert.ok(all().some(e=>e.textContent?.includes('超过一个日历月')));
+  click('记录不足 · 0');assert.ok(all().some(e=>e.textContent?.includes('首次观察不是安装日期')));
   click('全部 · 1');click('预览归档');await flush();assert.ok(find('确认归档'));
   assert.equal(calls.some(c=>c.name==='execute_skill_plan'),false);click('取消');await flush();
   click('标记保留');await flush();await flush();assert.equal(find('预览归档').disabled,true);
@@ -45,6 +51,13 @@ test('candidate views retain inventory kind, defer without mutations, preserve e
   click('清单');assert.equal(find('技能').attributes['aria-pressed'],'true');
   click('冗余候选');click('插件');assert.equal(find('插件').attributes['aria-pressed'],'true');
   update.setLocale('en');assert.ok(find('Inventory'));assert.ok(find('Redundancy candidates'));
+  const drawing={...group,id:'drawing',types:['overlap'],retained:[],directoryEqual:false,differenceCount:2,members:[{...member,name:'scientific-visualization',declaredAuthor:'K-Dense Inc.'},{...member,id:'b',name:'matplotlib'}],relations:[{type:'overlap',ids:['a','b'],sharedTerms:['scientific-figures']}]};
+  update({...inventory,redundancy:{...report,skills:[drawing]}});click('Skills');
+  assert.equal(all().filter(e=>e.className==='report-skill').length,2);
+  assert.ok(all().some(e=>e.className==='report-category'&&e.textContent==='Scientific plotting'));
+  assert.ok(all().some(e=>e.className==='report-advice'&&e.textContent.includes('Keep both with distinct roles')));
+  assert.ok(all().some(e=>e.textContent==='Document author: K-Dense Inc.'));
+  update.setLocale('zh');assert.ok(all().some(e=>e.className==='report-category'&&e.textContent==='科研绘图'));
 });
 
 test('view checks run automatically, cache results, and offer retry only after failure', async () => {

@@ -1,5 +1,7 @@
 # Repository development instructions
 
+2026-11-02 冗余判定原则：以 `skills/skill-manager/references/redundancy-principles.md` 为本插件的规则入口。文档署名、来源技能集合/仓库、实际安装父项与技能入口必须分开；同一已安装插件/父 Skill 内部组件默认不互列冗余，与外部安装项比较时展开能力。独立安装项不因作者或仓库相同而豁免。主题相近不等于功能重复或运行冲突，已明确分工的互补能力不得只凭宽泛任务标签列为冗余。
+
 2026-10-30 非 OpenAI 官方渠道的知名度与推广工作，先读 docs/PROJECT_MEMORY.md 的四周规划及 docs/distribution/THIRD_PARTY_STATUS.md 的实际状态；后续从规划表下一未完成项接续。agentskill.sh 保持用户指定的暂停，发布与外联依相应授权执行，不把规划记成已执行。
 
 2026-10-26 后续工作按 docs/PUBLIC_RELEASE_PLAN.md 的六阶段顺序执行；用户已明确授权推进并由 Agent 验证。下方旧版本计划与历史节点保留为来源记录，新阶段状态以该计划及实际验收记录为准。

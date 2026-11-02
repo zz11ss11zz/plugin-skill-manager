@@ -24,15 +24,19 @@ try{
   const inventory=await scanInventory(roots);inventory.inventoryScope='management';inventory.notesAvailable=true;inventory.managementSupported=true;
   inventory.pluginRegistry={checkedAt:'2026-10-30T12:00:00Z',plugins:[{id:'research-tools@team',version:'2.0',enabled:true},{id:'research-tools@personal',version:'1.0',enabled:false}]};
   inventory.redundancy=await redundancyReport(inventory,{now:Date.parse('2026-10-30T12:00:00Z')});
+  const idleInventory={...inventory,redundancy:await redundancyReport(inventory,{now:Date.parse('2026-10-30T12:00:00Z'),adoptions:{activity:{days:[]}},calls:{catalog:[],activity:{days:[]}},presence:{observe:async keys=>Object.fromEntries(keys.map(k=>[k,'2026-08-01T00:00:00Z']))}})};
+  const sample=inventory.redundancy.skills[0];
+  const drawing={...sample,id:'drawing-demo',types:['overlap'],directoryEqual:false,members:['scientific-visualization','matplotlib','plotting-demo'].map((name,i)=>({...sample.members[0],id:'drawing-'+i,name,path:`C:/Synthetic/Skills/${name}/SKILL.md`,declaredAuthor:'Example maintainer',description:'Scientific figure implementation and visual review.'})),totalMembers:3,relations:[{type:'overlap',ids:['drawing-0','drawing-1','drawing-2'],sharedTerms:['scientific-figures']}],retained:[]};
+  const drawingInventory={...inventory,redundancy:{...inventory.redundancy,skills:[drawing]}};
   // Replace temporary fixture paths only in the display evidence.
   for(const g of inventory.redundancy.skills)for(const m of g.members)m.path=`C:/Synthetic/Skills/${path.basename(path.dirname(m.path))}/SKILL.md`;
   const template=await readFile(new URL('../src/dashboard.html',import.meta.url),'utf8');
   const modulePath=fileURLToPath(new URL('../src/management-ui.mjs',import.meta.url));
   const results=[];
-  for(const [locale,width,dark,kind]of [['zh',1100,false,'skills'],['en',1100,true,'skills'],['zh',380,false,'skills'],['en',1100,false,'plugins']]){
+  for(const [locale,width,dark,kind]of [['zh',1100,false,'skills'],['en',1100,true,'skills'],['zh',380,false,'skills'],['en',1100,false,'plugins'],['zh',380,false,'idle-plugins'],['en',1100,false,'idle-plugins'],['zh',1100,false,'drawing'],['zh',380,false,'drawing'],['en',1100,true,'drawing']]){
     const name=`${locale}-${width}-${dark?'dark':'light'}-${kind}`;
     const source=`import {createManagementPanel} from ${JSON.stringify(modulePath)};
-      const inventory=${JSON.stringify(inventory)};
+      const inventory=${JSON.stringify(kind==='idle-plugins'?idleInventory:kind==='drawing'?drawingInventory:inventory)};
       const locale=${JSON.stringify(locale)},kind=${JSON.stringify(kind)};
       const root=document.querySelector('#workspace-panel');
       const update=createManagementPanel(root,async()=>({structuredContent:inventory}),()=>{},locale);update(inventory);
@@ -40,12 +44,20 @@ try{
       const wait=()=>new Promise(r=>setTimeout(r,0));
       async function run(){
         click('管理','Manage');await wait();click('冗余候选','Redundancy candidates');
-        if(kind==='skills')click('技能','Skills');
+        if(kind==='skills'||kind==='drawing')click('技能','Skills');
+        if(kind==='idle-plugins')click('闲置待评估 · 2','Inactivity review · 2');
         await wait();
         const card=root.querySelector('.report-card');if(!card)throw new Error('Missing candidate');
-        card.querySelector('details').open=true;
+        if(kind!=='idle-plugins'&&kind!=='drawing')card.querySelector('details').open=true;
         await wait();
-        if(root.querySelectorAll('.report-instance').length!==2)throw new Error('Missing instances');
+        if(kind!=='idle-plugins'&&kind!=='drawing'&&root.querySelectorAll('.report-instance').length!==2)throw new Error('Missing instances');
+        if(kind==='drawing'){
+          const items=[...card.querySelectorAll('.report-skill')],rects=items.map(e=>e.getBoundingClientRect());
+          if(items.length!==3||!card.querySelector('.report-assessment')||!card.textContent.includes(locale==='en'?'Scientific plotting':'科研绘图'))throw new Error('Missing function comparison');
+          if(window.innerWidth>600&&rects.some(r=>Math.abs(r.top-rects[0].top)>2))throw new Error('Wide cards are not horizontal');
+          if(window.innerWidth<600&&rects[1].top<=rects[0].top)throw new Error('Narrow cards are not stacked');
+        }
+        if(kind==='idle-plugins'&&(!root.textContent.includes(locale==='en'?'Coverage is incomplete':'记录覆盖不完整')||root.querySelectorAll('.report-card').length!==2))throw new Error('Missing inactivity evidence');
         if(kind==='skills'&&!root.textContent.includes(locale==='en'?'Directory differences':'目录存在差异'))throw new Error('Difference missing');
         if(document.documentElement.scrollWidth>window.innerWidth)throw new Error('Horizontal overflow');
         if(locale==='en'&&/[\\u3400-\\u9fff]/.test(root.innerText))throw new Error('Untranslated UI');
