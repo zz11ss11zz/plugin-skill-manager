@@ -39,9 +39,8 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
   const recent = node('section', undefined, 'recent-activity');
   const recentHeading = node('div', undefined, 'recent-heading'), recentTitle = node('h3'), recentScope = node('span', undefined, 'activity-caption');
   recentHeading.append(recentTitle, recentScope);
-  const recentSummary = node('p', undefined, 'activity-caption');
   const recentChart = node('div', undefined, 'recent-chart');
-  recent.append(recentHeading, recentSummary, recentChart);
+  recent.append(recentHeading, recentChart);
   const yearHeading = node('h3', undefined, 'year-heading');
   const dailyGrid = node('div', undefined, 'entity-grid');
   const dailyTip = node('p', undefined, 'activity-tooltip'); dailyTip.setAttribute('role', 'status');
@@ -107,15 +106,12 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     yearHeading.textContent = t("年度足迹");
     recentTitle.textContent = year === Number(today.slice(0,4)) ? t("近期活动") : t("年末活动");
     recentScope.textContent = t("最近 30 天");
-    recentSummary.textContent = t("{0} 至 {1} · {2}", recentView.from, recentView.to, usage?.activity?.timeZone || 'UTC');
     metrics.replaceChildren();
     for (const [name, value] of [[calling ? t("近 30 天已记录调用") : t("近 30 天已记录采用"),recentView.total], [t("有记录天数"),recentView.activeDays], [calling ? t("有调用的插件") : t("有采用的 Skill"),recentView.usedItems]]) {
       const item = node('div', undefined, 'activity-metric');
       item.append(node('span', name), node('strong', recentView.ready && recentView.coverage.hasOverlap ? String(value) : '—'));
       metrics.append(item);
     }
-    if (!recentView.ready || !recentView.coverage.hasOverlap) recentSummary.textContent += ' · ' + t("所选日期无统计覆盖");
-    else if (recentView.coverage.partial || recentView.excluded) recentSummary.textContent += ' · ' + t("仅显示已记录活动，覆盖不完整");
     tooltip.textContent = t("将鼠标移到日期上，或用键盘选择日期查看使用量。");
     dailyPanel.hidden = true; dailyGrid.replaceChildren(); dailyTip.textContent = ''; dailyList.replaceChildren();
     const years = [...new Set([year, new Date().getFullYear(), ...(usage?.activity?.days || []).map(d => Number(d.date.slice(0, 4)))])].sort((a, b) => b - a);
