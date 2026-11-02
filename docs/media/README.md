@@ -1,8 +1,22 @@
 # Demo assets
 
+## Current English usage — 2026-11-02
+
+The English README now uses `current-20261102/activity-en.png`: the actual v0.4.12 application rendered in a local Chromium host, using a sanitized snapshot of the maintainer's real aggregate records. This is not a native Codex screenshot. The image is cropped before inventory-dependent rankings; only the activity overview is shown. No chart values or application labels were painted onto the screenshot.
+
+- Snapshot: November 2, 2026 at 09:45:37, Asia/Shanghai. The visible 30-day range is October 4–November 2; the last day is partial.
+- Source: **Host auto-capture**, 1,504 recorded call attempts, 15 dates with records, 8 tool-service identities. Failed attempts are included. Assistant reports and Skill adoptions are separate metrics, not added to this total.
+- Observed event range: October 10–November 2. Coverage remains incomplete. Earlier unobserved dates retain hatching; no synthetic values, smoothing, randomized filler or inferred backfill was added.
+- Capture input omits inventory, paths, descriptions, notes, session identifiers and raw evidence. Only the aggregate activity needed for the image is supplied to the actual dashboard. Private raw ledgers and the working snapshot are not included in the repository media folder.
+- Verification: daily aggregates sum to the displayed total; English visible-text check, browser-error check and 390 px overflow check passed. `capture.json` records the scope and rendered bar labels. Narrow rendering is a layout check, not a native-host acceptance result.
+
+To reproduce with your own sanitized aggregate snapshot, build the application and run `node scripts/capture-usage-snapshot.mjs <snapshot.json> <output-directory>`. Set `PLAYWRIGHT_MODULE` and `CHROME_PATH` if needed. The script uses a frozen snapshot date, binds to loopback, blocks external browser requests and never reads live ledgers or writes usage records. Supply an `open_skill_manager`-shaped response restricted to aggregate plugin calls; do not supply a raw inventory response.
+
+`architecture-en.svg` describes the current source implementation: local evidence inputs, the Node.js MCP service, host UI and companion Skills, separate JSON stores, read-only diagnosis and authorized reversible management. Its arrows show data and command flow, not remote hosting or complete automatic coverage.
+
 ## v0.4.0 browser screenshots — 2026-10-28
 
-Both READMEs use v040/activity-en.png or v040/activity-zh.png. These are actual browser renders with synthetic fixtures, including recorded summaries, daily bars and the annual teal calendar. Navigation is Activity/Manage only. Reproduce with scripts/demo.mjs and scripts/acceptance-activity.mjs; see docs/releases/v0.4.0.md and v040/capture.json. Dark/narrow/daily-selected browser states were also checked. These are not native Codex screenshots.
+The Chinese README retains v040/activity-zh.png; the English v040/activity-en.png is historical. These are actual browser renders with synthetic fixtures, including recorded summaries, daily bars and the annual teal calendar. Navigation is Activity/Manage only. Reproduce with scripts/demo.mjs and scripts/acceptance-activity.mjs; see docs/releases/v0.4.0.md and v040/capture.json. Dark/narrow/daily-selected browser states were also checked. These are not native Codex screenshots.
 
 ## Historical v0.3.2 demo — 2026-10-27
 

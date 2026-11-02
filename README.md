@@ -13,11 +13,11 @@
 
 A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings, and separate records for Skill adoptions and plugin call attempts.
 
-**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.6](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.6) · [Glama directory](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
+**English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Release v0.4.11](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.11) · [Glama directory](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
 
-![v0.4.0 activity overview with teal bars and calendar; synthetic data](docs/media/v040/activity-en.png)
+![v0.4.12 English activity dashboard showing 1,504 real recorded call attempts across 15 days and 8 tool services](docs/media/current-20261102/activity-en.png)
 
-*Actual v0.4.0 browser screenshot with synthetic records. Two-view navigation, daily bars, annual calendar and recorded summaries; this is not a native Codex screenshot. [Verification and reproduction](docs/releases/v0.4.0.md).*
+*The maintainer's recorded usage, captured on November 2, 2026 (Asia/Shanghai), in the v0.4.12 English interface. The last 30 days contain **1,504 host-recorded call attempts across 15 days and 8 tool services**. Bars retain the actual daily counts; unobserved dates are not filled with sample activity. This is a local browser render of the application using sanitized aggregate records, not a native Codex screenshot. Coverage is incomplete, and November 2 is a partial day. [Capture scope and verification](docs/media/README.md#current-english-usage--2026-11-02).*
 
 ## What it helps you do
 
@@ -25,11 +25,20 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 - Switch between Skill adoptions and plugin tool-call attempts without mixing the metrics.
 - Filter period rankings by date independently of the pinned day, and distinguish missing coverage from zero activity.
 - Inspect low-use candidates and items with no records in a compact observation panel. Open the counting details when needed; nothing is archived automatically.
+- Review structural redundancy candidates in Manage: duplicate content, same-name instances and plugin-version candidates. Keep or defer items without treating a candidate as proof that removal is safe.
 - Click Personal skills, System skills, Skills in plugin cache, or Total in Manage to browse that category, then search within it. Counts represent Skill files, not plugins.
 - Plugin installation status is checked automatically when entering Manage, with a one-minute cache and a retry action on failure. Save notes and preview reversible Windows user-skill archives and restores in the same view.
 - The separate Setup page has been removed. The companion setup Skill and read-only recording diagnostic tool remain available in chat.
 
-The complete product combines a **local MCP service, an activity UI, and a companion Skill**. Installing the Skill alone does not install the service. Skill adoption recording requires caller participation. Plugin calls support opt-in local host-event capture since v0.3.3; without it, callers must report calls. Local logs do not establish complete host-wide coverage. Missing records do not mean a Skill was never used.
+The complete product combines a **local MCP service, an activity UI, and two companion Skills** for setup and inspection. Installing a Skill alone does not install the service. Skill adoption recording requires caller participation. Plugin calls support opt-in local host-event capture; host events and assistant reports remain separate views. Local logs do not establish complete host-wide coverage. Missing records do not mean a Skill was never used.
+
+## Architecture
+
+![Architecture: local evidence feeds the MCP service, which serves the Codex dashboard and keeps separate local records](docs/media/architecture-en.svg)
+
+The service reads Skill metadata and checks installed-plugin state through the Codex CLI. With automatic capture enabled, it incrementally extracts MCP call events from readable local session logs. Explicit adoption and call reports arrive through MCP tools. The service deduplicates records, aggregates them by date and source, and serves the Activity and Manage views through MCP Apps.
+
+Versioned local JSON stores keep activity, coverage, notes and recovery metadata; raw conversations are not copied into the activity ledgers. Health checks are read-only, redundancy results are candidates, and user-Skill archive or restore actions use a preview and explicit authorization. MCP results are returned to the host under its policies; installation discovery may contact configured marketplaces. See [data flow](docs/PRIVACY.md) and [counting rules](docs/DATA_ACCURACY.md).
 
 ## Where it runs
 
@@ -50,20 +59,20 @@ Platform references (checked 2026-10-29): [desktop-only plugins](https://develop
 
 Tested on Windows. Requires Node.js 20.18+ and the Codex CLI on PATH. This is an independent project, not an official OpenAI product or an official-directory listing.
 
-Download the [v0.4.6 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.6/plugin-skill-manager-0.4.6-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
+Download the [v0.4.11 complete plugin ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.11/plugin-skill-manager-0.4.11-plugin.zip), verify its checksum on the release page, extract it to a permanent directory, and open PowerShell in the folder containing install.mjs:
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-The check should show the installed 0.4.6 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
+The check should show the installed 0.4.11 plugin with enabled set to true and a matching registered source. Reopen Codex, then ask it to open Plugin & Skill Manager or run the packaged setup Skill. The complete package includes the service, UI and both companion Skills. Keep the extracted folder in place; no npm install or build is required.
 
 Version-specific regression and installation results are recorded in the validation log. Browser management checks passed; native-desktop interaction remains unverified. See [validation](docs/VALIDATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), and [upgrade/uninstall](docs/DISTRIBUTION.md). Developers can still [install from source](docs/LOCAL_SETUP.md).
 
 ## Official directory status
 
-The **v0.4.6 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
+The **v0.4.11 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
 
 ## Optional: companion Skill
 
@@ -87,9 +96,9 @@ Uninstall the complete plugin, preserving its local data:
 node install.mjs uninstall
 ```
 
-## Environment health (development source)
+## Environment health
 
-Development source now includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**: a manual dashboard check and an independent `node scripts/doctor.mjs` command for dependencies, installation, data and capture problems. A failed check preserves the other results and suggests next steps. This enhancement is not included in the published v0.4.6 ZIP.
+The published v0.4.11 package includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**: a manual dashboard check and an independent `node scripts/doctor.mjs` command for dependencies, installation, data and capture problems. A failed check preserves the other results and suggests next steps. The v0.4.12 interface shown above adds the refined outline wrench artwork; its source is available on main.
 
 ## Demo and feedback
 
@@ -116,7 +125,7 @@ Daily totals use the full index rather than the limited evidence list. Rankings 
 
 Runtime records are stored locally under `$CODEX_HOME/skill-manager/data-v1` (default `~/.codex/skill-manager/data-v1`); archives are separately kept under `$CODEX_HOME/skill-manager-archive`. The application adds no telemetry or upload endpoint, but MCP tool results are returned to the host and may be used in its model context under the host's policies. Plugin-installation checks, including automatic checks on entering Manage, may contact configured marketplaces. See [privacy and data flow](docs/PRIVACY.md), [project terms](docs/TERMS.md), [support](docs/SUPPORT.md), and [migration](docs/DATA_MIGRATION.md).
 
-The repository contains code, documentation, and synthetic test data. Public demo assets contain no personal activity records.
+The repository contains code, documentation and synthetic test fixtures. The current English README image shows explicitly selected, sanitized real aggregate activity from the maintainer. It contains dates and counts, not chat text, tool arguments, session identifiers, credentials or local file paths. Historical demo images remain labeled as synthetic.
 
 ## Development
 

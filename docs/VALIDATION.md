@@ -1,5 +1,12 @@
 # 验收记录
 
+## 2026-11-02 English README real usage and architecture
+
+- Replaced the English README's v0.4.0 synthetic illustration with an actual v0.4.12 browser render from a sanitized aggregate snapshot captured at 09:45:37 Asia/Shanghai. Host-event source: 1,504 call attempts, 15 dates with records, 8 tool-service identities; coverage is incomplete and the current day partial. No synthetic activity was added.
+- Capture uses the existing dashboard bundle and MCP Apps bridge, freezes the snapshot date and blocks external browser requests. Visible English text, daily-sum/displayed-total agreement, browser errors and 390 px overflow checks passed. The overview is cropped before inventory-dependent rankings because the capture input omits private inventory and evidence. Wide capture and architecture rendering were visually inspected.
+- Added an editable English SVG architecture diagram, checked against local source modules for inventory, capture, aggregation, JSON stores, MCP UI, health and reversible archive flow. README download references were verified against the GitHub v0.4.11 release; the depicted interface is v0.4.12 source/current installation.
+- Raw ledgers, private inventory and the working aggregate snapshot are not included in repository media. Only the selected overview PNG, architecture SVG and capture metadata are prepared for documentation. Native Codex rendering and public publication are not established by these checks. No runtime behavior or installation was changed.
+
 ## 2026-10-30 私有 0.4.10 图标引用更新与目录阻塞
 
 - 原生目录返回空图片 URL，源包中存在正确扳手 PNG。同步两份 manifest 使用专用资源路径 `./assets/plugin-skill-manager-wrench.png`，显式上传并读回后仍返回空目录图片字段，未标记图标修复成功。
