@@ -24,6 +24,7 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 - Filter period rankings by date independently of the pinned day, and distinguish missing coverage from zero activity.
 - Inspect low-use candidates and items with no records in a compact observation panel. Open the counting details when needed; nothing is archived automatically.
 - Review structural redundancy candidates in Manage: duplicate content, same-name instances and plugin-version candidates. Keep or defer items without treating a candidate as proof that removal is safe.
+- Switch between Plugins and Skills in Manage. Plugin inventory counts unique IDs, supports installation-status filters and name/marketplace/version search, and distinguishes installed versions from cached Skill files. Installed plugins without Skills are included. Refresh rechecks installation status; failures retain the previous result and mark it stale.
 - Click Personal skills, System skills, Skills in plugin cache, or Total in Manage to browse that category, then search within it. Counts represent Skill files, not plugins.
 - Plugin installation status is checked automatically when entering Manage, with a one-minute cache and a retry action on failure. Save notes and preview reversible Windows user-skill archives and restores in the same view.
 - The separate Setup page has been removed. The companion setup Skill and read-only recording diagnostic tool remain available in chat.
@@ -70,11 +71,11 @@ Version-specific regression and installation results are recorded in the validat
 
 ## Official directory status
 
-The **v0.4.11 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. The portal currently reports that it is not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
+The **v0.4.11 desktop submission ZIP** is available separately on the release page. It contains the manifest and local MCP server at its root; use this for portal upload, not the installation ZIP. As of 2026-10-27, a **0.3.1 draft has been uploaded**, but it has not been submitted for review, approved, or published. At that check, the portal reported that it was not accepting more skills-only submissions. Recognition and eligibility for the bundled local MCP server remain unresolved. The GitHub release is available for manual installation; a saved portal draft is not an official listing.
 
 ## Optional: companion Skill
 
-For third-party Skill directories, see the [bilingual listing kit](docs/distribution/THIRD_PARTY_LISTING.md), [dependency-aware installation guide](docs/distribution/THIRD_PARTY_INSTALL.md), and [verification status](docs/distribution/THIRD_PARTY_VALIDATION.md). These materials do not indicate a submitted or approved listing.
+For third-party Skill directories, see the [bilingual listing kit](docs/distribution/THIRD_PARTY_LISTING.md), [dependency-aware installation guide](docs/distribution/THIRD_PARTY_INSTALL.md), and [verification status](docs/distribution/THIRD_PARTY_VALIDATION.md). Preparing these materials does not itself indicate a submitted or approved listing; see [channel status](docs/distribution/THIRD_PARTY_STATUS.md) for actual progress.
 
 The complete plugin already includes these Skills. For the alternative source/MCP route, install the companion instructions from your downloaded source into your chosen project. The pinned skills CLI requires **Node.js 22.20+**, independently of the manager's Node requirement:
 
@@ -84,7 +85,7 @@ The complete plugin already includes these Skills. For the alternative source/MC
 npx skills@1.7.4 add "C:\tools\plugin-skill-manager" --skill skill-manager --agent codex --copy
 ```
 
-This local-source route was tested in an isolated project. A direct GitHub route is available in the CLI, but our network test failed during Git clone; do not treat it as verified here. See [companion Skill installation](docs/LOCAL_SETUP.md#配套-skill可选).
+This local-source route was tested in an isolated project. On November 1, 2026, one remote GitHub installation through the official CLI succeeded using the existing local proxy, resolving the earlier clone failure for that check. The skills.sh detail page was available; search indexing remained unconfirmed. See [verification notes](docs/distribution/SKILLS_SH.md) and [companion Skill installation](docs/LOCAL_SETUP.md#配套-skill可选).
 
 Start with: “Open Plugin & Skill Manager and explain the difference between adoption and call counts.” To collect new records, follow [adoption recording](docs/ADOPTION_RECORDING.md) or [plugin-call recording](docs/PLUGIN_CALLS.md). The companion Skill alone does not enable background collection.
 
@@ -96,7 +97,7 @@ node install.mjs uninstall
 
 ## Environment health
 
-The published v0.4.11 package includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**: a manual dashboard check and an independent `node scripts/doctor.mjs` command for dependencies, installation, data and capture problems. A failed check preserves the other results and suggests next steps. The v0.4.12 interface shown above adds the refined outline wrench artwork; its source is available on main.
+The published v0.4.11 package includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**: a manual dashboard check and an independent `node scripts/doctor.mjs` command for dependencies, installation, data and capture problems. A failed check preserves the other results and suggests next steps. The image above shows v0.4.12. Current main source and the verified private installation are v0.4.14, retaining the outline wrench artwork, updating calendar labels and simplifying activity captions. The public complete download remains v0.4.11; see [validation](docs/VALIDATION.md) for the boundaries.
 
 ## Demo and feedback
 
