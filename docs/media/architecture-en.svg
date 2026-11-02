@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="790" viewBox="0 0 1160 790" role="img" aria-labelledby="title desc">
+<title id="title">Plugin and Skill Manager architecture</title>
+<desc id="desc">Local directories, installed-plugin discovery and opt-in session events feed a Node.js MCP service. The Codex host accesses tools and UI resources over stdio. Separate local ledgers hold host calls, assistant reports and Skill adoptions. Management changes use previews and explicit authorization.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#64847b"/></marker></defs>
+<rect width="1160" height="790" rx="16" fill="#f7faf9"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#20332d">
+<text x="40" y="48" font-size="13" font-weight="700" letter-spacing="2" fill="#467365">SYSTEM OVERVIEW · v0.4.12</text>
+<text x="40" y="88" font-size="30" font-weight="700">From local evidence to informed decisions</text>
+<text x="40" y="116" font-size="15" fill="#61716c">A local MCP service, a host-rendered dashboard, and companion Skills.</text>
+<g fill="white" stroke="#d4dfda" stroke-width="1.5">
+<rect x="40" y="165" width="270" height="100" rx="10"/>
+<rect x="40" y="290" width="270" height="110" rx="10"/>
+<rect x="40" y="425" width="270" height="110" rx="10"/>
+<rect x="385" y="165" width="340" height="370" rx="12" fill="#eaf3ef" stroke="#8aafa1"/>
+<rect x="805" y="165" width="315" height="150" rx="10"/>
+<rect x="805" y="365" width="315" height="170" rx="10"/>
+<rect x="385" y="600" width="340" height="120" rx="10"/>
+<rect x="805" y="600" width="315" height="120" rx="10"/>
+</g>
+<g font-size="18" font-weight="700">
+<text x="60" y="197">Skill files &amp; plugin caches</text>
+<text x="60" y="322">Installed-plugin discovery</text>
+<text x="60" y="457">Local session events</text>
+<text x="407" y="202">Local Node.js MCP service</text>
+<text x="827" y="199">Codex desktop host</text>
+<text x="827" y="399">Assistant + companion Skills</text>
+<text x="407" y="632">Separate local records</text>
+<text x="827" y="632">Reversible management</text>
+</g>
+<g font-size="15" fill="#54665e">
+<text x="60" y="225">Names, versions, fingerprints</text><text x="60" y="246">Cache presence ≠ installed status</text>
+<text x="60" y="351">Codex CLI / app-server</text><text x="60" y="374">Installed and enabled state</text>
+<text x="60" y="487">Opt-in capture of MCP call attempts</text><text x="60" y="510">Readable logs only; includes failures</text>
+<text x="827" y="230">Activity · Manage · Environment health</text><text x="827" y="255">MCP Apps UI resources + tools</text><text x="827" y="280">Displayed inside the host</text>
+<text x="827" y="430">Setup and inspection instructions</text><text x="827" y="455">Explicit Skill adoption reports</text><text x="827" y="480">Explicit plugin call reports</text><text x="827" y="508">Tools invoked through the host</text>
+<text x="407" y="660">Host calls / assistant reports / adoptions</text><text x="407" y="684">Coverage, cursors, notes and indexes</text><text x="407" y="706">Versioned JSON · locks · atomic writes</text>
+<text x="827" y="660">Preview → authorize → archive / restore</text><text x="827" y="684">User Skills only; recovery records kept</text><text x="827" y="706">No automatic removal</text>
+</g>
+<g font-size="16">
+<text x="407" y="251">01  Inventory &amp; source attribution</text>
+<text x="407" y="293">02  Incremental event capture</text>
+<text x="407" y="335">03  Deduplication &amp; date aggregation</text>
+<text x="407" y="377">04  Structural redundancy candidates</text>
+<text x="407" y="419">05  Read-only health diagnostics</text>
+<path d="M407 447H703" stroke="#c5d9d0"/>
+<text x="407" y="476" font-size="15" font-weight="700" fill="#386657">Evidence sources stay separate.</text>
+<text x="407" y="501" font-size="15" fill="#54665e">Missing records do not mean no use.</text>
+</g>
+<g fill="none" stroke="#64847b" stroke-width="2" marker-end="url(#arrow)">
+<path d="M310 215H385"/><path d="M310 345H385"/><path d="M310 480H385"/>
+<path d="M725 240H805" marker-start="url(#arrow)"/>
+<path d="M805 450H725"/>
+<path d="M555 535V600" marker-start="url(#arrow)"/>
+<path d="M700 535V565H962V600"/>
+</g>
+<g font-size="12" fill="#61716c" text-anchor="middle"><text x="765" y="220">stdio MCP</text><text x="765" y="433">reports</text><text x="623" y="574">local read / write</text></g>
+<text x="40" y="628" font-size="13" font-weight="700" fill="#467365">LOCAL DATA BOUNDARY</text>
+<text x="40" y="654" font-size="14" fill="#54665e">No plugin telemetry or upload endpoint.</text>
+<text x="40" y="677" font-size="14" fill="#54665e">Raw chat text is not stored in ledgers.</text>
+<path d="M40 745H1120" stroke="#d4dfda"/>
+<text x="40" y="770" font-size="13" fill="#61716c">Host policies still apply to MCP results. Installation discovery may contact configured marketplaces through the Codex CLI.</text>
+</g></svg>
