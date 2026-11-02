@@ -17,8 +17,6 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 
 ![v0.4.12 English activity dashboard showing 1,504 real recorded call attempts across 15 days and 8 tool services](docs/media/current-20261102/activity-en.png)
 
-*The maintainer's recorded usage, captured on November 2, 2026 (Asia/Shanghai), in the v0.4.12 English interface. The last 30 days contain **1,504 host-recorded call attempts across 15 days and 8 tool services**. Bars retain the actual daily counts; unobserved dates are not filled with sample activity. This is a local browser render of the application using sanitized aggregate records, not a native Codex screenshot. Coverage is incomplete, and November 2 is a partial day. [Capture scope and verification](docs/media/README.md#current-english-usage--2026-11-02).*
-
 ## What it helps you do
 
 - Compare recorded activity in the last 30 days and over a year. Bars and calendar squares share a selected date; pinned daily rankings list names and counts. Back to all restores the period filters.
