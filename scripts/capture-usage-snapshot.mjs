@@ -45,12 +45,23 @@ try {
  assert.ok(!/[\u3400-\u9fff]/.test(visible),'Untranslated visible text');
  assert.equal(Number(await frame.locator('.activity-metrics strong').first().innerText()),expected);
  const bars=await frame.locator('.activity-bar').evaluateAll(els=>els.map(e=>e.getAttribute('aria-label')));
+ assert.deepEqual((await frame.locator('.calendar-months span').allTextContents()).filter(Boolean),['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']);
+ assert.deepEqual(await frame.locator('.calendar-weekdays span').allTextContents(),['Mon','','Wed','','Fri','','']);
+ const countHelp=frame.locator('.calendar-counting');
+ await countHelp.locator('summary').click();
+ assert.equal(await countHelp.getAttribute('open'),'');
+ assert.match(await countHelp.innerText(),/include failures/);
+ await countHelp.locator('summary').click();
+ await page.mouse.move(1,1);
  const height=await frame.locator('body').evaluate(e=>e.scrollHeight);
  await page.locator('#app').evaluate((e,h)=>e.style.height=`${h+8}px`,height);
  // Crop before rankings: the exported snapshot intentionally omits inventory,
  // so low-use/installed counts below this point are outside the capture scope.
  const boundary=await frame.locator('.entity-panel').boundingBox();
  await page.screenshot({path:path.join(output,'activity-en.png'),clip:{x:0,y:0,width:1100,height:Math.floor(boundary.y)},animations:'disabled'});
+ const calendarBox=await frame.locator('.calendar-scroll').boundingBox();
+ const footerBox=await frame.locator('.calendar-footer').boundingBox();
+ await page.screenshot({path:path.join(output,'calendar-en.png'),clip:{x:calendarBox.x-8,y:calendarBox.y-8,width:calendarBox.width+16,height:footerBox.y+footerBox.height-calendarBox.y+16},animations:'disabled'});
  await page.setViewportSize({width:390,height:1100});
  const overflow=await frame.locator('body').evaluate(e=>e.scrollWidth>innerWidth);
  assert.equal(overflow,false,'Narrow view overflows');

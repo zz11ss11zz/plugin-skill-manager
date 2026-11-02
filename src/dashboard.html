@@ -33,6 +33,18 @@ body{background:var(--paper)}main{max-width:1040px}header{padding-bottom:16px;ma
 .manager-actions button[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}.manager-list details p{overflow-wrap:anywhere}
 .plugin-heading{display:flex;align-items:center;gap:12px}.plugin-heading h3{min-width:0;overflow-wrap:anywhere}.plugin-icon{position:relative;display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;box-sizing:border-box;border:1px solid var(--line-soft);border-radius:10px;background:transparent;color:var(--accent);font-size:17px;font-weight:600;overflow:hidden}.plugin-icon img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}.plugin-icon picture{display:contents}.plugin-icon[data-openai-mark=true] img{transform:scale(2)}
 .environment-health{font-size:13px;margin:16px 0 0}.environment-health>summary{font-weight:600}.environment-health>div{padding:4px 0 12px}.environment-health p{font-size:12px;color:var(--muted);margin:8px 0}.health-checks{max-height:420px;overflow-y:auto;margin:8px 0;padding:0 8px 0 0}.health-checks li{margin:0;padding:12px;border:0;border-bottom:1px solid var(--line-soft);border-radius:0;border-left:3px solid var(--line)}.health-checks li[data-status=ok]{border-left-color:var(--accent)}.health-checks li[data-status=error],.health-checks li[data-status=warning]{border-left-color:#c28a42}.health-checks strong{font-size:12px}.health-feedback:empty{display:none}.health-checks .health-action{color:var(--ink)}
+.activity-calendar{display:grid;grid-template-columns:36px auto;grid-template-rows:24px 102px;min-width:831px;max-width:831px;column-gap:3px}
+.calendar-months{grid-column:2;grid-row:1;font-size:12px}
+.calendar-cells{grid-column:2;grid-row:2}
+.calendar-weekdays{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(7,12px);row-gap:3px;font-size:11px;line-height:12px;color:var(--muted);position:sticky;left:0;background:var(--paper);z-index:1}
+.calendar-footer{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:4px;max-width:831px;line-height:18px}
+.calendar-counting{font-size:12px;color:var(--muted);max-width:100%;margin:0}
+.calendar-counting summary{cursor:pointer;list-style:none;font-weight:400;color:var(--muted)}
+.calendar-counting summary::-webkit-details-marker{display:none}
+.calendar-counting summary:hover{text-decoration:underline;color:var(--accent)}
+.calendar-counting summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.calendar-counting p{max-width:440px;line-height:1.7;margin:8px 0}
+.calendar-footer .activity-legend{flex-wrap:wrap;margin-left:auto}
 </style></head><body><main>
 <header><small>PLUGIN &amp; SKILL MANAGER / LOCAL</small><h1>Plugin &amp; Skill Manager</h1><span id="app-version" style="display:block;font-size:12px;line-height:1.5;color:var(--muted)">版本 / Version <!-- APP_VERSION --></span><p>查看本地技能文件与来源证据。</p><section id="environment-health" aria-label="Environment health"></section></header>
 <section id="workspace-panel"></section>

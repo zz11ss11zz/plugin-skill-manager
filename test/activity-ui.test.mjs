@@ -54,6 +54,14 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   assert.ok(elements.some(e=>e.tag==='h2'&&e.textContent==='插件工具调用'));
   assert.ok(elements.some(e=>e.tag==='p'&&e.textContent?.includes('2 次工具调用尝试')));
   render.setLocale('en');
+  const calendar=elements.find(e=>e.className==='activity-calendar');
+  assert.deepEqual(Array.from(calendar.children[0].children,e=>e.textContent).filter(Boolean),['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']);
+  assert.deepEqual(Array.from(calendar.children[2].children,e=>e.textContent),['Mon','','Wed','','Fri','','']);
+  // The existing calendar starts on Monday; verify labels against real dates.
+  calendar.children[1].children.forEach((cell,index)=>{
+    if(cell.title)assert.equal((new Date(cell.title.slice(0,10)+'T00:00:00Z').getUTCDay()+6)%7,index%7);
+  });
+  assert.equal(elements.find(e=>e.className==='calendar-counting').children[0].textContent,'How we count activity');
   assert.ok(elements.some(e=>e.tag==='h2'&&e.textContent==='Plugin tool calls'));
   assert.ok(elements.some(e=>e.className==='ranking-detail'&&e.textContent==='Recorded plugin tool calls'));
   assert.ok(elements.some(e=>e.tag==='p'&&e.textContent?.includes('2 recorded tool call attempts')));
@@ -182,7 +190,9 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   const sources=elements.find(e=>e.className==='activity-tabs source-tabs');
   assert.equal(quality.hidden,true);
   assert.equal(quality.children.length,0);
-  assert.match(visibleText(sources),/宿主自动采集.*助手主动上报.*分开统计/);
+  assert.match(visibleText(sources),/宿主自动采集.*助手主动上报/);
+  assert.equal(sources.children.length,2);
+  assert.ok(sources.children.every(e=>e.tag==='button'));
   const metricValues=()=>elements.find(e=>e.className==='activity-metrics').children.map(e=>visibleText(e));
   assert.match(metricValues()[0],/2/);
   elements.find(e=>e.tag==='button'&&e.textContent==='助手主动上报').listeners.click();
@@ -190,7 +200,7 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   assert.equal(quality.hidden,true);
   assert.equal(quality.children.length,0);
   assert.equal(daily.hidden,true,'Source switching clears date selection');
-  render.setLocale('en'); assert.match(visibleText(sources),/Host auto-capture.*Assistant reports.*Counted separately/);
+  render.setLocale('en'); assert.match(visibleText(sources),/Host auto-capture.*Assistant reports/);
   assert.ok(!/[\u3400-\u9fff]/.test(visibleText(sources)));
   elements.find(e=>e.tag==='button'&&e.textContent==='Host auto-capture').listeners.click();
   assert.match(metricValues()[0],/2/);

@@ -1,6 +1,6 @@
 {
   "name": "plugin-skill-manager",
-  "version": "0.4.12",
+  "version": "0.4.14",
   "private": true,
   "type": "module",
   "description": "Inventory plugins and Skills, track usage, and identify redundancy for user-approved cleanup.",

@@ -24,7 +24,6 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     button.type = 'button'; sourceTabs.append(button);
     button.addEventListener('click', () => { callSource = source; pinnedDate = null; render(); });
   }
-  const sourceHint = node('span', t('分开统计'), 'activity-caption'); sourceTabs.append(sourceHint);
   const quality = node('div', undefined, 'activity-quality'); quality.setAttribute('role', 'status');
   const caption = node('p', undefined, 'activity-caption'), scroll = node('div', undefined, 'calendar-scroll');
   const calendar = node('div', undefined, 'activity-calendar'); scroll.append(calendar);
@@ -48,6 +47,10 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
   const legend = node('div', undefined, 'activity-legend'); legend.append(node('span', t("少")));
   for (let i = 0; i < 5; i++) legend.append(node('span', undefined, `heat-swatch level-${i}`));
   legend.append(node('span', t("多")), node('span', t("斜线：无覆盖 / 未查询")));
+  const calendarFooter = node('div', undefined, 'calendar-footer');
+  const counting = node('details', undefined, 'calendar-counting');
+  const countingTitle = node('summary'), countingText = node('p');
+  counting.append(countingTitle, countingText); calendarFooter.append(counting, legend);
   const rankings = node('div', undefined, 'activity-rankings');
   const entityPanel = node('section', undefined, 'entity-panel');
   const entityHeading = node('div', undefined, 'entity-heading'), entityTitle = node('h3');
@@ -63,7 +66,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
   const entityTip = node('p', undefined, 'activity-tooltip'); entityTip.setAttribute('role', 'status');
   entityPanel.append(entityHeading, entityCaption, entityGrid, entityTip);
   const note = node('p', undefined, 'activity-note');
-  root.append(heading, sourceTabs, quality, caption, metrics, recent, yearHeading, scroll, legend, tooltip, dailyPanel, entityPanel, rankings, note);
+  root.append(heading, sourceTabs, quality, caption, metrics, recent, yearHeading, scroll, calendarFooter, tooltip, dailyPanel, entityPanel, rankings, note);
   function renderGrid(grid, tip, ranked, label) {
     grid.replaceChildren();
     tip.textContent = t("悬停或聚焦格子查看名称与次数。");
@@ -88,7 +91,6 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     sourceTabs.hidden = !calling || !current.pluginCalls?.sources;
     sourceTabs.setAttribute('aria-label', t('记录来源'));
     hostButton.textContent = t('宿主自动采集'); reportButton.textContent = t('助手主动上报');
-    sourceHint.textContent = t('分开统计');
     hostButton.setAttribute('aria-pressed', String(callSource === 'host-event'));
     reportButton.setAttribute('aria-pressed', String(callSource === 'assistant-report'));
     quality.hidden = calling;
@@ -120,13 +122,17 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
     caption.hidden = view.ready;
     caption.textContent = view.ready ? '' : adopting ? t("采用记录暂不可读取，请重新打开管理器。") : t("插件调用记录暂不可读取。");
     calendar.replaceChildren();
+    countingTitle.textContent = locale === 'en' ? 'How we count activity' : '了解活动统计方式';
+    countingText.textContent = locale === 'en'
+      ? 'Plugin call attempts include failures. Host auto-capture and assistant reports are separate views and are not added together. Skill adoptions are explicitly reported by the assistant and counted separately. Missing coverage is unknown, not zero activity.'
+      : '插件调用尝试包括失败调用。宿主自动采集与助手主动上报分开展示，不相加。Skill 采用由助手主动记录，独立统计。未覆盖日期代表未知，不等于零活动。';
     const dates = calendarDays(year), columns = dates.length / 7;
     calendar.style.setProperty('--weeks', columns);
     const months = node('div', undefined, 'calendar-months');
     let lastMonth = '';
     for (let col = 0; col < columns; col++) {
       const date = dates.slice(col * 7, col * 7 + 7).find(Boolean), month = date?.slice(5, 7);
-      months.append(node('span', month !== lastMonth ? t("{0}月", Number(month)) : '')); lastMonth = month;
+      months.append(node('span', month !== lastMonth ? (locale === 'en' ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(month)-1] : t("{0}月", Number(month))) : '')); lastMonth = month;
     }
     const cells = node('div', undefined, 'calendar-cells'); cells.setAttribute('aria-label', t("{0} 年每日{1}", year, label));
     const maximum = Math.max(1, ...view.days.values());
@@ -192,6 +198,13 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
       buttons.push(button); cells.append(button);
     }
     calendar.append(months, cells);
+    const weekdays = node('div', undefined, 'calendar-weekdays');
+    weekdays.setAttribute('aria-hidden', 'true');
+    for (let row = 0; row < 7; row++) {
+      const labels = locale === 'en' ? ['Mon', '', 'Wed', '', 'Fri', '', ''] : ['周一', '', '周三', '', '周五', '', ''];
+      weekdays.append(node('span', labels[row]));
+    }
+    calendar.append(weekdays);
     recentChart.replaceChildren();
     recentChart.setAttribute('aria-label', t("每日活动柱图"));
     recentChart.style.setProperty('--days', Math.max(1,recentView.dates.length));
@@ -336,6 +349,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory) {
   }
   const update = inventory => { current = inventory; render(); };
   update.setLocale = next => {
+    locale = next;
     t = translator(next);
     pluginButton.textContent = t('插件');
     tabs.setAttribute('aria-label', t('活动类型'));

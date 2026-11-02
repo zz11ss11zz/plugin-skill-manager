@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.4.14 — 2026-11-02
+
+- Remove the separate-counts hint beside the two activity-source buttons and the recent-activity subtitle in both languages.
+- Remove the English README screenshot caption and synchronize source and the private installed plugin.
+
+## 0.4.13 — 2026-11-02
+
+- Use Jan–Dec month headings and aligned Mon/Wed/Fri weekday labels in the English activity calendar, with Chinese equivalents and preserved Monday-first dates.
+- Add an inline How we count activity disclosure beside the legend, explaining separate evidence sources and incomplete coverage.
+
 ## 0.4.12 — 2026-11-01
 
 - Replace sidebar and plugin icons with the approved charcoal outline wrench, retaining the Plugin & Skill Manager name and existing data/configuration.

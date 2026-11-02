@@ -1,5 +1,20 @@
 # 验收记录
 
+## 2026-11-02 v0.4.14 three-way synchronization
+
+- Removed the source-button trailing hint and recent-activity subtitle in both locales; the English README screenshot caption is removed. Source buttons retain separate data selection. Calendar labels and the expandable counting explanation are preserved.
+- Six UI/localization checks passed after removing a stale render reference. Five protocol, package and installed-launcher checks passed; the final bundle's backend matches installed 0.4.13 except version.
+- Guarded private update read-back confirms version 0.4.14, 17 retained files, unchanged MCP configurations and Skills, and PRIVATE / USER scope. Official app-server installation succeeded.
+- A fresh host connection returned 0.4.14 and all 13 tools. Dashboard SHA256 dd2e56fa8d2ded60d268213a453f381c21e36e7d9db35ad8223540af1d31219c matches the local build. The approved icon hash is unchanged.
+- Evidence: parent outputs/sync-20261102-v0414. Existing open panels were not force-restarted; native visual rendering is not claimed. GitHub source synchronization is distinct from a new public Release archive.
+
+## 2026-11-02 Calendar labels and counting disclosure (local source)
+
+- English month headings use Jan–Dec. Weekday labels use Mon/Wed/Fri (周一/周三/周五 in Chinese), aligned to the existing Monday-first date grid. Locale switching updates all new labels.
+- Added an inline How we count activity disclosure beside the legend, explaining separate host/assistant sources, failed call attempts, explicit Skill adoptions and unknown coverage.
+- Eleven relevant activity/UI tests passed, including month labels, weekday/date alignment, locale switching and existing selection/coverage behavior.
+- After the user authorized running the checks, build and Chromium capture passed. English Jan–Dec labels, weekday labels, the counting disclosure open/close interaction, unchanged 1,504-call aggregate, zero browser errors and 390 px page-overflow checks passed. Wide calendar and narrow captures were inspected; the disclosure margin was corrected and re-rendered to align with the legend. Evidence: parent outputs/calendar-labels-20261102. No installed update or GitHub publication is claimed for this change.
+
 ## 2026-11-02 English README real usage and architecture
 
 - Replaced the English README's v0.4.0 synthetic illustration with an actual v0.4.12 browser render from a sanitized aggregate snapshot captured at 09:45:37 Asia/Shanghai. Host-event source: 1,504 call attempts, 15 dates with records, 8 tool-service identities; coverage is incomplete and the current day partial. No synthetic activity was added.

@@ -84,3 +84,12 @@ Product Hunt、npm/MCP Registry 和额外独立站暂不列入首轮：先评估
 - 项目事实：[第三方状态](distribution/THIRD_PARTY_STATUS.md)、[目录材料](distribution/THIRD_PARTY_LISTING.md)、[第三方安装](distribution/THIRD_PARTY_INSTALL.md)、[MCPB 验证及阻塞](distribution/MCPB.md)、[验证记录](VALIDATION.md)。旧 [公开发布计划](PUBLIC_RELEASE_PLAN.md) 保留原任务历史。
 - 本轮在线核验：[GitHub v0.4.6](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.6)、[远端分发状态](https://github.com/zz11ss11zz/plugin-skill-manager/blob/main/docs/distribution/THIRD_PARTY_STATUS.md)、[skills.sh FAQ](https://www.skills.sh/docs/faq)、[Show HN Guidelines](https://news.ycombinator.com/showhn.html)。Show HN 要求提供可实际试用的作品并方便用户体验，不组织拉票。
 - 下一次优先从 **D1 搜索基线 → D2/D3 可发现性与安装** 接续，A1/A2 为配套材料工作；已有 Glama 条目执行维护，Smithery 保持有条件恢复，agentskill.sh 保持暂停。已准备、已提交、已公开、已安装验证四类状态分别记录；每次实际推进后更新表格及渠道证据。
+
+### 2026-11-01 网络修复与 skills.sh 收录进展
+
+- 用户要求解决线上发现、远程安装和分支清理。确认 api.github.com 可直连；GitHub 网页/Git 直连失败。本机已有 verge-mihomo 代理监听 127.0.0.1:7897，经其访问 GitHub 成功。只在本次命令中配置 Git/HTTP 代理，未修改全局 Git 或系统代理。
+- 通过既有 Git Credential Manager 身份调用 GitHub API，再核实 PR #24 已合并、来源分支未新增提交后，成功删除 codex/skills-sh-discovery；GitHub 插件复查远程只剩 main。凭据未输出或落盘。同步仓库仅刷新远程引用，不覆盖其他任务工作。
+- 官方 skills@1.7.4 已从公开 GitHub 仓库实际克隆并安装 skill-manager 成功，锁文件确认 source=zz11ss11zz/plugin-skill-manager、sourceType=github、skillPath=skills/skill-manager/SKILL.md。安装目录为 .work/skills-sh-publisher-install-20261101。
+- 本次为一次作者侧实际安装，保留 CLI 默认安装上报以走官方收录路径，不计为外部用户增长；与此前关闭遥测的隔离测试区分。不重复安装刷量，不直接伪造遥测请求。
+- skills.sh 详情页已实际显示 Skill 正文、安装命令、First Seen Today，不再是 404/不可用：https://skills.sh/zz11ss11zz/plugin-skill-manager/skill-manager 。首次安装后检索仍未命中，详情页收录与搜索索引分开验收；不承诺排名。
+- 原始安装日志、skills-lock.json 和详情页证据保存在上述安装目录。后续只读复查搜索索引；不再因搜索延迟重复安装。

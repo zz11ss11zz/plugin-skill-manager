@@ -1,5 +1,13 @@
 # skills.sh discovery and installation
 
+## Latest result: 2026-11-01 network recovery
+
+The published [skill-manager listing](https://skills.sh/zz11ss11zz/plugin-skill-manager/skill-manager) now renders the Skill body, installation command and “First Seen Today”; it no longer displays the unavailable message. The initial search recheck after installation still returned no owner-scoped result. Listing availability and search indexing remain separate checks.
+
+Remote GitHub installation succeeded once through the existing local proxy, using the unmodified skills@1.7.4 CLI and Node 22.20.0. The lockfile records the GitHub repository and the correct Skill path. This was one author-side installation with the CLI's default reporting, not external-user adoption or repeated installs. Earlier telemetry-disabled tests remain excluded from adoption claims.
+
+The network fix was process-scoped: Git was given the already-running local proxy, without changing global Git or system settings. The merged source branch was deleted through the GitHub API using existing Git authentication; remote and checked local branch lists now contain only main. Other tasks' uncommitted work was preserved. Earlier snapshots below are historical and are superseded by this result for remote installation and detail-page availability.
+
 Checked: 2026-10-30 (Asia/Shanghai). This is a discovery snapshot, not a claim of listing or ranking.
 
 ## Follow-up: 2026-11-01
