@@ -568,3 +568,46 @@
 - Uploaded seven changed files as a guarded private account update. Read-back retained 17 files, PRIVATE / USER scope, both MCP configurations, both Skills and existing manifest metadata outside version/release notes.
 - Official app-server plugin/install completed. Installed runtime and image hashes match the prepared package. A fresh host connection returned version 0.4.12, all 13 tools and the exact approved sidebar icon hash; dashboard SHA256 e054fe6abe7b33186983a79a14e3442488e1d92ebaac6a69e2e8b161a3d046a3.
 - Evidence and reproducible scripts: parent outputs/sidebar-icon-install-20261101. Existing desktop connections were not force-restarted; native visual rendering and directory caches were not verified. This batch updated local source and the private installed plugin; no GitHub Release or public-directory submission was performed.
+
+## 2026-11-02 Private v0.4.15 user-installed redundancy scope
+
+- Exclude system Skills, OpenAI-prefixed Skill/plugin identities and OpenAI marketplaces from redundancy reports; only confirmed installed non-OpenAI plugin families and standalone user-root Skills qualify. Preserve full inventory and existing activity records. Unconfirmed caches are excluded; old versions of confirmed installed user plugin families remain reviewable.
+- Different Skills in the same plugin package no longer produce document/name/description redundancy relations with each other. Filter sources and within-package lexical pairs before overlap limits. Candidate summaries show Skill name, plugin identity/version/marketplace or standalone path.
+- Windows / Node 20.18.1: SKILL_MANAGER_TEST_CODEX=1 npm test passed 105 tests, no failures/skips. Initial isolated copy missed skills/ and caused three packaging tests to fail; after copying the unchanged source directory the complete regression passed.
+- Four Chromium synthetic UI checks passed: Chinese 1100px, English dark 1100px, Chinese 380px iframe, English plugins 1100px. Inspected narrow Chinese screenshot: readable identities, wrapped paths and no horizontal overflow.
+- Read-only actual installed inventory: 57 excluded Skill instances, 15 eligible user Skill instances; zero Skill/plugin redundancy groups. The 17 openai-templates components are absent from the report. This does not establish complete semantic non-overlap.
+- Guarded three-file update saved private USER plugin release pluginrel_6ae827ac9b6481918c274e6f013d67ff, version 0.4.15. Remote read-back retained all 17 files, MCP configurations, bundled Skills, and PRIVATE/USER audience. No public GitHub publication was requested or performed. Native rendering of previously opened panels is not claimed.
+
+- Official app-server plugin/install succeeded. Installed server SHA256 matches the prepared update. A fresh host connection returned version 0.4.15, all 13 tools and dashboard SHA256 0e0be5bc5a4b1b231f771e7d1fbe65128ff970e6f510db96a581ccb37c8dc90e. Existing desktop connections were not force-restarted.
+
+## 2026-11-02 Private v0.4.16 inactivity and internal components
+
+- Corrected v0.4.15's overbroad curated-market exclusion. Confirmed installed third-party apps remain eligible; known official package identities and bundled/runtime sources remain protected.
+- Added bounded report-only SKILL.md/WORKFLOW.md discovery, parent identities, dependency-aware archive gating, and optional bilingual task-vocabulary retrieval clues. Inventory registration remains root-scoped. Added one-calendar-month inactivity review, unknown/short-history and unavailable states, uniquely matched plugin catalog aliases, and hashed first-observation persistence without inferring installation or continuous coverage.
+- Final Windows / Node 20.18.1 SKILL_MANAGER_TEST_CODEX=1 npm test passed 111 tests, zero failures/skips. Six synthetic Chromium checks passed, including Chinese narrow and English inactivity cards. Inspected Chinese narrow structural and inactivity screenshots.
+- Read-only public source audit: Nature 24 canonical SKILL.md entries; ARS one canonical router plus six WORKFLOW.md modules. ARS standalone/plugin mirrors each have 2657 files with identical relative paths and blob hashes. All 30 Nature/workflow entrypoints differ. Functional overlap is documented with input/output limits; no third-party scripts executed or installed. Evidence: outputs/redundancy-v0416/repo-audit.json and the Chinese audit report; upstream text retained in .work/redundancy-v0416/audit-sources.json.
+- Actual installed 0.4.16 returned 10 eligible plugins, 15 user root Skills, five internal components, three Skill overlap groups and zero plugin version groups. Calculator is insufficient-history with firstSeen 2026-11-02T07:15:16.359Z, not confirmed inactive. Existing records/settings and all 17 account package files retained.
+- Guarded private USER update saved release pluginrel_6ae8382a51b88191b967fdb98c11a9cf. Official plugin/install succeeded; installed bundle hash matches the prepared update. A fresh host connection discovered all 13 tools and dashboard SHA256 041896c3e79086a3b4303e8d92f543dfa1080e47b05b0c4b5ce8595cb606e35c. Native rendering of already-open panels was not force-restarted or verified. No GitHub publication or removal performed.
+
+## 2026-11-02 Private v0.4.17 function comparison cards
+
+- Replaced name-list Skill group summaries with function-labelled frames, visible horizontal purpose/source cards, and a separate evidence/recommendation area. Internal suite identity, plugin identity, source type, document-declared author and expandable paths remain distinct. Detailed comparisons and existing management actions remain available.
+- Contextual advice distinguishes figure design/quality checks from Matplotlib implementation, suite orchestration from specialist review, and manuscript citations from reference ingestion. These are review suggestions, not equivalence or removal decisions. Candidate matching and inactivity thresholds are unchanged.
+- Windows / Node 20.18.1: complete SKILL_MANAGER_TEST_CODEX=1 npm test passed 111 tests, zero failures/skips. Nine Chromium synthetic cases passed, including three cards at 1100px and stacked 380px, English dark mode, inactivity and plugin views. Inspected wide/narrow synthetic screenshots and an actual local two-Skill plotting card screenshot.
+- Guarded private USER update saved release pluginrel_6ae842a0a9c0819199e0b05b25add37e; official plugin/install completed. Remote read-back retained 17 package files and both version 0.4.17 manifests, with PRIVATE/USER scope preserved. No deletion, public release or forced restart of existing desktop panels.
+- Reproducible evidence: outputs/redundancy-v0417; source changes in src/management-ui.mjs, src/dashboard.html, src/inventory.mjs and src/redundancy.mjs; existing interaction and browser acceptance checks updated.
+
+## 2026-11-02 Private v0.4.18 installation-unit principles
+
+- Added packaged skills/skill-manager/references/redundancy-principles.md, linked by the manager Skill and repository AGENTS.md. Author, upstream collection and actual installation parent remain distinct; independent installations are not exempted by author/repository identity.
+- All internal parent/child/sibling relations in one installation unit are excluded from mutual candidate edges, while cross-installation component comparisons remain. Explicit task-routing clauses are complementary-role evidence; the actual scientific-visualization/matplotlib pair no longer appears merely for shared plotting capability. Exact document/name comparisons remain distinct across independent units.
+- Complete Windows / Node 20.18.1 regression passed 112 tests without failures/skips; nine Chromium checks passed. Targeted tests cover internal duplicate modules versus external copies, same-author independent functions, and explicit routing complementarity. Initial new test reused a document fingerprint and was corrected to represent independent differing documents.
+- Saved private USER release pluginrel_6ae847e304d481919bd30a61b13763e0; remote read-back contains 18 files, including the new principles reference. Official plugin/install succeeded. Installed principles SHA256 matches source; installed bundle matches update and advertises 0.4.18 / 13 tools.
+- Actual installed report has one remaining Skill candidate group; the plotting pair and ARS internal pair are excluded. Presence and usage records retained. A fresh host served dashboard SHA256 d9268ed91f6de189510bfebe2abc83fe6976040e3c724f2fa6f7e64035ade333. No forced restart of old panels, no deletion and no public release. Evidence: outputs/redundancy-v0418 and .work/redundancy-v0418.
+
+## 2026-11-02 v0.4.19 unified release candidate
+
+- Packages the same-task substitutability principle, distinguishing primary outputs from shared auxiliary steps. No semantic-classifier behavior is claimed; automatic lexical retrieval remains separate.
+- Synchronizes private 0.4.15–0.4.18 source changes with GitHub and prepares matching distribution assets. Release checks are recorded after execution.
+
+- Release-candidate checks: 111 default tests passed with zero failures; the opt-in isolated CLI test separately passed (112 total). Nine Chromium redundancy checks passed. Complete distribution 0.4.19 built successfully.

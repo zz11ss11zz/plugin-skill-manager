@@ -63,7 +63,7 @@ test('same-name and identical-document components are deduplicated and document 
 
 test('plugin candidates compare source/version independently of shared Skill documents',async t=>{
   const f=await fixture(t);
-  f.inventory.skills.forEach((s,i)=>s.owner={directory:i?'second':'first',name:i?'second':'first',marketplace:'market',version:'1'});
+  f.inventory.skills.forEach((s,i)=>{s.source='插件缓存技能';s.owner={directory:i?'second':'first',name:i?'second':'first',marketplace:'market',version:'1'};s.pluginStatus={installedVersions:['2']};});
   let report=await redundancyReport(f.inventory);assert.equal(report.plugins.length,0);
   f.inventory.pluginRegistry={plugins:[{id:'first@market',version:'2',enabled:true},{id:'first@market',version:'2',enabled:false}]};
   report=await redundancyReport(f.inventory);
@@ -72,6 +72,40 @@ test('plugin candidates compare source/version independently of shared Skill doc
   assert.equal(g.members.find(m=>m.version==='1').installed,false);
   assert.equal(g.members.find(m=>m.version==='2').enabled,null);
   assert.equal(g.members.find(m=>m.version==='2').installRecords,2);
+});
+
+test('official/system sources and uninstalled caches never enter reports or directory comparisons',async t=>{
+  const f=await fixture(t,8);
+  const [user,agents,system,officialMarket,officialName,officialSkill,cache,unknown]=f.inventory.skills;
+  agents.source='用户 .agents 技能';system.source='系统技能';
+  for (const s of [officialMarket,officialName,cache]) s.source='插件缓存技能';
+  officialMarket.owner={directory:'openai-templates',marketplace:'openai-curated-remote',version:'1'};
+  officialName.owner={directory:'OpenAI-demo',marketplace:'custom',version:'1'};
+  officialSkill.name='openai-local-copy';cache.owner={directory:'cache-only',marketplace:'custom',version:'1'};
+  unknown.source='未知';
+  f.inventory.pluginRegistry={plugins:[
+    {id:'openai-templates@openai-curated-remote',version:'1'},{id:'openai-templates@openai-curated-remote',version:'2'},
+    {id:'OpenAI-demo@custom',version:'1'},{id:'OpenAI-demo@custom',version:'2'}]};
+  const report=await redundancyReport(f.inventory);
+  assert.deepEqual(new Set(report.skills[0].members.map(m=>m.id)),new Set([user.id,agents.id]));
+  assert.equal(report.scope.excludedSkills,6);assert.equal(report.limits.directoriesScanned,2);
+  assert.equal(report.plugins.length,0);
+  assert.equal(report.limits.overlap.eligibleInstances,2);
+});
+
+test('Skills within one installed plugin package do not create candidates, while other versions remain comparable',async t=>{
+  const f=await fixture(t,3);
+  f.inventory.skills.forEach(s=>{s.source='插件缓存技能';s.owner={name:'custom',directory:'custom',marketplace:'personal',version:'1'};});
+  f.inventory.pluginRegistry={plugins:[{id:'custom@personal',version:'1',enabled:true}]};
+  let report=await redundancyReport(f.inventory);
+  assert.equal(report.skills.length,0);assert.equal(report.plugins.length,0);assert.equal(report.limits.directoriesScanned,0);
+  // Distinct descriptions in the same package must also be excluded before the overlap pair limit.
+  f.inventory.skills.forEach((s,i)=>{s.name=`template-${i}`;s.fingerprint=String(i);s.description='create template retained reference spreadsheet reporting dashboard';});
+  report=await redundancyReport(f.inventory);assert.equal(report.skills.length,0);assert.equal(report.limits.overlap.totalPairs,0);
+  f.inventory.skills[2].owner.version='2';
+  report=await redundancyReport(f.inventory);
+  assert.equal(report.skills.length,1);assert.equal(report.plugins.length,1);
+  assert.ok(report.skills[0].relations.every(r=>r.ids.includes(f.inventory.skills[2].id)));
 });
 
 test('activity is instance-scoped and neither record spans nor complete flags prove continuous coverage',async t=>{

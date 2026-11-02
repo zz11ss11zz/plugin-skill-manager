@@ -4,6 +4,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { pathToFileURL } from 'node:url';
 import { scanInventory } from './inventory.mjs';
 import { redundancyReport } from './redundancy.mjs';
+import { Presence } from './presence.mjs';
 import { loadPluginStatus, applyPluginStatus } from './plugins.mjs';
 import { UsageIndex } from './usage-index.mjs';
 import { ArchiveManager } from './archive.mjs';
@@ -18,7 +19,7 @@ import { diagnoseEnvironment, runDoctor } from './environment-health.mjs';
 import { AutoCapture } from './auto-capture.mjs';
 import { CaptureController } from './capture-settings.mjs';
 
-export function createServer(roots, { queryPlugins = loadPluginStatus, usageIndex = new UsageIndex(), archiveManager = new ArchiveManager({ roots }), skillNotes = new SkillNotes(), adoptions = new Adoptions(), pluginCalls = new PluginCalls(), captureController = null, diagnosticOptions = {} } = {}) {
+export function createServer(roots, { queryPlugins = loadPluginStatus, usageIndex = new UsageIndex(), archiveManager = new ArchiveManager({ roots }), skillNotes = new SkillNotes(), adoptions = new Adoptions(), pluginCalls = new PluginCalls(), presence = new Presence(), captureController = null, diagnosticOptions = {} } = {}) {
 const autoCapture = captureController;
 let pluginSnapshot = null, usageSnapshot = null;
 let initialPluginRead;
@@ -106,9 +107,9 @@ server.registerTool('configure_auto_capture', {
 });
 server.registerTool('check_plugin_status', {
   title: '核对插件安装状态',
-  description: '通过官方 app-server plugin/installed 核对安装状态。includeReport=true 时只读比较冗余候选的技能目录与已有记录，days 为 30/60/90；不执行脚本、不拉取远程市场目录、不扫描活动日志。',
+  description: '通过官方 app-server plugin/installed 核对安装状态。includeReport=true 时比较用户技能及内部组件，读取已有使用记录，保存首次观察时间以评估超过一个月无记录的项目；days 为 30/60/90。不执行脚本、不拉取远程市场目录、不扫描活动日志。',
   inputSchema: { includeReport: z.boolean().optional(), days: z.union([z.literal(30), z.literal(60), z.literal(90)]).optional() },
-  annotations: { readOnlyHint: !autoCapture, destructiveHint: false, openWorldHint: true },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
 }, async ({ includeReport = false, days = 90 }) => {
   try {
     let status, pluginStatusFresh = true;
@@ -116,9 +117,9 @@ server.registerTool('check_plugin_status', {
     catch (error) { if (!includeReport) throw error; pluginStatusFresh = false; }
     const inventory = await inventoryWithArchives({ includeActivity: false, resolvePlugins: false });
     if (includeReport) {
-      const period = { from: new Date(Date.now() - days * 86400000).toISOString(), timeZone: 'UTC' };
+      const period = { timeZone: 'UTC' }; // Last-known usage must not disappear outside the display window.
       const records = await Promise.allSettled([adoptions.summary(period), pluginCalls.summary(period)]);
-      inventory.redundancy = await redundancyReport(inventory, { days, adoptions: records[0].status === 'fulfilled' ? records[0].value : null, calls: records[1].status === 'fulfilled' ? records[1].value : null });
+      inventory.redundancy = await redundancyReport(inventory, { days, presence, adoptions: records[0].status === 'fulfilled' ? records[0].value : null, calls: records[1].status === 'fulfilled' ? records[1].value : null });
       inventory.redundancy.pluginStatusFresh = pluginStatusFresh;
     }
     return { content: [{ type: 'text', text: pluginStatusFresh ? `已读取 ${status.plugins.length} 条插件安装记录；未匹配缓存不等于未安装。` : '插件安装状态核验失败；已返回本地候选比较，旧状态可能过期。' }], structuredContent: inventory };

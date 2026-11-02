@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.4.19 — 2026-11-02
+
+- Unify local source, private plugin and GitHub distributions, including private 0.4.15–0.4.18 changes.
+- Require same-task substitutability and comparable primary outputs in assessment principles; auxiliary-step overlap alone is insufficient.
+- Preserve the distinction between packaged review instructions and automatic lexical candidate retrieval.
+
 ## 0.4.14 — 2026-11-02
 
 - Remove the separate-counts hint beside the two activity-source buttons and the recent-activity subtitle in both languages.

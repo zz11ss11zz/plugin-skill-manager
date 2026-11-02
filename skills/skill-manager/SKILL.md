@@ -9,6 +9,8 @@ Use the connected Plugin & Skill Manager tools when available. Tool namespace pr
 
 ## Inspect and explain
 
+When assessing redundancy or explaining source/ownership, read [redundancy assessment principles](references/redundancy-principles.md). Distinguish document author, verified upstream collection, actual installation parent and individual capability. Compare independent installation units, not internal siblings; shared author/repository alone is neither evidence of redundancy nor an exemption. Explicit role separation can indicate complementary capabilities rather than redundant functions.
+
 - `open_skill_manager` opens the panel and scans the inventory. A cached plugin is not proof of installation or enablement. Use `check_plugin_status` when the user requests verification; it invokes the CLI and may consult configured marketplaces.
 - `query_usage` reads the existing index. Use offset-bearing ISO timestamps with an inclusive start and exclusive end; convert the user's local dates and timezone. Skill queries do not import new Skill signals. When automatic plugin capture is enabled, inventory/query refreshes also receive host MCP events. Invoke `import_usage` when the user requests refreshing historical signals, and report pending bytes, read issues and coverage.
 - Keep Skill adoptions, plugin call attempts, historical mentions and read requests distinct. A read request is not proof of adoption; a failed tool attempt still counts as an attempt. Missing/unreadable records and uncovered dates are unknown, not zero. Same-name file instances and ambiguous attribution must remain separate.

@@ -9,7 +9,7 @@ const MAX_FILE = 1024 * 1024;
 const digest = value => createHash('sha256').update(value).digest('hex');
 const inside = (root, target) => { const rel = path.relative(root, target); return rel === '' || (!rel.startsWith('..' + path.sep) && rel !== '..' && !path.isAbsolute(rel)); };
 
-export function compareInstances(skills) {
+export function compareInstances(skills, overlapOptions) {
   const fingerprints = new Map(), names = new Map();
   for (const skill of skills) {
     for (const [map, key] of [[fingerprints, skill.fingerprint], [names, skill.name]]) {
@@ -18,7 +18,7 @@ export function compareInstances(skills) {
     }
   }
   return {
-    descriptionOverlap: descriptionOverlap(skills),
+    descriptionOverlap: descriptionOverlap(skills, overlapOptions),
     identicalDocuments: [...fingerprints.values()].filter(group => group.length > 1).map(group => ({ fingerprint: group[0].fingerprint, ids: group.map(s => s.id) })),
     nameConflicts: [...names.entries()].filter(([, group]) => new Set(group.map(s => s.fingerprint)).size > 1).map(([name, group]) => ({ name, ids: group.map(s => s.id) })),
   };
@@ -63,6 +63,7 @@ export async function scanInventory(roots = defaultRoots()) {
       name: meta.name || path.basename(dir), description: meta.description || '元数据无效，请查看扫描问题。',
       source, state: owner ? '缓存候选，安装/启用状态未核实' : '本地存在，启用状态未核实',
       fingerprint: digest(raw), owner, evidence: '本地 SKILL.md 文件',
+      declaredAuthor: typeof (meta.metadata?.['skill-author'] ?? meta.metadata?.author ?? meta.author) === 'string' ? (meta.metadata?.['skill-author'] ?? meta.metadata?.author ?? meta.author).slice(0,160) : null,
     });
   }
   async function skillRoot(root, source, owner = null) {

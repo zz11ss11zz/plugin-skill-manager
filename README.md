@@ -97,7 +97,7 @@ node install.mjs uninstall
 
 ## Environment health
 
-The published v0.4.11 package includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**: a manual dashboard check and an independent `node scripts/doctor.mjs` command for dependencies, installation, data and capture problems. A failed check preserves the other results and suggests next steps. The image above shows v0.4.14. Current main source and the verified private installation are v0.4.14, retaining the outline wrench artwork, updating calendar labels and simplifying activity captions. The public complete download remains v0.4.11; see [validation](docs/VALIDATION.md) for the boundaries.
+The v0.4.19 source, private account plugin and complete download packages are synchronized. Includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**, grouped redundancy reports, installation-unit boundaries and packaged assessment principles. Functional-candidate retrieval still uses lexical/task clues and requires review; shared auxiliary steps alone do not establish redundancy. The screenshot above was captured with v0.4.14. See [validation](docs/VALIDATION.md) for verified behavior and limits.
 
 ## Demo and feedback
 

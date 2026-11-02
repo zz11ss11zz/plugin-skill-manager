@@ -2,17 +2,48 @@ import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { treeSnapshot } from './archive.mjs';
+import { compareInstances } from './inventory.mjs';
+import { discoverComponents } from './skill-components.mjs';
+import { inactivityReport } from './inactivity.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
+const protectedName = value => /^openai/i.test(value || '');
+const protectedPlugin = (id, marketplace = '') => {
+  const [name, market = marketplace] = String(id || '').split('@');
+  const official = new Set(['google-drive','notion','pages','plugin-creator','plugin-management','sites','work-pets','openai-templates']);
+  return protectedName(name) || ['openai-bundled','openai-primary-runtime'].includes(market) || (market==='openai-curated-remote'&&official.has(name));
+};
+const ownerId = owner => `${owner.directory || owner.name}@${owner.marketplace}`;
+const packageId = skill => skill.owner ? `${ownerId(skill.owner)}:${skill.owner.version}` : null;
+const installationUnit = skill => packageId(skill) || skill.parentSkillId || skill.id;
 // A bounded, read-only comparison. No execution, external fetches or dependency inference.
-export async function redundancyReport(inventory, { adoptions = null, calls = null, days = 90, now = Date.now(), snapshot = treeSnapshot } = {}) {
-  const skills = inventory.skills || [], byId = new Map(skills.map(s => [s.id, s]));
+export async function redundancyReport(inventory, { adoptions = null, calls = null, days = 90, now = Date.now(), snapshot = treeSnapshot, presence = null } = {}) {
+  const registry = (inventory.pluginRegistry?.plugins || []).filter(r => !protectedPlugin(r.id));
+  const installed = new Set(registry.map(r => r.id));
+  for (const s of inventory.skills || []) if (s.owner && s.pluginStatus?.installedVersions?.length && !protectedPlugin(ownerId(s.owner))) installed.add(ownerId(s.owner));
+  const roots = (inventory.skills || []).filter(s => {
+    if (protectedName(s.name)) return false;
+    if (s.owner) return s.source === '插件缓存技能' && !protectedPlugin(ownerId(s.owner)) && installed.has(ownerId(s.owner));
+    return ['用户技能', '用户 .agents 技能'].includes(s.source);
+  });
+  const componentScan = await discoverComponents(roots);
+  const skills = [...roots,...componentScan.components];
+  const excludePair=(a,b)=>installationUnit(a)===installationUnit(b);
+  const comparisons = compareInstances(skills, {excludePair,capabilityHints:true}), byId = new Map(skills.map(s => [s.id, s]));
   const groups = [], parents = new Map(), edges = [];
   const find = id => { if (!parents.has(id)) parents.set(id, id); const p = parents.get(id); if (p !== id) parents.set(id, find(p)); return parents.get(id); };
-  const link = (ids, type, evidence = {}) => { ids = ids.filter(id => byId.has(id)); if (ids.length < 2) return; const root = find(ids[0]); for (const id of ids) parents.set(find(id), root); edges.push({ids, type, ...evidence}); };
-  for (const g of inventory.comparisons?.identicalDocuments || []) link(g.ids, 'documents');
-  for (const g of inventory.comparisons?.nameConflicts || []) link(g.ids, 'names');
-  for (const g of inventory.comparisons?.descriptionOverlap?.pairs || []) link(g.ids, 'overlap', {sharedTerms:g.sharedTerms, ratio:g.ratio});
+  const link = (ids, type, evidence = {}) => {
+    ids = ids.filter(id => byId.has(id));
+    for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+      const a=byId.get(ids[i]),b=byId.get(ids[j]);
+      if (excludePair(a,b)) continue;
+      const pair = [ids[i], ids[j]], root = find(pair[0]);
+      parents.set(find(pair[1]), root); edges.push({ids:pair, type, ...evidence});
+    }
+  };
+  for (const g of comparisons.identicalDocuments || []) link(g.ids, 'documents');
+  for (const g of comparisons.nameConflicts || []) link(g.ids, 'names');
+  for (const g of comparisons.descriptionOverlap?.pairs || []) link(g.ids, 'overlap', {sharedTerms:g.sharedTerms, ratio:g.ratio,method:g.method});
   const components = new Map();
   for (const id of parents.keys()) { const root = find(id); if (!components.has(root)) components.set(root, []); components.get(root).push(id); }
   const trees = new Map(); let scanned = 0;
@@ -33,7 +64,7 @@ export async function redundancyReport(inventory, { adoptions = null, calls = nu
         try {
           const result = await snapshot(path.dirname(skill.path), true);
           const raw = await readFile(skill.path);
-          if (hash(raw) !== skill.fingerprint || result.entries.find(e => e.path === 'SKILL.md')?.hash !== hash(raw)) throw new Error('changed');
+          if (hash(raw) !== skill.fingerprint || result.entries.find(e => e.path === path.basename(skill.path))?.hash !== hash(raw)) throw new Error('changed');
           const document = raw.toString('utf8');
           const tools = [...new Set(document.match(/mcp__[A-Za-z0-9_]+/g) || [])].slice(0, 20);
           const references = [...new Set([...document.matchAll(/\]\(([^\s)]+)\)/g)].map(m=>m[1]).filter(v=>!/^https?:|^#/i.test(v)))].slice(0,20);
@@ -43,7 +74,9 @@ export async function redundancyReport(inventory, { adoptions = null, calls = nu
       trees.set(skill.id, tree);
     }
     const tree = trees.get(skill.id);
-    return {id:skill.id, name:skill.name, source:skill.source, path:skill.path, owner:skill.owner, pluginStatus:skill.pluginStatus, fingerprint:skill.fingerprint, annotation:skill.annotation,
+    return {id:skill.id, name:skill.name, description:skill.description, source:skill.source, path:skill.path, owner:skill.owner, pluginStatus:skill.pluginStatus, fingerprint:skill.fingerprint, annotation:skill.annotation,
+      declaredAuthor:skill.declaredAuthor,
+      parentSkillId:skill.parentSkillId,parentSkillName:skill.parentSkillName,parentSkillPath:skill.parentSkillPath,componentKind:skill.componentKind,
       tree:{complete:tree.complete, fingerprint:tree.fingerprint, files:tree.files, bytes:tree.bytes, reason:tree.reason}, dependencyHints:tree.tools || [], references:tree.references || [], activity:activity(adoptions, skill.id, 'adoptions')};
   }
   for (const ids of [...components.values()].slice(0, 50)) {
@@ -69,7 +102,7 @@ export async function redundancyReport(inventory, { adoptions = null, calls = nu
   }
   const plugins = new Map();
   function plugin(id, version) { const key = `${id}:${version}`; if (!plugins.has(key)) plugins.set(key,{id:key,pluginId:id,version,name:id.split('@')[0],installed:false,installRecords:0,enabled:null,skills:[]}); return plugins.get(key); }
-  for (const r of inventory.pluginRegistry?.plugins || []) { const p = plugin(r.id,r.version); p.enabled=p.installRecords && p.enabled!==r.enabled ? null : r.enabled; p.installed=true; p.installRecords++; }
+  for (const r of registry) { const p = plugin(r.id,r.version); p.enabled=p.installRecords && p.enabled!==r.enabled ? null : r.enabled; p.installed=true; p.installRecords++; }
   for (const s of skills) if (s.owner) plugin(`${s.owner.directory || s.owner.name}@${s.owner.marketplace}`,s.owner.version).skills.push({id:s.id,name:s.name,fingerprint:s.fingerprint});
   const families = new Map();
   for (const p of plugins.values()) { if (!families.has(p.name)) families.set(p.name,[]); families.get(p.name).push(p); }
@@ -77,9 +110,14 @@ export async function redundancyReport(inventory, { adoptions = null, calls = nu
   const pluginGroups = pluginCandidates.slice(0,50).map(members => ({id:hash(JSON.stringify(members)),types:['versions'],members,
     sharedSkills:[...new Set(members.flatMap(m => m.skills.map(s => s.name)))].map(name => ({name,instances:members.filter(m => m.skills.some(s => s.name === name)).length})),
     capabilitiesComplete:false,recommendation:'review-context'}));
-  return {version:1,checkedAt:new Date(now).toISOString(),days,since,skills:groups,plugins:pluginGroups,
+  const pluginItems=[...new Map(registry.map(p=>[p.id,p])).values()];
+  let observations={},presenceAvailable=false;
+  if(presence)try{observations=await presence.observe([...roots.map(s=>'skill:'+s.id),...pluginItems.map(p=>'plugin:'+p.id)],now);presenceAvailable=true;}catch{}
+  const inactivity=inactivityReport(roots,pluginItems,{adoptions,calls,observations,now});
+  return {version:1,checkedAt:new Date(now).toISOString(),days,since,skills:groups,plugins:pluginGroups,inactivity,
+    scope:{userInstalledOnly:true,excludedSkills:(inventory.skills || []).length-roots.length,eligibleSkills:roots.length,eligiblePlugins:pluginItems.length,components:componentScan.components.length,componentIssues:componentScan.issues,presenceAvailable},
     coverage:{qualified:false,reason:'continuous-coverage-unavailable',skillRecordsAvailable:Boolean(adoptions),pluginRecordsAvailable:Boolean(calls)},
     limits:{skillGroups:components.size,shownSkillGroups:groups.length,directoriesScanned:Math.min(scanned,40),maxDirectories:40,maxMembers:20,maxDifferences:100,
-      pluginGroups:pluginCandidates.length,overlap:inventory.comparisons?.descriptionOverlap},
+      pluginGroups:pluginCandidates.length,overlap:comparisons.descriptionOverlap},
   };
 }
