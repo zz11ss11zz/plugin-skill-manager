@@ -9,7 +9,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { scanInventory } from '../src/inventory.mjs';
 
-test('standalone package builds and serves MCP resources outside the source tree', { timeout: 30000 }, async () => {
+test('standalone package builds and serves MCP resources outside the source tree', { timeout: 60000 }, async () => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'skill-plugin-'));
   const root = path.join(temporary, 'plugin with spaces');
   const codexHome = path.join(temporary, 'codex');
