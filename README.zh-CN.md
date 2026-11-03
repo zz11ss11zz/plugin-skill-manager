@@ -1,5 +1,7 @@
 # Plugin & Skill Manager
 
+[![Release](https://img.shields.io/github/v/release/zz11ss11zz/plugin-skill-manager?label=release)](https://github.com/zz11ss11zz/plugin-skill-manager/releases/latest) [![License](https://img.shields.io/github/license/zz11ss11zz/plugin-skill-manager)](LICENSE) [![GitHub stars](https://img.shields.io/github/stars/zz11ss11zz/plugin-skill-manager)](https://github.com/zz11ss11zz/plugin-skill-manager/stargazers)
+
 **看清插件和 Skill 的安装与使用情况，识别冗余，帮助用户精简工具环境，让日常工作更高效、更可控。**
 
 1. **统一盘点，掌握工具环境**  
@@ -13,7 +15,7 @@
 
 面向 Codex 的本地活动面板：查看日期热力图和按时间筛选的排名，分别记录 Skill 采用与插件工具调用尝试。
 
-[English](README.md) | **中文** · [下载安装](docs/DISTRIBUTION.md) · [Release v0.4.11](https://github.com/zz11ss11zz/plugin-skill-manager/releases/tag/v0.4.11) · [Glama 目录](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
+[English](README.md) | **中文** · [下载安装](docs/DISTRIBUTION.md) · [最新 Release](https://github.com/zz11ss11zz/plugin-skill-manager/releases/latest) · [Glama 目录](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
 
 ![v0.4.14 中文活动面板：1,504 次真实调用记录，涵盖 15 个活跃日期和 8 个工具服务](docs/media/current-20261102/activity-zh.png)
 
@@ -58,20 +60,20 @@
 
 已验证环境为 Windows，需要 Node.js 20.18+ 和 PATH 中可用的 Codex CLI。本项目为独立开源项目，不是 OpenAI 官方产品，尚未上架官方插件目录。
 
-下载 [v0.4.11 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.11/plugin-skill-manager-0.4.11-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 `install.mjs` 的目录打开 PowerShell：
+下载 [v0.4.19 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.19/plugin-skill-manager-0.4.19-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 `install.mjs` 的目录打开 PowerShell：
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-检查结果应显示已安装并启用的 0.4.11 插件，且注册来源匹配。重开 Codex，再让助手打开 Plugin & Skill Manager 或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
+检查结果应显示已安装并启用的 0.4.19 插件，且注册来源匹配。重开 Codex，再让助手打开 Plugin & Skill Manager 或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
 各版本回归与安装结果见验收记录。浏览器管理交互通过；原生桌面交互仍未完整验证。详见[验收记录](docs/VALIDATION.md)、[已知限制](docs/KNOWN_LIMITATIONS.md)和[升级与卸载](docs/DISTRIBUTION.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
 ## 官方目录状态
 
-Release 页另提供 **v0.4.11 桌面提交 ZIP**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的完整安装 ZIP。
+Release 页另提供 **v0.4.19 桌面提交 ZIP**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的完整安装 ZIP。
 
 截至 2026-10-27，**0.3.1 草稿已上传**，尚未提交审核、获批或发布。当时门户提示暂不接受更多 skills-only 提交，本地 MCP 服务的识别与准入仍待确认。GitHub 发布包可手动安装；保存草稿不等于官方上架。
 
@@ -99,9 +101,9 @@ node install.mjs uninstall
 
 ## 环境诊断
 
-已发布的 v0.4.11 包包含 **[统一环境诊断](docs/ENVIRONMENT_HEALTH.md)**：可在界面手动检查依赖、安装、数据和采集状态；也可独立运行 `node scripts/doctor.mjs`，中文输出使用 `--zh`。单项失败仍返回其余结果并提供处理建议。
+已发布的 v0.4.19 包包含 **[统一环境诊断](docs/ENVIRONMENT_HEALTH.md)**：可在界面手动检查依赖、安装、数据和采集状态；也可独立运行 `node scripts/doctor.mjs`，中文输出使用 `--zh`。单项失败仍返回其余结果并提供处理建议。
 
-上方截图为 v0.4.14 中文界面。当前 main 源码与已验证的私有安装版本为 v0.4.14，保留细线扳手图标，更新了日历标签并精简活动说明；公开完整下载包仍为 v0.4.11。具体边界见[验收记录](docs/VALIDATION.md)。
+上方截图为 v0.4.14 中文界面（不作为最新版的原生桌面验证）。截至本次核对，当前 main 源码和最新公开完整下载包版本为 v0.4.19；具体功能及原生桌面验收边界以[验收记录](docs/VALIDATION.md)为准。
 
 ## 演示与反馈
 
