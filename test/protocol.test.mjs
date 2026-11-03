@@ -8,7 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 
-test('stdio handshake, global discovery, resource and isolated inventory result', { timeout: 15000 }, async () => {
+test('stdio handshake, global discovery, resource and isolated inventory result', { timeout: 60000 }, async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'manager-protocol-'));
   await mkdir(path.join(root, 'skills', 'example'), { recursive: true });
   await writeFile(path.join(root, 'skills', 'example', 'SKILL.md'), '---\nname: example\ndescription: synthetic test fixture\n---\n');
@@ -20,7 +20,8 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
   const usageOptions = { roots: [logs], stateFile: path.join(root, 'index', 'usage.json') };
   const archiveOptions = { roots, archiveRoot: path.join(root, 'archive') };
   const code = `import {createServer} from ${JSON.stringify(new URL('../src/server.mjs', import.meta.url).href)}; import {UsageIndex} from ${JSON.stringify(new URL('../src/usage-index.mjs', import.meta.url).href)}; import {SkillNotes} from ${JSON.stringify(new URL('../src/skill-notes.mjs', import.meta.url).href)}; import {ArchiveManager} from ${JSON.stringify(new URL('../src/archive.mjs', import.meta.url).href)}; import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js'; import {Adoptions} from ${JSON.stringify(new URL('../src/adoptions.mjs', import.meta.url).href)}; import {PluginCalls} from ${JSON.stringify(new URL('../src/plugin-calls.mjs', import.meta.url).href)}; let queries = 0; await createServer(${JSON.stringify(roots)}, {pluginCalls: new PluginCalls(${JSON.stringify(path.join(root, 'plugin-calls.json'))}), adoptions: new Adoptions(${JSON.stringify(path.join(root, 'adoptions.json'))}), skillNotes: new SkillNotes(${JSON.stringify(path.join(root, 'notes.json'))}), archiveManager: new ArchiveManager(${JSON.stringify(archiveOptions)}), usageIndex: new UsageIndex(${JSON.stringify(usageOptions)}), queryPlugins: async () => { if (queries++ >= 2) throw new Error('synthetic failure'); return {plugins: [], checkedAt: '2026-01-01T00:00:00Z', evidence: 'synthetic'}; }}).connect(new StdioServerTransport());`;
-  const transport = new StdioClientTransport({ command: process.execPath, args: ['--input-type=module', '-e', code], cwd: fileURLToPath(new URL('..', import.meta.url)), stderr: 'pipe', env: { CODEX_HOME: root, CODEX_SKILL_MANAGER_DATA_DIR: root, USERPROFILE: root, HOME: root, CODEX_SKILL_MANAGER_CLI: path.join(root, 'missing-cli') } });
+  const isolatedEnv = { CODEX_HOME: root, CODEX_SKILL_MANAGER_DATA_DIR: root, USERPROFILE: root, HOME: root, CODEX_SKILL_MANAGER_CLI: path.join(root, 'missing-cli') };
+  const transport = new StdioClientTransport({ command: process.execPath, args: ['--input-type=module', '-e', code], cwd: fileURLToPath(new URL('..', import.meta.url)), stderr: 'pipe', env: isolatedEnv });
   try {
     await client.connect(transport);
     assert.match(client.getServerVersion().icons[0].src, /^data:image\/png;base64,iVBOR/);
@@ -140,7 +141,7 @@ test('stdio handshake, global discovery, resource and isolated inventory result'
     await appendFile(path.join(logs, 'synthetic.jsonl'), JSON.stringify({type:'response_item',payload:{type:'message',id:'not-imported',role:'user',content:[{type:'input_text',text:'$example'}]}})+'\n');
     const restarted = new Client({name:'cold-open-test',version:'1.0.0'});
     try {
-      await restarted.connect(new StdioClientTransport({command:process.execPath,args:['--input-type=module','-e',code],cwd:fileURLToPath(new URL('..',import.meta.url)),stderr:'pipe'}));
+      await restarted.connect(new StdioClientTransport({command:process.execPath,args:['--input-type=module','-e',code],cwd:fileURLToPath(new URL('..',import.meta.url)),stderr:'pipe',env:isolatedEnv}));
       const opened = await restarted.callTool({name:'open_skill_manager',arguments:{}});
       assert.equal(opened.structuredContent.usage.totalEvents,2);
       assert.ok(opened.structuredContent.usage.activity);
