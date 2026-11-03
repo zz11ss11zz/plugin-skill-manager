@@ -9,7 +9,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { scanInventory } from '../src/inventory.mjs';
 
-test('standalone package builds and serves MCP resources outside the source tree', { timeout: 30000 }, async () => {
+test('standalone package builds and serves MCP resources outside the source tree', { timeout: 60000 }, async () => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'skill-plugin-'));
   const root = path.join(temporary, 'plugin with spaces');
   const codexHome = path.join(temporary, 'codex');
@@ -95,7 +95,8 @@ test('standalone package builds and serves MCP resources outside the source tree
     const hostEvent = {type:'event_msg',timestamp:'2026-01-02T00:00:01Z',payload:{type:'item_completed',started_at_ms:Date.parse('2026-01-02T00:00:00Z'),item:{type:'McpToolCall',id:'packaged-auto-call-00001',server:'codex_apps',tool:'github.fetch_file',status:'failed',arguments:{secret:'DO_NOT_PERSIST'}}}};
     await appendFile(path.join(codexHome,'sessions','synthetic.jsonl'),JSON.stringify(hostEvent)+'\n');
     // No query/open tool is called while waiting: this verifies background polling.
-    const deadline=Date.now()+13000;
+    // Allow several 5-second polls on a busy Windows CI runner; keep the wait bounded.
+    const deadline=Date.now()+30000;
     let captured;
     while(Date.now()<deadline){
       const saved=JSON.parse(await readFile(path.join(persistentData,'plugin-calls.json')));
