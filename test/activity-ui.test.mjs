@@ -9,7 +9,7 @@ import {activityView,calendarDays,activityToday,recentActivity} from '../src/act
 test('panel switches plugin calls and skill adoptions without mixing or mislabelling',async()=>{
   const elements=[];
   class Element {
-    constructor(tag){this.tag=tag;this.children=[];this.listeners={};this.style={setProperty(){}};elements.push(this);}
+    constructor(tag){this.tag=tag;this.classList={add:value=>{this.className+=' '+value;}};this.children=[];this.listeners={};this.style={setProperty(){}};elements.push(this);}
     append(...items){for(const item of items) item.parentNode=this;this.children.push(...items);}
     get firstChild(){return this;}
     replaceChildren(...items){this.children=items;}
@@ -149,7 +149,7 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
   from.value=`${year}-01-01`; to.value=`${year}-12-31`; from.listeners.change();
   let review=ranking.children.at(-1);
-  assert.match(visibleText(review),/观察中/);
+  assert.ok(!review.children.some(e=>e.className==='observation-state' || e.className==='activity-caption'));
   const rules=review.children.find(e=>e.className==='observation-rules');
   assert.equal(rules.tag,'details');
   assert.ok(!rules.open,'Detailed observation rules stay collapsed by default');
@@ -169,17 +169,26 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   assert.match(visibleText(details.children[2]),/没有匹配项目/);
   await review.children[0].children.find(e=>e.tag==='button').listeners.click();
   assert.match(visibleText(review),/核对失败/);
-  checkedInventory={structuredContent:{mode:'inventory',inventoryScope:'management',skills:zeroInventory.skills,pluginRegistry:{plugins:[{id:'unused@market',version:'1'}]}}};
+  checkedInventory={structuredContent:{mode:'inventory',inventoryScope:'management',skills:zeroInventory.skills,pluginRegistry:{plugins:[{id:'unused@market',version:'1',icon:'data:image/png;base64,YQ=='}]}}};
   await review.children[0].children.find(e=>e.tag==='button').listeners.click();
   review=ranking.children.at(-1);
   assert.match(visibleText(review),/无记录 · 9 项/,'partial inventory response preserves existing activity coverage');
   elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
   review=ranking.children.at(-1);
   assert.match(visibleText(review),/已确认清单 1 项/);
+  const zeroBadge=review.children.find(e=>e.tag==='details').children[2].children[0].children[0];
+  assert.match(zeroBadge.className,/activity-avatar/);
+  const zeroImage=zeroBadge.children.find(e=>e.tag==='img');
+  assert.equal(zeroImage.src,'data:image/png;base64,YQ==');
+  zeroImage.listeners.error();
+  assert.equal(zeroImage.hidden,true);
+  assert.equal(zeroBadge.children[0].hidden,false);
   assert.equal(review.children[0].children[1].textContent,'核对清单');
   render.setLocale('en');
   review=ranking.children.at(-1);
   assert.equal(review.children[0].children[1].textContent,'Check inventory');
+  assert.ok(!review.children.some(e=>e.className==='observation-state' || e.className==='activity-caption'));
+  assert.equal(review.children.find(e=>e.tag==='details').children[2].children[0].children[0].children.find(e=>e.tag==='img').src,'data:image/png;base64,YQ==');
   assert.equal(review.children.find(e=>e.className==='observation-rules').children[0].textContent,'About these counts');
   assert.ok(!/[\u3400-\u9fff]/.test(visibleText(review)),'Observation remains translated after switching tabs and language');
   render.setLocale('zh');
