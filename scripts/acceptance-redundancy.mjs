@@ -32,14 +32,16 @@ try{
   for(const g of inventory.redundancy.skills)for(const m of g.members)m.path=`C:/Synthetic/Skills/${path.basename(path.dirname(m.path))}/SKILL.md`;
   const template=await readFile(new URL('../src/frontend/index.html',import.meta.url),'utf8');
   const modulePath=fileURLToPath(new URL('../src/frontend/views/management.view.mjs',import.meta.url));
+  const modelPath=fileURLToPath(new URL('../src/frontend/viewmodels/management.vm.mjs',import.meta.url));
   const results=[];
   for(const [locale,width,dark,kind]of [['zh',1100,false,'skills'],['en',1100,true,'skills'],['zh',380,false,'skills'],['en',1100,false,'plugins'],['zh',380,false,'idle-plugins'],['en',1100,false,'idle-plugins'],['zh',1100,false,'drawing'],['zh',380,false,'drawing'],['en',1100,true,'drawing']]){
     const name=`${locale}-${width}-${dark?'dark':'light'}-${kind}`;
     const source=`import {createManagementPanel} from ${JSON.stringify(modulePath)};
+      import {createManagementViewModel} from ${JSON.stringify(modelPath)};
       const inventory=${JSON.stringify(kind==='idle-plugins'?idleInventory:kind==='drawing'?drawingInventory:inventory)};
       const locale=${JSON.stringify(locale)},kind=${JSON.stringify(kind)};
       const root=document.querySelector('#workspace-panel');
-      const update=createManagementPanel(root,async()=>({structuredContent:inventory}),()=>{},locale);update(inventory);
+      const update=createManagementPanel(root,createManagementViewModel({callTool:async()=>({structuredContent:inventory})}),locale);update(inventory);
       const click=(zh,en)=>{const b=[...root.querySelectorAll('button')].find(e=>e.textContent===(locale==='en'?en:zh));if(!b)throw new Error('Missing button '+en);b.click();};
       const wait=()=>new Promise(r=>setTimeout(r,0));
       async function run(){

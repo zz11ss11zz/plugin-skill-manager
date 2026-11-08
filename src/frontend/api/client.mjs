@@ -21,6 +21,7 @@ export function createApiClient(bridge) {
     call,
     openManager: () => call(TOOLS.open_skill_manager),
     checkPlugins: () => call(TOOLS.check_plugin_status),
+    diagnose: () => call(TOOLS.check_recording_status),
     async activityViews(requests) {
       const result = expectMode(await call(TOOLS.query_activity_views, { requests }), 'activityViews');
       if (result.isError) throw new Error(result.content?.find(c => c.type === 'text')?.text || 'Activity views unavailable');

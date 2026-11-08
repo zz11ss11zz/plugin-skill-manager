@@ -66,8 +66,20 @@ backend. Activity rankings, coverage, unknown-vs-zero and low-use observation ar
 (`_meta.ui.visibility: ["app"]`). The activity ViewModel loads every tab/source of a year in one
 call, so switching is synchronous; only a custom date range or another year triggers a request.
 
-The management and health panels still keep their UI state inside the view module and call tools
-through the API client; extracting their ViewModels is listed under *Follow-up*.
+| Panel | ViewModel | View |
+| --- | --- | --- |
+| Activity | `activity.vm.mjs` — tab, source, year, pinned day, date range; cached backend views | `activity.view.mjs` |
+| Manage | `management.vm.mjs` — page, section, kind, filters, drafts, operation plan, automatic check (60 s reuse), one action at a time | `management.view.mjs` |
+| Health | `health.vm.mjs` — one manual diagnosis at a time, previous report kept on failure | `health.view.mjs` |
+
+ViewModels hold no translated text: errors keep the server message or a code that the view
+localizes. Commands that change what is shown notify subscribers; typing in a search box updates
+state silently so the view refreshes only its list and the input keeps focus. `main.mjs` creates
+each ViewModel and injects it into its view; views import nothing but i18n and assets.
+
+The management view still contains wording for a few named Skills (e.g. the
+scientific-visualization / matplotlib advice). That is recommendation content and should move to
+the backend or configuration (see *Follow-up*).
 
 ## Contracts
 
@@ -111,7 +123,7 @@ Adapters, inbound and views are added as their JSDoc is completed.
 
 ## Follow-up
 
-- Extract ViewModels for the management and health panels.
+- Move the named-Skill recommendations in `management.view.mjs` to the backend or configuration.
 - Extend `checkJs` to adapters, inbound and views.
 - Implement and verify a Claude host adapter.
 - Accept archive moves on macOS/Linux, then enable the capability there.

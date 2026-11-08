@@ -13,6 +13,7 @@ const output = path.resolve(process.argv[2] || 'work/health-ui');
 await mkdir(output, { recursive: true });
 const template = await readFile(new URL('../src/frontend/index.html', import.meta.url), 'utf8');
 const modulePath = fileURLToPath(new URL('../src/frontend/views/health.view.mjs', import.meta.url));
+const modelPath = fileURLToPath(new URL('../src/frontend/viewmodels/health.vm.mjs', import.meta.url));
 const report = { version: 1, status: 'unknown', checkedAt: '2026-10-30T12:00:00.000Z', checks: [
   { status: 'ok', title: { zh: 'Node.js 运行环境', en: 'Node.js runtime' }, message: { zh: '要求 Node.js 20.18 或更高版本。', en: 'Node.js 20.18 or newer is required.' } },
   { status: 'info', title: { zh: '自动采集设置', en: 'Automatic capture settings' }, message: { zh: '自动采集已关闭，已有记录仍保留。', en: 'Automatic capture is off; existing records are preserved.' } },
@@ -22,9 +23,10 @@ const results = [];
 for (const [locale, width, dark] of [['zh', 1100, false], ['en', 1100, true], ['zh', 380, false]]) {
   const name = `${locale}-${width}-${dark ? 'dark' : 'light'}`;
   const source = `import {createHealthPanel} from ${JSON.stringify(modulePath)};
+    import {createHealthViewModel} from ${JSON.stringify(modelPath)};
     const report=${JSON.stringify(report)}; let calls=0;
     const root=document.querySelector('#environment-health');
-    const panel=createHealthPanel(root,${JSON.stringify(locale)},async()=>{calls++; if(calls>1)throw new Error('synthetic failure');return {structuredContent:{health:report}};});
+    const panel=createHealthPanel(root,${JSON.stringify(locale)},createHealthViewModel({diagnose:async()=>{calls++; if(calls>1)throw new Error('synthetic failure');return {structuredContent:{health:report}};}}));
     if(calls!==0)throw new Error('Unexpected automatic probe');
     document.querySelector('details').open=true;root.querySelector('button').click();
     setTimeout(()=>{root.querySelector('button').click();setTimeout(()=>{

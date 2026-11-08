@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { translator } from '../src/frontend/i18n/i18n.mjs';
+import { createHealthViewModel } from '../src/frontend/viewmodels/health.vm.mjs';
 
 test('health panel is manual, prevents overlapping calls, preserves results on failure and changes language', async () => {
   class Element {
@@ -17,7 +18,8 @@ test('health panel is manual, prevents overlapping calls, preserves results on f
   const context = vm.createContext({ document: { createElement: tag => new Element(tag) }, translator });
   vm.runInContext(source + '\nglobalThis.createPanel=createHealthPanel;', context);
   let requests = 0, resolve, reject;
-  const panel = context.createPanel(root, 'zh', args => { assert.equal(args.name, 'check_recording_status'); requests++; return new Promise((yes, no) => { resolve = yes; reject = no; }); });
+  const invoke = args => { assert.equal(args.name, 'check_recording_status'); requests++; return new Promise((yes, no) => { resolve = yes; reject = no; }); };
+  const panel = context.createPanel(root, 'zh', createHealthViewModel({ diagnose: () => invoke({ name: 'check_recording_status', arguments: {} }) }));
   const button = () => all().find(e => e.tag === 'button');
   const flush = () => new Promise(yes => setImmediate(yes));
   assert.equal(requests, 0);

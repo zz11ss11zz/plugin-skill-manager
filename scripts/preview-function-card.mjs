@@ -12,9 +12,11 @@ const local=applyPluginStatus(await scanInventory(),await loadPluginStatus()),re
 const group=report.skills.find(g=>g.members.some(m=>m.name==='scientific-visualization'));if(!group)throw Error('Actual plotting group unavailable');
 const inventory={mode:'inventory',inventoryScope:'management',skills:[],notesAvailable:false,managementSupported:false,redundancy:{...report,skills:[group]}};
 const modulePath=fileURLToPath(new URL('../src/frontend/views/management.view.mjs',import.meta.url));
+const modelPath=fileURLToPath(new URL('../src/frontend/viewmodels/management.vm.mjs',import.meta.url));
 const source=`import {createManagementPanel} from ${JSON.stringify(modulePath)};
+import {createManagementViewModel} from ${JSON.stringify(modelPath)};
 const inventory=${JSON.stringify(inventory)};const root=document.querySelector('#workspace-panel');
-const update=createManagementPanel(root,async()=>({structuredContent:inventory}),()=>{});update(inventory);
+const update=createManagementPanel(root,createManagementViewModel({callTool:async()=>({structuredContent:inventory})}));update(inventory);
 const click=label=>[...root.querySelectorAll('button')].find(b=>b.textContent===label).click();
 async function run(){click('管理');await new Promise(r=>setTimeout(r,0));click('技能');click('冗余候选');await new Promise(r=>setTimeout(r,0));
 const card=root.querySelector('.report-card');const main=document.createElement('main');main.style.cssText='max-width:1040px;margin:0 auto;padding:36px 30px';main.append(card);document.body.replaceChildren(main);document.body.dataset.preview='ready';}run();`;

@@ -8,14 +8,17 @@ import { createManagementPanel } from './views/management.view.mjs';
 import { createHealthPanel } from './views/health.view.mjs';
 import { createApiClient } from './api/client.mjs';
 import { createActivityViewModel } from './viewmodels/activity.vm.mjs';
+import { createHealthViewModel } from './viewmodels/health.vm.mjs';
+import { createManagementViewModel } from './viewmodels/management.vm.mjs';
 // Bootstrap: bridge → API client → view models → views. Views never call the bridge directly.
 const app = new App({ name: 'plugin-skill-manager', version: packageInfo.version }, {});
 const api = createApiClient(app);
 const activityModel = createActivityViewModel({ loadViews: requests => api.activityViews(requests) });
 const updateActivity = createActivityPanel(document.querySelector('#activity-panel'), locale, () => api.checkPlugins(), activityModel);
 const status = document.querySelector('#status');
-const healthPanel = createHealthPanel(document.querySelector('#environment-health'), locale, args => api.call(args.name, args.arguments));
-const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), args => api.call(args.name, args.arguments), receive, locale);
+const healthPanel = createHealthPanel(document.querySelector('#environment-health'), locale, createHealthViewModel({ diagnose: () => api.diagnose() }));
+const managementModel = createManagementViewModel({ callTool: ({ name, arguments: args }) => api.call(name, args), onInventory: receive });
+const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), managementModel, locale);
 let connected = false, hasData = false, lastRefresh = 0, pending = null, autoRefresh = false;
 function receive(result) {
   const data = result.structuredContent;

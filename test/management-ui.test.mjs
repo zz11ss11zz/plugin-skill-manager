@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {createManagementViewModel} from '../src/frontend/viewmodels/management.vm.mjs';
 
 test('candidate views retain inventory kind, defer without mutations, preserve evidence and gate archive execution', async () => {
   class Element {
@@ -19,7 +20,8 @@ test('candidate views retain inventory kind, defer without mutations, preserve e
   const source=(await readFile(new URL('../src/frontend/views/management.view.mjs',import.meta.url),'utf8')).replace('export function','function');
   const context=vm.createContext({Date,document:{createElement:tag=>new Element(tag),createTextNode:text=>({textContent:text,children:[]}),querySelector:()=>new Element('section')}});
   vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
-  const update=context.createPanel(root,async call=>{
+  const panelWith=(callTool,onInventory,locale)=>context.createPanel(root,createManagementViewModel({callTool,onInventory,now:()=>context.Date.now()}),locale);
+  const update=panelWith(async call=>{
     calls.push(call);
     if(call.name==='preview_skill_archive')return {structuredContent:{mode:'management-plan',plan:{title:'sample',action:'archive',original:'/fixture/sample',destination:'/fixture/archive',files:2,bytes:10,token:'preview',expiresAt:Date.now()+60000}}};
     if(call.name==='save_skill_note'){member.annotation={retain:call.arguments.retain,revision:1};return {structuredContent:inventory};}
@@ -74,7 +76,8 @@ test('view checks run automatically, cache results, and offer retry only after f
   const source=(await readFile(new URL('../src/frontend/views/management.view.mjs',import.meta.url),'utf8')).replace('export function','function');
   const context=vm.createContext({Date:{now:()=>now},document:{createElement:tag=>new Element(tag),querySelector:()=>activity}});
   vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
-  const update=context.createPanel(root,async ({name})=>{
+  const panelWith=(callTool,onInventory,locale)=>context.createPanel(root,createManagementViewModel({callTool,onInventory,now:()=>context.Date.now()}),locale);
+  const update=panelWith(async ({name})=>{
     calls.push(name);
     assert.equal(name,'check_plugin_status');
     await new Promise(resolve=>{release=resolve;});
@@ -118,7 +121,8 @@ test('source summary groups personal roots, filters every category, and keeps to
   const source=(await readFile(new URL('../src/frontend/views/management.view.mjs',import.meta.url),'utf8')).replace('export function','function');
   const context=vm.createContext({Date,document:{createElement:tag=>new Element(tag),createTextNode:text=>({textContent:text,children:[]}),querySelector:()=>new Element('section')}});
   vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
-  const update=context.createPanel(root,async()=>({structuredContent:inventory}),()=>{});
+  const panelWith=(callTool,onInventory,locale)=>context.createPanel(root,createManagementViewModel({callTool,onInventory,now:()=>context.Date.now()}),locale);
+  const update=panelWith(async()=>({structuredContent:inventory}),()=>{});
   update(inventory);
   const all=(e=root)=>[e,...e.children.flatMap(c=>all(c))];
   all().find(e=>e.tag==='button'&&e.textContent==='管理').listeners.click();
@@ -162,7 +166,8 @@ test('plugin inventory deduplicates IDs, separates old caches, preserves unknown
   const source=(await readFile(new URL('../src/frontend/views/management.view.mjs',import.meta.url),'utf8')).replace('export function','function');
   const context=vm.createContext({Date,document:{createElement:tag=>new Element(tag),querySelector:()=>new Element('section')}});
   vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
-  const update=context.createPanel(root,async ({name})=>{calls.push(name);return fail?{isError:true,content:[{type:'text',text:'offline'}]}:{structuredContent:inventory};},()=>{});
+  const panelWith=(callTool,onInventory,locale)=>context.createPanel(root,createManagementViewModel({callTool,onInventory,now:()=>context.Date.now()}),locale);
+  const update=panelWith(async ({name})=>{calls.push(name);return fail?{isError:true,content:[{type:'text',text:'offline'}]}:{structuredContent:inventory};},()=>{});
   const all=(e=root)=>[e,...e.children.flatMap(c=>all(c))];
   const click=label=>all().find(e=>e.tag==='button'&&e.textContent===label).listeners.click();
   const filter=state=>all().find(e=>e.attributes['data-plugin-filter']===state);
