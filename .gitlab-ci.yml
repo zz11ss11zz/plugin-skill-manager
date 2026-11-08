@@ -79,7 +79,7 @@ check:lockfile:
 deps:audit:
   stage: audit
   extends: .linux
-  needs: [deps:lockfile]
+  needs: [check:lockfile]
   script:
     # Fails on known high or critical vulnerabilities in the locked dependency tree.
     - pnpm audit --audit-level high
@@ -87,7 +87,7 @@ deps:audit:
 deps:licenses:
   stage: audit
   extends: .linux
-  needs: [deps:lockfile]
+  needs: [check:lockfile]
   script:
     - pnpm licenses list --prod --json > licenses.json
     - node scripts/check-licenses.mjs licenses.json
@@ -109,7 +109,7 @@ semgrep-sast:
 test:node:
   stage: test
   extends: .linux
-  needs: [deps:lockfile]
+  needs: [check:lockfile]
   script:
     # Package and protocol tests load the built dashboard (dist/dashboard.html).
     - node scripts/build.mjs
