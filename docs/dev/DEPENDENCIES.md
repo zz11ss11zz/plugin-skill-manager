@@ -10,11 +10,17 @@ Every version is written once, in the `catalog:` of `pnpm-workspace.yaml`. `pack
 it with `"catalog:"`. Versions are exact; `pnpm-lock.yaml` is committed and CI installs with
 `pnpm install --frozen-lockfile`.
 
-CI runs in two places with the same steps: GitLab (`.gitlab-ci.yml`, the `origin` remote) and GitHub
-Actions (`.github/workflows/test.yml`). GitLab reads the pnpm version from `packageManager`, caches
-`.pnpm-store/` keyed by the lockfile, runs `pnpm run verify` on Linux with Node 20.18.1 and 24, and
-builds the plugin bundle as an artifact on the default branch and tags. Windows and macOS jobs run
-only when `RUN_WINDOWS_TESTS` / `RUN_MACOS_TESTS` are set and a suitable runner is available.
+CI runs in two places: GitLab (`.gitlab-ci.yml`, the `origin` remote) and GitHub Actions
+(`.github/workflows/test.yml`). The GitLab pipeline:
+
+| Stage | Jobs | Notes |
+| --- | --- | --- |
+| verify | `verify:linux`, `verify:windows`, `verify:macos` × Node 20.18.1 / 24.22.1 | `pnpm run verify`. Windows/macOS download the pinned Node.js and check its SHA-256; they are `allow_failure` until their runners are confirmed. Set `SKIP_WINDOWS` / `SKIP_MACOS` to `true` when no runner exists. |
+| test | `deps:audit`, `deps:lockfile`, `deps:licenses`, GitLab SAST, secret detection | High/critical advisories, `pnpm dedupe --check`, production licenses against the allowlist in `scripts/check-licenses.mjs`. |
+| package | `package:plugin` | Manual, on every branch, tag and merge request pipeline. Available after Linux verification and the dependency checks pass; the bundle is kept as an artifact for one week. |
+
+Updating Node.js in CI means changing the version and both SHA-256 values in `.gitlab-ci.yml`
+(from `https://nodejs.org/dist/v<version>/SHASUMS256.txt`) and the Docker image tag.
 
 ## Supply-chain blocks (`pnpm-workspace.yaml`)
 

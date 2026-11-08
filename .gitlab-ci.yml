@@ -1,15 +1,23 @@
-# GitLab CI/CD pipeline — mirrors .github/workflows/test.yml.
+# GitLab CI/CD pipeline.
 #
-#   verify   contracts, architecture rules, type check, build and the full test suite on every push
-#            and merge request (Linux, Node 20.18.1 and 24 — the supported range).
-#   package  builds the standalone plugin bundle on the default branch and tags, kept as an artifact.
+#   verify   contracts, architecture rules, type check, build and the full test suite on Linux,
+#            Windows and macOS, each with Node 20.18.1 (minimum supported) and 24.22.1 (LTS).
+#   test     dependency audit, lockfile hygiene, license allowlist, GitLab SAST and secret detection.
+#   package  a manual job on every pipeline that builds the plugin bundle as a downloadable
+#            artifact once verification and checks have passed.
 #
-# Windows and macOS jobs need runners that GitLab.com does not provide on every plan; they run only
-# when enabled with CI/CD variables (see the jobs at the end). Pipelines never publish or deploy.
+# Pipelines never publish or deploy. Node.js versions are pinned and their downloads are verified
+# against the SHA-256 values below (from https://nodejs.org/dist/v<version>/SHASUMS256.txt).
 
 stages:
   - verify
+  - test
   - package
+
+include:
+  # GitLab-maintained scanners (available on all tiers); they add jobs to the `test` stage.
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
 
 workflow:
   rules:
@@ -25,11 +33,14 @@ default:
   timeout: 30 minutes
 
 variables:
-  # Keep the pnpm store inside the project so GitLab can cache it.
   PNPM_STORE_DIR: "$CI_PROJECT_DIR/.pnpm-store"
+  # Set either to "true" in Settings → CI/CD → Variables if no matching runner is available.
+  SKIP_WINDOWS: "false"
+  SKIP_MACOS: "false"
 
-# Shared setup: pnpm version comes from package.json#packageManager (single source of truth);
-# the lockfile is authoritative and the supply-chain policy lives in pnpm-workspace.yaml.
+# ---- shared setup --------------------------------------------------------------------------------
+# pnpm version comes from package.json#packageManager; the lockfile is authoritative and the
+# supply-chain policy lives in pnpm-workspace.yaml.
 .pnpm:
   before_script:
     - node --version
@@ -39,73 +50,136 @@ variables:
     - pnpm install --frozen-lockfile
   cache:
     key:
-      files:
-        - pnpm-lock.yaml
-      prefix: pnpm-$NODE_VERSION
-    paths:
-      - .pnpm-store/
-    policy: pull-push
+      files: [pnpm-lock.yaml]
+      prefix: pnpm-$CI_JOB_IMAGE
+    paths: [.pnpm-store/]
 
+.linux:
+  extends: .pnpm
+  image: node:24.22.1-bookworm-slim
+
+# ---- verify: three platforms ---------------------------------------------------------------------
 verify:linux:
   stage: verify
   extends: .pnpm
   image: node:${NODE_VERSION}-bookworm-slim
   parallel:
     matrix:
-      - NODE_VERSION: ["20.18.1", "24"]
+      - NODE_VERSION: ["20.18.1", "24.22.1"]
   script:
     - pnpm run verify
 
-package:plugin:
-  stage: package
-  extends: .pnpm
-  image: node:24-bookworm-slim
-  variables:
-    NODE_VERSION: "24"
-  rules:
-    - if: $CI_COMMIT_TAG
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  script:
-    - VERSION="$(node -p "require('./package.json').version")"
-    - pnpm run build:plugin
-    - test -f "dist/plugin-${VERSION}/server/src/server.mjs"
-  artifacts:
-    name: "plugin-skill-manager-$CI_COMMIT_REF_SLUG"
-    paths:
-      - dist/plugin-*/
-    expire_in: 1 week
-
-# ---- Optional operating-system jobs -------------------------------------------------------------
-# Enable in Settings → CI/CD → Variables. Each job needs a runner with Node.js >= 20.18 installed.
-#   RUN_WINDOWS_TESTS=true  + WINDOWS_RUNNER_TAG (default: saas-windows-medium-amd64)
-#   RUN_MACOS_TESTS=true    + MACOS_RUNNER_TAG   (default: saas-macos-medium-m1, GitLab Premium+)
-# These jobs cover the Windows-only archive tests and the macOS/Linux platform adapters.
-
+# Windows and macOS download the pinned Node.js themselves, so they do not depend on what the runner
+# image ships. Runner tags are the GitLab.com hosted runners; macOS hosted runners need GitLab
+# Premium or Ultimate. Override WINDOWS_RUNNER_TAG / MACOS_RUNNER_TAG for self-managed runners.
+# They are allowed to fail until their runners are confirmed; package depends on Linux verification.
 verify:windows:
   stage: verify
-  tags:
-    - ${WINDOWS_RUNNER_TAG}
+  tags: ["${WINDOWS_RUNNER_TAG}"]
+  allow_failure: true
   variables:
     WINDOWS_RUNNER_TAG: saas-windows-medium-amd64
+  parallel:
+    matrix:
+      - NODE_VERSION: "20.18.1"
+        NODE_SHA256: "56e5aacdeee7168871721b75819ccacf2367de8761b78eaceacdecd41e04ca03"
+      - NODE_VERSION: "24.22.1"
+        NODE_SHA256: "d2046d28c2c3dcd211ac5145c0bf30e2047ef9dfb306693c8c6e2eccd8b95fa5"
   rules:
-    - if: $RUN_WINDOWS_TESTS == "true"
+    - if: $SKIP_WINDOWS == "true"
+      when: never
+    - when: on_success
   before_script:
+    - $ErrorActionPreference = 'Stop'
+    - $zip = "node-v$env:NODE_VERSION-win-x64.zip"
+    - Invoke-WebRequest "https://nodejs.org/dist/v$env:NODE_VERSION/$zip" -OutFile $zip
+    - if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() -ne $env:NODE_SHA256) { throw "Node.js checksum mismatch" }
+    - Expand-Archive $zip -DestinationPath "$env:CI_PROJECT_DIR\.node"
+    - $env:Path = "$env:CI_PROJECT_DIR\.node\node-v$env:NODE_VERSION-win-x64;$env:Path"
     - node --version
-    - $env:PNPM_VERSION = node -p "require('./package.json').packageManager.split('@')[1]"
-    - npm install --global --no-fund --no-audit "pnpm@$env:PNPM_VERSION"
+    - $pnpmVersion = node -p "require('./package.json').packageManager.split('@')[1]"
+    - npm install --global --no-fund --no-audit "pnpm@$pnpmVersion"
     - pnpm install --frozen-lockfile
   script:
     - pnpm run verify
 
 verify:macos:
   stage: verify
-  extends: .pnpm
-  tags:
-    - ${MACOS_RUNNER_TAG}
+  tags: ["${MACOS_RUNNER_TAG}"]
+  allow_failure: true
   variables:
     MACOS_RUNNER_TAG: saas-macos-medium-m1
-    NODE_VERSION: host
+  parallel:
+    matrix:
+      - NODE_VERSION: "20.18.1"
+        NODE_SHA256: "9e92ce1032455a9cc419fe71e908b27ae477799371b45a0844eedb02279922a4"
+      - NODE_VERSION: "24.22.1"
+        NODE_SHA256: "89c682593d76cd44233fa53b1563264e7de9cbb189cad169135c5b4fadfbc0a7"
   rules:
-    - if: $RUN_MACOS_TESTS == "true"
+    - if: $SKIP_MACOS == "true"
+      when: never
+    - when: on_success
+  before_script:
+    - NODE_DIST="node-v${NODE_VERSION}-darwin-arm64"
+    - curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/${NODE_DIST}.tar.gz"
+    - echo "${NODE_SHA256}  ${NODE_DIST}.tar.gz" | shasum -a 256 -c -
+    - mkdir -p .node && tar -xzf "${NODE_DIST}.tar.gz" -C .node
+    - export PATH="$CI_PROJECT_DIR/.node/${NODE_DIST}/bin:$PATH"
+    - !reference [.pnpm, before_script]
   script:
     - pnpm run verify
+
+# ---- test: dependency and repository checks ------------------------------------------------------
+deps:audit:
+  stage: test
+  extends: .linux
+  needs: []
+  script:
+    # Fails on known high or critical vulnerabilities in the locked dependency tree.
+    - pnpm audit --audit-level high
+
+deps:lockfile:
+  stage: test
+  extends: .linux
+  needs: []
+  script:
+    # The committed lockfile must already be deduplicated and satisfy the supply-chain policy.
+    - pnpm dedupe --check
+
+deps:licenses:
+  stage: test
+  extends: .linux
+  needs: []
+  script:
+    - pnpm licenses list --prod --json > licenses.json
+    - node scripts/check-licenses.mjs licenses.json
+  artifacts:
+    when: always
+    paths: [licenses.json]
+    expire_in: 1 week
+
+# ---- package: manual, after verification ---------------------------------------------------------
+package:plugin:
+  stage: package
+  extends: .linux
+  needs:
+    - job: verify:linux
+      parallel:
+        matrix:
+          - NODE_VERSION: ["20.18.1", "24.22.1"]
+    - deps:audit
+    - deps:lockfile
+    - deps:licenses
+  rules:
+    # Available on every branch, tag and merge request pipeline; runs only when triggered.
+    - when: manual
+      # A pipeline that nobody packages still counts as passed.
+      allow_failure: true
+  script:
+    - VERSION="$(node -p "require('./package.json').version")"
+    - pnpm run build:plugin
+    - test -f "dist/plugin-${VERSION}/server/src/server.mjs"
+  artifacts:
+    name: "plugin-skill-manager-$CI_COMMIT_REF_SLUG"
+    paths: [dist/plugin-*/]
+    expire_in: 1 week
