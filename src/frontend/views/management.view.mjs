@@ -11,7 +11,7 @@ export function createManagementPanel(root, callTool, onInventory, initialLocale
     check.loading = true; check.error = ''; render();
     const reportRequested = section === 'redundancy';
     try {
-      const result = await callTool({ name: 'check_plugin_status', arguments: section === 'redundancy' ? {includeReport:true, days:reportDays} : {} });
+      const result = await callTool(section === 'redundancy' ? { name: 'generate_redundancy_report', arguments: { days: reportDays } } : { name: 'check_plugin_status', arguments: {} });
       if (result.isError) throw new Error(result.content?.find(c => c.type === 'text')?.text || text('检查失败', 'Check failed'));
       const value = result.structuredContent;
       if (value?.mode !== 'inventory') throw new Error(text('清单暂不可读取', 'Inventory unavailable'));

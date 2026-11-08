@@ -1,4 +1,4 @@
-import { translator } from './i18n.mjs';
+import { translator } from '../i18n/i18n.mjs';
 
 export function createHealthPanel(container, locale, invoke) {
   let t = translator(locale), report = null, pending = false, failed = false;

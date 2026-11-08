@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { activityIcon, safeActivityIcon } from '../src/activity-icons.mjs';
+import { activityIcon, safeActivityIcon } from '../src/frontend/assets/activity-icons.mjs';
 test('activity icons resolve namespaces without changing call identities', () => {
   const registry = [{ id: 'github@openai-curated-remote', icon: 'https://files.openai.com/github.png' }];
   for (const id of ['github', 'github@openai-curated-remote']) assert.equal(activityIcon({id}, registry).icon, registry[0].icon);

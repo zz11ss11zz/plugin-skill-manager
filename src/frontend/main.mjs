@@ -1,16 +1,21 @@
-import packageInfo from '../package.json' with { type: 'json' };
-import { resolveLocale, translator } from './i18n.mjs';
+import packageInfo from '../../package.json' with { type: 'json' };
+import { resolveLocale, translator } from './i18n/i18n.mjs';
 let locale = 'en';
 let t = translator(locale);
 import { App } from '@modelcontextprotocol/ext-apps';
-import { createActivityPanel } from './activity-ui.mjs';
-import { createManagementPanel } from './management-ui.mjs';
-import { createHealthPanel } from './health-ui.mjs';
-const updateActivity = createActivityPanel(document.querySelector('#activity-panel'), locale, () => app.callServerTool({name:'check_plugin_status',arguments:{}}));
-const status = document.querySelector('#status');
+import { createActivityPanel } from './views/activity.view.mjs';
+import { createManagementPanel } from './views/management.view.mjs';
+import { createHealthPanel } from './views/health.view.mjs';
+import { createApiClient } from './api/client.mjs';
+import { createActivityViewModel } from './viewmodels/activity.vm.mjs';
+// Bootstrap: bridge → API client → view models → views. Views never call the bridge directly.
 const app = new App({ name: 'plugin-skill-manager', version: packageInfo.version }, {});
-const healthPanel = createHealthPanel(document.querySelector('#environment-health'), locale, args => app.callServerTool(args));
-const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), args => app.callServerTool(args), receive, locale);
+const api = createApiClient(app);
+const activityModel = createActivityViewModel({ loadViews: requests => api.activityViews(requests) });
+const updateActivity = createActivityPanel(document.querySelector('#activity-panel'), locale, () => api.checkPlugins(), activityModel);
+const status = document.querySelector('#status');
+const healthPanel = createHealthPanel(document.querySelector('#environment-health'), locale, args => api.call(args.name, args.arguments));
+const updateManagement = createManagementPanel(document.querySelector('#workspace-panel'), args => api.call(args.name, args.arguments), receive, locale);
 let connected = false, hasData = false, lastRefresh = 0, pending = null, autoRefresh = false;
 function receive(result) {
   const data = result.structuredContent;
@@ -25,7 +30,7 @@ function receive(result) {
     status.textContent = t(statusKey = "统计数据暂不可读取，请重新打开Plugin & Skill Manager。");
     return;
   }
-  updateActivity(data);
+  void updateActivity(data);
   updateManagement(data);
   hasData = true;
   lastRefresh = Date.now();
@@ -51,7 +56,7 @@ app.onhostcontextchanged = setLocale;
 app.ontoolresult = receive;
 async function refresh() {
   if (!connected || pending || updateManagement.isManaging?.() || (hasData && Date.now() - lastRefresh < 1000)) return;
-  pending = app.callServerTool({ name: 'open_skill_manager', arguments: {} });
+  pending = api.openManager();
   try { receive(await pending); }
   catch {
     status.hidden = false;

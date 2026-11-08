@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {resolveLocale,translator} from '../src/i18n.mjs';
+import {resolveLocale,translator} from '../src/frontend/i18n/i18n.mjs';
 import { readFile } from 'node:fs/promises';
+import { createApiClient } from '../src/frontend/api/client.mjs';
 
-const source = 'const createHealthPanel=()=>({receive(){},setLocale(){}});\n' + (await readFile(new URL('../src/app.mjs', import.meta.url), 'utf8')).replace(/^import .*;\r?\n/gm, '');
+const source = 'const createHealthPanel=()=>({receive(){},setLocale(){}});\n' + (await readFile(new URL('../src/frontend/main.mjs', import.meta.url), 'utf8')).replace(/^import .*;\r?\n/gm, '');
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const result = total => ({structuredContent:{mode:'inventory',skills:[],adoptions:{total}}});
 
@@ -19,7 +20,7 @@ test('global panel loads without a pushed result and refreshes on return without
     connect() { return Promise.resolve(); }
     callServerTool() { requests++; return new Promise((resolve,reject)=>{resolveRequest=resolve;rejectRequest=reject;}); }
   }
-  vm.runInNewContext(source, {createManagementPanel:()=>Object.assign(()=>{},{setLocale(){},isManaging:()=>managing}),packageInfo:{version:"test"},App,navigator:{language:"zh-CN"},resolveLocale,translator,createActivityPanel:()=>Object.assign(data=>updates.push(data.adoptions.total),{setLocale(){}}),document:doc,
+  vm.runInNewContext(source, {createApiClient,createActivityViewModel:()=>({}),createManagementPanel:()=>Object.assign(()=>{},{setLocale(){},isManaging:()=>managing}),packageInfo:{version:"test"},App,navigator:{language:"zh-CN"},resolveLocale,translator,createActivityPanel:()=>Object.assign(data=>updates.push(data.adoptions.total),{setLocale(){}}),document:doc,
     window:{addEventListener:(name,fn)=>{windowEvents[name]=fn;}},Date:{now:()=>now}});
   assert.equal(doc.documentElement.lang,'en','browser Chinese must not select the UI language');
   await tick(); assert.equal(requests,1);
@@ -51,7 +52,7 @@ test('an initial host result avoids a second startup scan', async () => {
     connect() { this.ontoolresult(result(1)); return Promise.resolve(); }
     callServerTool() { calls++; return Promise.resolve(result(1)); }
   }
-  vm.runInNewContext(source,{createManagementPanel:()=>Object.assign(()=>{},{setLocale(){}}),packageInfo:{version:"test"},App,navigator:{language:"zh-CN"},resolveLocale,translator,createActivityPanel:()=>Object.assign(()=>{},{setLocale(){}}),document:{documentElement:{},querySelector:()=>({setAttribute(){}}),addEventListener:()=>{}},
+  vm.runInNewContext(source,{createApiClient,createActivityViewModel:()=>({}),createManagementPanel:()=>Object.assign(()=>{},{setLocale(){}}),packageInfo:{version:"test"},App,navigator:{language:"zh-CN"},resolveLocale,translator,createActivityPanel:()=>Object.assign(()=>{},{setLocale(){}}),document:{documentElement:{},querySelector:()=>({setAttribute(){}}),addEventListener:()=>{}},
     window:{addEventListener:()=>{}},Date});
   await tick(); assert.equal(calls,0);
 });

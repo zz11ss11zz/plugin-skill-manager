@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
-import { translator } from '../src/i18n.mjs';
+import { translator } from '../src/frontend/i18n/i18n.mjs';
 
 test('health panel is manual, prevents overlapping calls, preserves results on failure and changes language', async () => {
   class Element {
@@ -13,7 +13,7 @@ test('health panel is manual, prevents overlapping calls, preserves results on f
     addEventListener(name, fn) { this.listeners[name] = fn; }
   }
   const root = new Element('root'), all = (e = root) => [e, ...e.children.flatMap(c => all(c))];
-  const source = (await readFile(new URL('../src/health-ui.mjs', import.meta.url), 'utf8')).replace(/^import .*;\r?\n/gm, '').replace('export function', 'function');
+  const source = (await readFile(new URL('../src/frontend/views/health.view.mjs', import.meta.url), 'utf8')).replace(/^import .*;\r?\n/gm, '').replace('export function', 'function');
   const context = vm.createContext({ document: { createElement: tag => new Element(tag) }, translator });
   vm.runInContext(source + '\nglobalThis.createPanel=createHealthPanel;', context);
   let requests = 0, resolve, reject;

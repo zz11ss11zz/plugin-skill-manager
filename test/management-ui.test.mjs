@@ -16,7 +16,7 @@ test('candidate views retain inventory kind, defer without mutations, preserve e
   const group={id:'group1',types:['documents'],members:[member],totalMembers:1,complete:true,directoryEqual:true,retained:[],differences:[],differenceCount:0,documentDifference:[]};
   const report={checkedAt:'2026-10-30',days:90,skills:[group],plugins:[],limits:{directoriesScanned:1,shownSkillGroups:1,skillGroups:1}};
   const inventory={mode:'inventory',inventoryScope:'management',skills:[],notesAvailable:true,managementSupported:true};
-  const source=(await readFile(new URL('../src/management-ui.mjs',import.meta.url),'utf8')).replace('export function','function');
+  const source=(await readFile(new URL('../src/frontend/views/management.view.mjs',import.meta.url),'utf8')).replace('export function','function');
   const context=vm.createContext({Date,document:{createElement:tag=>new Element(tag),createTextNode:text=>({textContent:text,children:[]}),querySelector:()=>new Element('section')}});
   vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
   const update=context.createPanel(root,async call=>{
@@ -24,14 +24,14 @@ test('candidate views retain inventory kind, defer without mutations, preserve e
     if(call.name==='preview_skill_archive')return {structuredContent:{mode:'management-plan',plan:{title:'sample',action:'archive',original:'/fixture/sample',destination:'/fixture/archive',files:2,bytes:10,token:'preview',expiresAt:Date.now()+60000}}};
     if(call.name==='save_skill_note'){member.annotation={retain:call.arguments.retain,revision:1};return {structuredContent:inventory};}
     if(call.name==='cancel_skill_plan')return {structuredContent:{mode:'management-cancelled'}};
-    return {structuredContent:{...inventory,...(call.arguments.includeReport?{redundancy:report}:{})}};
+    return {structuredContent:{...inventory,...(call.name==='generate_redundancy_report'?{redundancy:report}:{})}};
   },()=>{});
   const all=(e=root)=>[e,...e.children.flatMap(c=>all(c))];
   const find=label=>all().find(e=>e.tag==='button'&&e.textContent===label);
   const click=label=>{const b=find(label);assert.ok(b,label);assert.equal(b.disabled,false,label);b.listeners.click();};
   const flush=()=>new Promise(resolve=>setImmediate(resolve));
   update(inventory);click('管理');await flush();click('技能');click('冗余候选');await flush();
-  assert.equal(calls.at(-1).arguments.includeReport,true);
+  assert.equal(calls.at(-1).name,'generate_redundancy_report');
   assert.equal(find('技能').attributes['aria-pressed'],'true');
   assert.equal(all().filter(e=>e.className==='report-card').length,1);
   assert.ok(all().some(e=>e.textContent?.includes('官方市场中的第三方插件仍纳入')));
@@ -71,7 +71,7 @@ test('view checks run automatically, cache results, and offer retry only after f
   const root=new Element('root'), activity=new Element('section'), calls=[];
   const inventory={mode:'inventory',skills:[]};
   let fail=false, release, now=100000, updated=0;
-  const source=(await readFile(new URL('../src/management-ui.mjs',import.meta.url),'utf8')).replace('export function','function');
+  const source=(await readFile(new URL('../src/frontend/views/management.view.mjs',import.meta.url),'utf8')).replace('export function','function');
   const context=vm.createContext({Date:{now:()=>now},document:{createElement:tag=>new Element(tag),querySelector:()=>activity}});
   vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
   const update=context.createPanel(root,async ({name})=>{
@@ -115,7 +115,7 @@ test('source summary groups personal roots, filters every category, and keeps to
   const root=new Element('root');
   const sources=['用户技能','用户 .agents 技能','系统技能','插件缓存技能'];
   const inventory={mode:'inventory',skills:sources.map((source,i)=>({id:String(i),name:'skill-'+i,source,description:'Example',path:'/example/'+i,fingerprint:String(i)}))};
-  const source=(await readFile(new URL('../src/management-ui.mjs',import.meta.url),'utf8')).replace('export function','function');
+  const source=(await readFile(new URL('../src/frontend/views/management.view.mjs',import.meta.url),'utf8')).replace('export function','function');
   const context=vm.createContext({Date,document:{createElement:tag=>new Element(tag),createTextNode:text=>({textContent:text,children:[]}),querySelector:()=>new Element('section')}});
   vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
   const update=context.createPanel(root,async()=>({structuredContent:inventory}),()=>{});
@@ -159,7 +159,7 @@ test('plugin inventory deduplicates IDs, separates old caches, preserves unknown
     {id:'mixed@market',version:'1',enabled:true},{id:'mixed@market',version:'2',enabled:false}
   ]}};
   let fail=false;
-  const source=(await readFile(new URL('../src/management-ui.mjs',import.meta.url),'utf8')).replace('export function','function');
+  const source=(await readFile(new URL('../src/frontend/views/management.view.mjs',import.meta.url),'utf8')).replace('export function','function');
   const context=vm.createContext({Date,document:{createElement:tag=>new Element(tag),querySelector:()=>new Element('section')}});
   vm.runInContext(source+'\nglobalThis.createPanel=createManagementPanel;',context);
   const update=context.createPanel(root,async ({name})=>{calls.push(name);return fail?{isError:true,content:[{type:'text',text:'offline'}]}:{structuredContent:inventory};},()=>{});
