@@ -134,11 +134,13 @@ node install.mjs uninstall
 
 ## 开发
 
-`npm test` 构建 UI，并使用合成临时目录运行单元测试和 stdio MCP 集成测试。界面资源使用内容哈希 URL；保留的历史版本可供已打开的面板请求匹配内容。旧面板仍打开时，不要删除对应资源版本。
+架构、配置与依赖管理见 [docs/dev/ARCHITECTURE.md](docs/dev/ARCHITECTURE.md)、[CONFIGURATION.md](docs/dev/CONFIGURATION.md)、[DEPENDENCIES.md](docs/dev/DEPENDENCIES.md)。`pnpm run verify` 运行契约、架构、类型检查和全部测试。
+
+`pnpm test` 构建 UI，并使用合成临时目录运行单元测试和 stdio MCP 集成测试。界面资源使用内容哈希 URL；保留的历史版本可供已打开的面板请求匹配内容。旧面板仍打开时，不要删除对应资源版本。
 
 前端使用 MCP Apps SDK，后端工具使用 MCP SDK v1；依赖版本固定，无需 Python 运行时。
 
-`npm run build:marketplace` 生成包含运行包与配套 Skill 的自包含开发目录。详见[市场配置与已解决的 Windows 安装问题](docs/MARKETPLACE.zh-CN.md)。这不代表已验证远程 GitHub marketplace 或已发布 npm 包；协议与合成界面测试也不等于原生侧栏验收。
+`pnpm run build:marketplace` 生成包含运行包与配套 Skill 的自包含开发目录。详见[市场配置与已解决的 Windows 安装问题](docs/MARKETPLACE.zh-CN.md)。这不代表已验证远程 GitHub marketplace 或已发布 npm 包；协议与合成界面测试也不等于原生侧栏验收。
 
 ## 许可证
 
