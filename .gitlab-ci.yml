@@ -1,0 +1,111 @@
+# GitLab CI/CD pipeline — mirrors .github/workflows/test.yml.
+#
+#   verify   contracts, architecture rules, type check, build and the full test suite on every push
+#            and merge request (Linux, Node 20.18.1 and 24 — the supported range).
+#   package  builds the standalone plugin bundle on the default branch and tags, kept as an artifact.
+#
+# Windows and macOS jobs need runners that GitLab.com does not provide on every plan; they run only
+# when enabled with CI/CD variables (see the jobs at the end). Pipelines never publish or deploy.
+
+stages:
+  - verify
+  - package
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Avoid duplicate branch pipelines while a merge request is open.
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+default:
+  interruptible: true
+  timeout: 30 minutes
+
+variables:
+  # Keep the pnpm store inside the project so GitLab can cache it.
+  PNPM_STORE_DIR: "$CI_PROJECT_DIR/.pnpm-store"
+
+# Shared setup: pnpm version comes from package.json#packageManager (single source of truth);
+# the lockfile is authoritative and the supply-chain policy lives in pnpm-workspace.yaml.
+.pnpm:
+  before_script:
+    - node --version
+    - PNPM_VERSION="$(node -p "require('./package.json').packageManager.split('@')[1]")"
+    - npm install --global --no-fund --no-audit "pnpm@${PNPM_VERSION}"
+    - pnpm config set store-dir "$PNPM_STORE_DIR"
+    - pnpm install --frozen-lockfile
+  cache:
+    key:
+      files:
+        - pnpm-lock.yaml
+      prefix: pnpm-$NODE_VERSION
+    paths:
+      - .pnpm-store/
+    policy: pull-push
+
+verify:linux:
+  stage: verify
+  extends: .pnpm
+  image: node:${NODE_VERSION}-bookworm-slim
+  parallel:
+    matrix:
+      - NODE_VERSION: ["20.18.1", "24"]
+  script:
+    - pnpm run verify
+
+package:plugin:
+  stage: package
+  extends: .pnpm
+  image: node:24-bookworm-slim
+  variables:
+    NODE_VERSION: "24"
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - VERSION="$(node -p "require('./package.json').version")"
+    - pnpm run build:plugin
+    - test -f "dist/plugin-${VERSION}/server/src/server.mjs"
+  artifacts:
+    name: "plugin-skill-manager-$CI_COMMIT_REF_SLUG"
+    paths:
+      - dist/plugin-*/
+    expire_in: 1 week
+
+# ---- Optional operating-system jobs -------------------------------------------------------------
+# Enable in Settings → CI/CD → Variables. Each job needs a runner with Node.js >= 20.18 installed.
+#   RUN_WINDOWS_TESTS=true  + WINDOWS_RUNNER_TAG (default: saas-windows-medium-amd64)
+#   RUN_MACOS_TESTS=true    + MACOS_RUNNER_TAG   (default: saas-macos-medium-m1, GitLab Premium+)
+# These jobs cover the Windows-only archive tests and the macOS/Linux platform adapters.
+
+verify:windows:
+  stage: verify
+  tags:
+    - ${WINDOWS_RUNNER_TAG}
+  variables:
+    WINDOWS_RUNNER_TAG: saas-windows-medium-amd64
+  rules:
+    - if: $RUN_WINDOWS_TESTS == "true"
+  before_script:
+    - node --version
+    - $env:PNPM_VERSION = node -p "require('./package.json').packageManager.split('@')[1]"
+    - npm install --global --no-fund --no-audit "pnpm@$env:PNPM_VERSION"
+    - pnpm install --frozen-lockfile
+  script:
+    - pnpm run verify
+
+verify:macos:
+  stage: verify
+  extends: .pnpm
+  tags:
+    - ${MACOS_RUNNER_TAG}
+  variables:
+    MACOS_RUNNER_TAG: saas-macos-medium-m1
+    NODE_VERSION: host
+  rules:
+    - if: $RUN_MACOS_TESTS == "true"
+  script:
+    - pnpm run verify
