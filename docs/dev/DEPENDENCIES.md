@@ -13,10 +13,13 @@ it with `"catalog:"`. Versions are exact; `pnpm-lock.yaml` is committed and CI i
 CI runs in two places: GitLab (`.gitlab-ci.yml`, the `origin` remote) and GitHub Actions
 (`.github/workflows/test.yml`). The GitLab pipeline:
 
-| Stage | Jobs | Notes |
+| Stage | Jobs | Depends on |
 | --- | --- | --- |
-| test | `test:node`, `deps:audit`, `deps:lockfile`, `deps:licenses`, GitLab SAST, secret detection | `test:node` builds the dashboard and runs every `test/**/*.test.mjs` (Node 24.22.1) with a JUnit report for the Tests tab. High/critical advisories, `pnpm dedupe --check`, production licenses against the allowlist in `scripts/check-licenses.mjs`. |
-| package | `package:plugin-codex` | Manual, on every branch, tag and merge request pipeline. Available after `test:node` and the dependency checks pass; the bundle is kept as an artifact for one week. |
+| check | `deps:lockfile` — `pnpm dedupe --check` | — |
+| audit | `deps:audit` (high/critical advisories), `deps:licenses` (allowlist in `scripts/check-licenses.mjs`) | `deps:lockfile` |
+| audit | `secret_detection`, `semgrep-sast` (GitLab templates, stage moved) | — |
+| test | `test:node` — builds the dashboard, runs every `test/**/*.test.mjs` on Node 24.22.1, JUnit report in the Tests tab | `deps:lockfile` |
+| package | `package:plugin-codex` — manual on every pipeline; bundle kept as an artifact for one week | `test:node`, `deps:audit`, `deps:licenses`, scanners (optional) |
 
 Contract, architecture and type checks are not part of the GitLab pipeline; `pnpm run verify` runs them locally.
 GitHub Actions still runs `pnpm run verify` on Windows, macOS and Linux.

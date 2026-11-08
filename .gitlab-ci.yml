@@ -1,19 +1,32 @@
 # GitLab CI/CD pipeline.
 #
-#   test     the node:test suites under test/ (results shown in the pipeline's Tests tab),
-#            dependency audit, lockfile hygiene, license allowlist, GitLab SAST and secret detection.
-#   package  a manual job on every pipeline that builds the Codex plugin bundle as a downloadable
-#            artifact once the tests and dependency checks have passed.
+#   check    deps:lockfile      the committed lockfile is deduplicated and satisfies the policy
+#   audit    deps:audit         no high/critical advisories            (after deps:lockfile)
+#            deps:licenses      production licenses on the allowlist   (after deps:lockfile)
+#            secret_detection   GitLab secret scanning                 (independent)
+#            semgrep-sast       GitLab static analysis                 (independent)
+#   test     test:node          node:test suites under test/, JUnit report in the Tests tab
+#                                                                      (after deps:lockfile)
+#   package  package:plugin-codex  manual; builds the Codex plugin bundle as an artifact
+#                                  (after test:node, deps:audit, deps:licenses and the scanners)
+#
+#   deps:lockfile ─┬─▶ deps:audit ────┐
+#                  ├─▶ deps:licenses ─┤
+#                  └─▶ test:node ─────┼─▶ package:plugin-codex (manual)
+#   secret_detection ─────────────────┤
+#   semgrep-sast ─────────────────────┘
 #
 # Contract, architecture and type checks are not run here; `pnpm run verify` runs them locally.
 # Pipelines never publish or deploy.
 
 stages:
-  - test
+  - check
+  - audit
+  - test       # also the default stage of any other job the included templates add
   - package
 
 include:
-  # GitLab-maintained scanners (available on all tiers); they add jobs to the `test` stage.
+  # GitLab-maintained scanners (available on all tiers); their jobs are moved to `audit` below.
   - template: Jobs/SAST.gitlab-ci.yml
   - template: Jobs/Secret-Detection.gitlab-ci.yml
 
@@ -53,11 +66,50 @@ variables:
   extends: .pnpm
   image: node:24.22.1-bookworm-slim
 
-# ---- test: test suites, dependency and repository checks -----------------------------------------
+# ---- check ---------------------------------------------------------------------------------------
+deps:lockfile:
+  stage: check
+  extends: .linux
+  needs: []
+  script:
+    # The committed lockfile must already be deduplicated and satisfy the supply-chain policy.
+    - pnpm dedupe --check
+
+# ---- audit ---------------------------------------------------------------------------------------
+deps:audit:
+  stage: audit
+  extends: .linux
+  needs: [deps:lockfile]
+  script:
+    # Fails on known high or critical vulnerabilities in the locked dependency tree.
+    - pnpm audit --audit-level high
+
+deps:licenses:
+  stage: audit
+  extends: .linux
+  needs: [deps:lockfile]
+  script:
+    - pnpm licenses list --prod --json > licenses.json
+    - node scripts/check-licenses.mjs licenses.json
+  artifacts:
+    when: always
+    paths: [licenses.json]
+    expire_in: 1 week
+
+# Template jobs: only stage and dependencies are overridden; scanning reads source, not dependencies.
+secret_detection:
+  stage: audit
+  needs: []
+
+semgrep-sast:
+  stage: audit
+  needs: []
+
+# ---- test ----------------------------------------------------------------------------------------
 test:node:
   stage: test
   extends: .linux
-  needs: []
+  needs: [deps:lockfile]
   script:
     # Package and protocol tests load the built dashboard (dist/dashboard.html).
     - node scripts/build.mjs
@@ -68,43 +120,19 @@ test:node:
       junit: junit.xml
     expire_in: 1 week
 
-deps:audit:
-  stage: test
-  extends: .linux
-  needs: []
-  script:
-    # Fails on known high or critical vulnerabilities in the locked dependency tree.
-    - pnpm audit --audit-level high
-
-deps:lockfile:
-  stage: test
-  extends: .linux
-  needs: []
-  script:
-    # The committed lockfile must already be deduplicated and satisfy the supply-chain policy.
-    - pnpm dedupe --check
-
-deps:licenses:
-  stage: test
-  extends: .linux
-  needs: []
-  script:
-    - pnpm licenses list --prod --json > licenses.json
-    - node scripts/check-licenses.mjs licenses.json
-  artifacts:
-    when: always
-    paths: [licenses.json]
-    expire_in: 1 week
-
-# ---- package: manual, after the tests and dependency checks --------------------------------------
+# ---- package -------------------------------------------------------------------------------------
 package:plugin-codex:
   stage: package
   extends: .linux
   needs:
     - test:node
     - deps:audit
-    - deps:lockfile
     - deps:licenses
+    # Scanner jobs may be absent (e.g. disabled with SAST_DISABLED / SECRET_DETECTION_DISABLED).
+    - job: secret_detection
+      optional: true
+    - job: semgrep-sast
+      optional: true
   rules:
     # Available on every branch, tag and merge request pipeline; runs only when triggered.
     - when: manual
