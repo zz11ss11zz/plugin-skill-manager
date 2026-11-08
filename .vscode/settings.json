@@ -1,0 +1,17 @@
+{
+  // ---- Testing view (extension: connor4312.nodejs-testing) ----
+  // Discover tests only under test/; helpers are shared modules, not test files.
+  "nodejs-testing.include": ["./test"],
+  "nodejs-testing.exclude": ["**/node_modules/**", "**/test/helpers/**"],
+  // Tests share temporary-directory fixtures; run files one at a time, as scripts/test.mjs does.
+  "nodejs-testing.concurrency": 1,
+  // Package and protocol tests load dist/dashboard.html, so build the dashboard before each run.
+  "nodejs-testing.pretest": ["node", "scripts/build.mjs"],
+
+  // ---- NPM Scripts view ----
+  "npm.packageManager": "pnpm",
+
+  // ---- Type checking in the editor (same TypeScript as `pnpm run typecheck`) ----
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}

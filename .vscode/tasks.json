@@ -1,0 +1,35 @@
+{
+  // Run via Terminal → Run Task… (or Run Test Task for the default test task).
+  // Commands call node directly, so they work before pnpm is installed globally.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build dashboard",
+      "type": "shell",
+      "command": "node scripts/build.mjs",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "test: all",
+      "type": "shell",
+      "command": "node scripts/build.mjs && node scripts/test.mjs",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "test: current file",
+      "type": "shell",
+      "command": "node scripts/build.mjs && node --test --test-concurrency=1 \"${file}\"",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "verify (contracts, architecture, types, tests)",
+      "type": "shell",
+      "command": "node scripts/contracts.mjs --check && node scripts/check-architecture.mjs && node node_modules/typescript/bin/tsc -p tsconfig.json && node scripts/build.mjs && node scripts/test.mjs",
+      "group": "test",
+      "problemMatcher": ["$tsc"]
+    }
+  ]
+}
