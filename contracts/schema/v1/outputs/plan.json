@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "type": "string",
+      "const": "management-plan"
+    },
+    "plan": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "impact": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "token",
+        "title",
+        "impact"
+      ],
+      "additionalProperties": {}
+    }
+  },
+  "required": [
+    "mode",
+    "plan"
+  ],
+  "additionalProperties": {}
+}

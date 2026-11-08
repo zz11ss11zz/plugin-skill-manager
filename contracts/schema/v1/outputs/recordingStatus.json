@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "type": "string",
+      "const": "recording-status"
+    },
+    "health": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "number"
+            },
+            "warning": {
+              "type": "number"
+            },
+            "unknown": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "error",
+            "warning",
+            "unknown"
+          ],
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "summary"
+      ],
+      "additionalProperties": {}
+    }
+  },
+  "required": [
+    "mode",
+    "health"
+  ],
+  "additionalProperties": {}
+}

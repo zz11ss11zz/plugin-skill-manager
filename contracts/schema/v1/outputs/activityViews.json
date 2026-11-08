@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "type": "string",
+      "const": "activity-views"
+    },
+    "views": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "yearView": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          },
+          "dayStatus": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "request",
+          "yearView",
+          "dayStatus"
+        ],
+        "additionalProperties": {}
+      }
+    }
+  },
+  "required": [
+    "mode",
+    "views"
+  ],
+  "additionalProperties": false
+}
