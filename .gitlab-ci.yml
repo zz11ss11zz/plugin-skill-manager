@@ -67,7 +67,7 @@ variables:
   image: node:24.22.1-bookworm-slim
 
 # ---- check ---------------------------------------------------------------------------------------
-deps:lockfile:
+check:lockfile:
   stage: check
   extends: .linux
   needs: []
