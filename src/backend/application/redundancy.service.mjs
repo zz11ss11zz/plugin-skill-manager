@@ -7,6 +7,7 @@ import { compareInstances } from '../domain/skills/compare.mjs';
 import { inactivityReport } from '../domain/redundancy/inactivity.mjs';
 import { createGrouping } from '../domain/redundancy/grouping.mjs';
 import { ownerId, sameInstallationUnit } from '../domain/redundancy/installation-unit.mjs';
+import { createGuidance, NO_GUIDANCE } from '../domain/redundancy/guidance.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
 const DAY = 86400000;
@@ -28,12 +29,14 @@ export const REDUNDANCY_DEFAULTS = Object.freeze({
  * @param {object|null} [deps.adoptions]     adoption summary or null when unavailable
  * @param {object|null} [deps.calls]         plugin-call summary or null when unavailable
  * @param {{ observe: Function }|null} [deps.presence]
+ * @param {import('../domain/redundancy/guidance.mjs').GuidanceSettings} [deps.guidance]  named-Skill guidance
  * @param {number} [deps.days]
  * @param {number} [deps.now]
  */
-export async function redundancyReport(inventory, { fileTree, discoverComponents, isProtected, settings = {}, overlap = {}, componentLimits,
+export async function redundancyReport(inventory, { fileTree, discoverComponents, isProtected, settings = {}, overlap = {}, componentLimits, guidance = NO_GUIDANCE,
   adoptions = null, calls = null, days, now = Date.now(), presence = null }) {
   const limits = { ...REDUNDANCY_DEFAULTS, ...settings };
+  const advise = createGuidance(overlap.tasks || [], guidance);
   days ??= limits.defaultDays;
   const registry = (inventory.pluginRegistry?.plugins || []).filter(r => !isProtected.plugin(r.id));
   const installed = new Set(registry.map(r => r.id));
@@ -81,7 +84,7 @@ export async function redundancyReport(inventory, { fileTree, discoverComponents
     }
     const tree = trees.get(skill.id);
     return { id: skill.id, name: skill.name, description: skill.description, source: skill.source, path: skill.path, owner: skill.owner, pluginStatus: skill.pluginStatus, fingerprint: skill.fingerprint, annotation: skill.annotation,
-      declaredAuthor: skill.declaredAuthor,
+      declaredAuthor: skill.declaredAuthor, purpose: advise.purpose(skill),
       parentSkillId: skill.parentSkillId, parentSkillName: skill.parentSkillName, parentSkillPath: skill.parentSkillPath, componentKind: skill.componentKind,
       tree: { complete: tree.complete, fingerprint: tree.fingerprint, files: tree.files, bytes: tree.bytes, reason: tree.reason }, dependencyHints: tree.tools || [], references: tree.references || [], activity: activity(adoptions, skill.id, 'adoptions') };
   }
@@ -104,6 +107,7 @@ export async function redundancyReport(inventory, { fileTree, discoverComponents
     if (documents.every(Boolean)) while (commonPrefix < Math.min(...documents.map(d => d.length)) && documents.every(d => d[commonPrefix] === documents[0][commonPrefix])) commonPrefix++;
     const documentDifference = new Set(members.map(m => m.fingerprint)).size > 1 ? members.map((m, i) => ({ id: m.id, line: commonPrefix + 1, excerpt: documents[i]?.slice(commonPrefix, commonPrefix + 25).join('\n').slice(0, 4000) ?? null })) : [];
     groups.push({ id: hash(ids.join('|') + members.map(m => m.tree.fingerprint || m.fingerprint).join('|')), types, members, totalMembers: ids.length,
+      guidance: advise.forGroup({ members, relations }),
       complete, directoryEqual, differences: differences.slice(0, limits.maxDifferences), differenceCount: differences.length, documentDifference, relations: relations.slice(0, limits.maxRelations),
       retained: members.filter(m => m.annotation?.retain).map(m => m.id), recommendation: directoryEqual ? 'review-context' : 'keep-until-reviewed' });
   }

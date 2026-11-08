@@ -2,6 +2,7 @@
 import { z } from 'zod';
 
 const int = (min = 0) => z.number().int().min(min);
+const localized = z.object({ zh: z.string().min(1), en: z.string().min(1) }).strict();
 const bytes = int(1);
 
 export const configSchema = z.object({
@@ -47,7 +48,11 @@ export const configSchema = z.object({
     overlap: z.object({
       minSharedTerms: int(1), minJaccard: z.number().min(0).max(1), maxCompared: int(2),
       maxDescriptionChars: int(1), maxTerms: int(1), maxSharedTermsShown: int(1), maxPairsShown: int(1),
-      tasks: z.array(z.object({ id: z.string().min(1), pattern: z.string().min(1) }).strict()),
+      tasks: z.array(z.object({ id: z.string().min(1), pattern: z.string().min(1), label: localized.optional() }).strict()),
+    }).strict(),
+    guidance: z.object({
+      purposes: z.array(z.object({ name: z.string().min(1), zh: z.string().min(1), en: z.string().min(1) }).strict()),
+      rules: z.array(z.object({ id: z.string().min(1), names: z.array(z.string().min(1)).min(1), task: z.string().optional(), overridesSuite: z.boolean().default(false), zh: z.string().min(1), en: z.string().min(1) }).strict()),
     }).strict(),
     protected: z.object({
       namePrefixes: z.array(z.string()), marketplaces: z.array(z.string()),

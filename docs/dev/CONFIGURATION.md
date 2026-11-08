@@ -26,7 +26,8 @@ with the key path and layer in the message.
 | `config/default.toml` | app, paths, features, host CLI timeouts, capture interval bounds, storage limits, dashboard cache, component scan limits, redundancy limits and overlap thresholds |
 | `config/hosts/codex.toml` | Codex home variable/default, data and archive subdirectories, CLI command, protected official plugins |
 | `config/hosts/claude.toml` | Placeholder for a future, verified Claude adapter |
-| `config/redundancy/task-vocabulary.toml` | Bilingual task patterns used as overlap retrieval clues; extend with your own `[[task]]` entries |
+| `config/redundancy/task-vocabulary.toml` | Bilingual task patterns used as overlap retrieval clues, with the dashboard `label` for each task; extend with your own `[[task]]` entries |
+| `config/redundancy/guidance.toml` | Purposes of named Skills and advice for named Skill pairs shown with redundancy candidates (advice only; never changes candidates) |
 
 ## Examples
 

@@ -81,6 +81,7 @@ export async function redundancyReportWithDefaults(inventory, options = {}) {
     discoverComponents: (parents, limits = config.components) => discoverComponents(parents, limits),
     isProtected: createProtection(config.redundancy.protected),
     settings: config.redundancy, overlap: { tasks: config.redundancy.overlap.tasks, limits: config.redundancy.overlap }, componentLimits: config.components,
+    guidance: config.redundancy.guidance,
     ...rest,
   });
 }

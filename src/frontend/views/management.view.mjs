@@ -162,42 +162,25 @@ export function createManagementPanel(root, vm, initialLocale = 'zh') {
     };
     input.addEventListener('input', () => { vm.setPluginSearch(input.value); populate(); }); populate();
   }
+  // Named-Skill labels, purposes and advice arrive from the backend (config/redundancy/guidance.toml);
+  // this view only chooses the language and supplies generic wording.
+  const localized = value => value ? (locale === 'en' ? value.en : value.zh) : '';
   function groupPresentation(g) {
-    const vocabulary={
-      'scientific-figures':text('科研绘图','Scientific plotting'),
-      'peer-review':text('论文审稿','Manuscript review'),
-      'manuscript-writing':text('论文写作','Manuscript writing'),
-      'literature-search':text('文献检索','Literature search'),
-      'reference-verification':text('引用核验','Reference verification'),
-      'paper-reading':text('论文精读','Paper reading'),
-      translation:text('论文翻译','Translation'),
-      'statistical-review':text('统计审查','Statistical review'),
-      'review-response':text('审稿回复','Review response'),
-    };
     const terms=[...new Set((g.relations||[]).flatMap(r=>r.sharedTerms||[]))];
-    const functions=terms.filter(term=>vocabulary[term]).map(term=>vocabulary[term]);
-    const names=new Set(g.members.map(m=>m.name));
-    if(!functions.length&&names.has('scientific-visualization')&&names.has('matplotlib'))functions.push(vocabulary['scientific-figures']);
+    const functions=(g.guidance?.tasks||[]).map(task=>localized(task.label));
+    const rule=g.guidance?.advice;
     const label=functions.length?functions.join(' / '):g.types.includes('documents')?text('相同技能文档','Identical Skill documents'):g.types.includes('names')?text('同名技能','Same-name Skills'):text('用途相近','Related functions');
     const evidence=g.types.includes('documents')?text('入口文档内容相同，仍需核对随附资源和运行环境。','Entrypoint documents match; supporting resources and runtime context still need review.'):functions.length?text(`任务交集：${functions.join('、')}。这是用途线索，不代表完整能力相同。`,`Shared tasks: ${functions.join(', ')}. This indicates overlap, not equivalent capabilities.`):text(`描述共同词：${terms.slice(0,8).join('、')||'同名入口'}；需结合各项用途判断。`,`Shared description terms: ${terms.slice(0,8).join(', ')||'same-name entrypoints'}; compare each purpose before deciding.`);
     const directory=!g.complete?text('目录比较不完整，内容一致性未知。','Directory comparison is incomplete; content equality is unknown.'):g.directoryEqual?text('已读取的目录内容一致。','The compared directory contents match.'):text(`目录内容不同，发现 ${g.differenceCount} 条差异路径。`,`Directory contents differ across ${g.differenceCount} paths.`);
     let advice=g.directoryEqual?text('选定常用来源后再评估其他副本；保留独有依赖和运行环境。','Choose a preferred source before reviewing other copies; preserve distinct dependencies and runtime contexts.'):text('先按输入、产物和使用场景选择主要入口；用途有交集时仍应保留独有能力。','Choose a primary entrypoint by inputs, outputs and context; preserve capabilities that remain distinct.');
-    if(names.has('scientific-visualization')&&names.has('matplotlib'))advice=text('建议两者保留、按任务分工：scientific-visualization 负责科研图设计、多面板布局与质量检查；matplotlib 负责绘图实现和元素微调。两者互补，不建议仅因都能画图而归档。','Keep both with distinct roles: scientific-visualization covers figure design, multi-panel layout and quality checks; matplotlib covers plotting implementation and fine control. Shared plotting capability alone is not a reason to archive either.');
+    if(rule?.overridesSuite)advice=localized(rule);
     else if(g.members.length>1&&g.members.every(m=>m.parentSkillId&&m.parentSkillId===g.members[0].parentSkillId))advice=text('属于同一套件的内部工作流。编排流程会调用专业模块，功能交集可能来自分工与依赖；建议保留，通过父 Skill 选择任务入口。','These are workflows within one suite. Orchestration may call specialist modules; overlap can reflect roles and dependencies. Keep them and choose the task through the parent Skill.');
-    else if(names.has('academic-paper')&&names.has('ingest-literature'))advice=text('建议保留并区分阶段：academic-paper 服务论文写作及引用检查；ingest-literature 负责文献核验、登记与入库。引用核验有交集，交付目的不同。','Keep both with different stages: academic-paper supports writing and citation checks; ingest-literature verifies, registers and imports references. Citation verification overlaps, but their outputs differ.');
+    else if(rule)advice=localized(rule);
     if(g.retained?.length)advice+=' '+text('已有保留标记，优先遵循该选择。','Existing retention marks take precedence.');
     return {label,evidence,directory,advice};
   }
   function memberPurpose(m) {
-    const purposes={
-      'scientific-visualization':text('科研图设计、多面板布局、数据表达与质量检查。','Scientific figure design, multi-panel layout, data presentation and quality checks.'),
-      matplotlib:text('用 Matplotlib 实现绘图，精细控制图形元素并导出。','Implement plots with Matplotlib, control individual elements and export figures.'),
-      'academic-pipeline':text('编排研究、写作、审稿与返修的端到端流程。','Orchestrate research, writing, review and revision from end to end.'),
-      'academic-paper-reviewer':text('从不同审稿视角评估论文，形成审稿意见。','Assess a manuscript from multiple reviewer perspectives and produce review findings.'),
-      'academic-paper':text('论文写作、结构组织、引用检查与修改。','Manuscript writing, structure, citation checks and revision.'),
-      'ingest-literature':text('核验文献身份，去重、归档、登记并同步资料库。','Verify references, deduplicate, archive, register and synchronize the library.'),
-    };
-    return purposes[m.name]||m.description||text('用途说明未提供；请查看技能入口。','No purpose description provided; inspect the Skill entrypoint.');
+    return localized(m.purpose)||m.description||text('用途说明未提供；请查看技能入口。','No purpose description provided; inspect the Skill entrypoint.');
   }
   function renderReport() {
     const { data, plan, reportFilter, reportSearch, deferred, expanded } = S(), loading = S().check.loading, reportView = vm.reportView();

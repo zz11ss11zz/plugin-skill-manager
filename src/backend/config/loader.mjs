@@ -90,6 +90,8 @@ export function loadConfig({ platform, env = process.env, host, userFile, overri
   const platformText = platform ? readShipped(`platforms/${platform.id}.toml`) : null;
   if (platformText !== null) merged = merge(merged, parseLayer(platformText, `platforms/${platform.id}.toml`));
   merged.redundancy.overlap.tasks = required('redundancy/task-vocabulary.toml').task || [];
+  const guidance = required('redundancy/guidance.toml');
+  merged.redundancy.guidance = { purposes: guidance.purpose || [], rules: guidance.rule || [] };
 
   const userPath = userFile === undefined ? (platform ? path.join(platform.userConfigDir('plugin-skill-manager'), 'config.toml') : null) : userFile;
   if (userPath) {

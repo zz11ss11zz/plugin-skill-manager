@@ -9,6 +9,8 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
 import {scanInventory} from '../src/backend/adapters/hosts/codex/skill-source.mjs';
 import { redundancyReportWithDefaults as redundancyReport } from '../src/backend/container.mjs';
+import { createGuidance } from '../src/backend/domain/redundancy/guidance.mjs';
+import { testConfig } from '../test/helpers/config.mjs';
 
 const chrome=process.env.CHROME_PATH;
 if(!chrome)throw new Error('Set CHROME_PATH to Chromium');
@@ -27,6 +29,9 @@ try{
   const idleInventory={...inventory,redundancy:await redundancyReport(inventory,{now:Date.parse('2026-10-30T12:00:00Z'),adoptions:{activity:{days:[]}},calls:{catalog:[],activity:{days:[]}},presence:{observe:async keys=>Object.fromEntries(keys.map(k=>[k,'2026-08-01T00:00:00Z']))}})};
   const sample=inventory.redundancy.skills[0];
   const drawing={...sample,id:'drawing-demo',types:['overlap'],directoryEqual:false,members:['scientific-visualization','matplotlib','plotting-demo'].map((name,i)=>({...sample.members[0],id:'drawing-'+i,name,path:`C:/Synthetic/Skills/${name}/SKILL.md`,declaredAuthor:'Example maintainer',description:'Scientific figure implementation and visual review.'})),totalMembers:3,relations:[{type:'overlap',ids:['drawing-0','drawing-1','drawing-2'],sharedTerms:['scientific-figures']}],retained:[]};
+  // The backend attaches guidance from the shipped configuration; the hand-built group gets the same.
+  const config=testConfig(),advise=createGuidance(config.redundancy.overlap.tasks,config.redundancy.guidance);
+  drawing.members=drawing.members.map(m=>({...m,purpose:advise.purpose(m)}));drawing.guidance=advise.forGroup(drawing);
   const drawingInventory={...inventory,redundancy:{...inventory.redundancy,skills:[drawing]}};
   // Replace temporary fixture paths only in the display evidence.
   for(const g of inventory.redundancy.skills)for(const m of g.members)m.path=`C:/Synthetic/Skills/${path.basename(path.dirname(m.path))}/SKILL.md`;

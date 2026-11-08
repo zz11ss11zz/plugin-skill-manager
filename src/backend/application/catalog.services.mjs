@@ -27,6 +27,7 @@ export function createPluginStatusService({ inventory, host, adoptions, pluginCa
     return redundancyReport(result, {
       days, presence, fileTree, discoverComponents: host.discoverComponents, isProtected: host.isProtected,
       settings: config.redundancy, overlap: { tasks: config.redundancy.overlap.tasks, limits: config.redundancy.overlap }, componentLimits: config.components,
+      guidance: config.redundancy.guidance,
       adoptions: records[0].status === 'fulfilled' ? records[0].value : null, calls: records[1].status === 'fulfilled' ? records[1].value : null,
     });
   }

@@ -1,0 +1,51 @@
+# Guidance shown with redundancy candidates for specific, well-known Skills.
+# Advice only: it never authorizes removal and never changes which groups are candidates.
+# Matching is by Skill name. Rules are checked in order; the first rule whose names are all present
+# in a group applies. `task` names the group's shared function when no task clue matched.
+# `overrides_suite` decides whether the rule wins over the generic advice for workflows that
+# share one parent Skill.
+
+[[purpose]]
+name = "scientific-visualization"
+zh = "科研图设计、多面板布局、数据表达与质量检查。"
+en = "Scientific figure design, multi-panel layout, data presentation and quality checks."
+
+[[purpose]]
+name = "matplotlib"
+zh = "用 Matplotlib 实现绘图，精细控制图形元素并导出。"
+en = "Implement plots with Matplotlib, control individual elements and export figures."
+
+[[purpose]]
+name = "academic-pipeline"
+zh = "编排研究、写作、审稿与返修的端到端流程。"
+en = "Orchestrate research, writing, review and revision from end to end."
+
+[[purpose]]
+name = "academic-paper-reviewer"
+zh = "从不同审稿视角评估论文，形成审稿意见。"
+en = "Assess a manuscript from multiple reviewer perspectives and produce review findings."
+
+[[purpose]]
+name = "academic-paper"
+zh = "论文写作、结构组织、引用检查与修改。"
+en = "Manuscript writing, structure, citation checks and revision."
+
+[[purpose]]
+name = "ingest-literature"
+zh = "核验文献身份，去重、归档、登记并同步资料库。"
+en = "Verify references, deduplicate, archive, register and synchronize the library."
+
+[[rule]]
+id = "plotting-roles"
+names = ["scientific-visualization", "matplotlib"]
+task = "scientific-figures"
+overrides_suite = true
+zh = "建议两者保留、按任务分工：scientific-visualization 负责科研图设计、多面板布局与质量检查；matplotlib 负责绘图实现和元素微调。两者互补，不建议仅因都能画图而归档。"
+en = "Keep both with distinct roles: scientific-visualization covers figure design, multi-panel layout and quality checks; matplotlib covers plotting implementation and fine control. Shared plotting capability alone is not a reason to archive either."
+
+[[rule]]
+id = "paper-stages"
+names = ["academic-paper", "ingest-literature"]
+overrides_suite = false
+zh = "建议保留并区分阶段：academic-paper 服务论文写作及引用检查；ingest-literature 负责文献核验、登记与入库。引用核验有交集，交付目的不同。"
+en = "Keep both with different stages: academic-paper supports writing and citation checks; ingest-literature verifies, registers and imports references. Citation verification overlaps, but their outputs differ."

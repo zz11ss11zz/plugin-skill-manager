@@ -77,9 +77,10 @@ localizes. Commands that change what is shown notify subscribers; typing in a se
 state silently so the view refreshes only its list and the input keeps focus. `main.mjs` creates
 each ViewModel and injects it into its view; views import nothing but i18n and assets.
 
-The management view still contains wording for a few named Skills (e.g. the
-scientific-visualization / matplotlib advice). That is recommendation content and should move to
-the backend or configuration (see *Follow-up*).
+Recommendations for named Skills are configuration, not view code: `config/redundancy/guidance.toml`
+(purposes and pair rules) and the `label` of each task in `task-vocabulary.toml`. The backend
+(`domain/redundancy/guidance.mjs`) attaches `guidance` to each redundancy group and `purpose` to each
+member; the view only picks the language and adds generic wording.
 
 ## Contracts
 
@@ -123,7 +124,6 @@ Adapters, inbound and views are added as their JSDoc is completed.
 
 ## Follow-up
 
-- Move the named-Skill recommendations in `management.view.mjs` to the backend or configuration.
 - Extend `checkJs` to adapters, inbound and views.
 - Implement and verify a Claude host adapter.
 - Accept archive moves on macOS/Linux, then enable the capability there.

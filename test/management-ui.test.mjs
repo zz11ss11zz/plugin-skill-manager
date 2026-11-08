@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {createManagementViewModel} from '../src/frontend/viewmodels/management.vm.mjs';
+import {createGuidance} from '../src/backend/domain/redundancy/guidance.mjs';
+import {testConfig} from './helpers/config.mjs';
+// Guidance is attached by the backend from the shipped configuration; fixtures do the same.
+const advise=createGuidance(testConfig().redundancy.overlap.tasks,testConfig().redundancy.guidance);
+const withGuidance=g=>({...g,members:g.members.map(m=>({...m,purpose:advise.purpose(m)})),guidance:advise.forGroup(g)});
 
 test('candidate views retain inventory kind, defer without mutations, preserve evidence and gate archive execution', async () => {
   class Element {
@@ -54,7 +59,7 @@ test('candidate views retain inventory kind, defer without mutations, preserve e
   click('冗余候选');click('插件');assert.equal(find('插件').attributes['aria-pressed'],'true');
   update.setLocale('en');assert.ok(find('Inventory'));assert.ok(find('Redundancy candidates'));
   const drawing={...group,id:'drawing',types:['overlap'],retained:[],directoryEqual:false,differenceCount:2,members:[{...member,name:'scientific-visualization',declaredAuthor:'K-Dense Inc.'},{...member,id:'b',name:'matplotlib'}],relations:[{type:'overlap',ids:['a','b'],sharedTerms:['scientific-figures']}]};
-  update({...inventory,redundancy:{...report,skills:[drawing]}});click('Skills');
+  update({...inventory,redundancy:{...report,skills:[withGuidance(drawing)]}});click('Skills');
   assert.equal(all().filter(e=>e.className==='report-skill').length,2);
   assert.ok(all().some(e=>e.className==='report-category'&&e.textContent==='Scientific plotting'));
   assert.ok(all().some(e=>e.className==='report-advice'&&e.textContent.includes('Keep both with distinct roles')));
