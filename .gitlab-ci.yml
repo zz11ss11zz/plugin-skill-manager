@@ -1,16 +1,14 @@
 # GitLab CI/CD pipeline.
 #
-#   verify   contracts, architecture rules, type check, build and the full test suite on Linux,
-#            Windows and macOS, each with Node 20.18.1 (minimum supported) and 24.22.1 (LTS).
-#   test     dependency audit, lockfile hygiene, license allowlist, GitLab SAST and secret detection.
-#   package  a manual job on every pipeline that builds the plugin bundle as a downloadable
-#            artifact once verification and checks have passed.
+#   test     the node:test suites under test/ (results shown in the pipeline's Tests tab),
+#            dependency audit, lockfile hygiene, license allowlist, GitLab SAST and secret detection.
+#   package  a manual job on every pipeline that builds the Codex plugin bundle as a downloadable
+#            artifact once the tests and dependency checks have passed.
 #
-# Pipelines never publish or deploy. Node.js versions are pinned and their downloads are verified
-# against the SHA-256 values below (from https://nodejs.org/dist/v<version>/SHASUMS256.txt).
+# Contract, architecture and type checks are not run here; `pnpm run verify` runs them locally.
+# Pipelines never publish or deploy.
 
 stages:
-  - verify
   - test
   - package
 
@@ -34,9 +32,6 @@ default:
 
 variables:
   PNPM_STORE_DIR: "$CI_PROJECT_DIR/.pnpm-store"
-  # Set either to "true" in Settings → CI/CD → Variables if no matching runner is available.
-  SKIP_WINDOWS: "false"
-  SKIP_MACOS: "false"
 
 # ---- shared setup --------------------------------------------------------------------------------
 # pnpm version comes from package.json#packageManager; the lockfile is authoritative and the
@@ -58,78 +53,21 @@ variables:
   extends: .pnpm
   image: node:24.22.1-bookworm-slim
 
-# ---- verify: three platforms ---------------------------------------------------------------------
-verify:linux:
-  stage: verify
-  extends: .pnpm
-  image: node:${NODE_VERSION}-bookworm-slim
-  parallel:
-    matrix:
-      - NODE_VERSION: ["20.18.1", "24.22.1"]
+# ---- test: test suites, dependency and repository checks -----------------------------------------
+test:node:
+  stage: test
+  extends: .linux
+  needs: []
   script:
-    - pnpm run verify
+    # Package and protocol tests load the built dashboard (dist/dashboard.html).
+    - node scripts/build.mjs
+    - node scripts/test.mjs --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=junit.xml
+  artifacts:
+    when: always
+    reports:
+      junit: junit.xml
+    expire_in: 1 week
 
-# Windows and macOS download the pinned Node.js themselves, so they do not depend on what the runner
-# image ships. Runner tags are the GitLab.com hosted runners; macOS hosted runners need GitLab
-# Premium or Ultimate. Override WINDOWS_RUNNER_TAG / MACOS_RUNNER_TAG for self-managed runners.
-# They are allowed to fail until their runners are confirmed; package depends on Linux verification.
-verify:windows:
-  stage: verify
-  tags: ["${WINDOWS_RUNNER_TAG}"]
-  allow_failure: true
-  variables:
-    WINDOWS_RUNNER_TAG: saas-windows-medium-amd64
-  parallel:
-    matrix:
-      - NODE_VERSION: "20.18.1"
-        NODE_SHA256: "56e5aacdeee7168871721b75819ccacf2367de8761b78eaceacdecd41e04ca03"
-      - NODE_VERSION: "24.22.1"
-        NODE_SHA256: "d2046d28c2c3dcd211ac5145c0bf30e2047ef9dfb306693c8c6e2eccd8b95fa5"
-  rules:
-    - if: $SKIP_WINDOWS == "true"
-      when: never
-    - when: on_success
-  before_script:
-    - $ErrorActionPreference = 'Stop'
-    - $zip = "node-v$env:NODE_VERSION-win-x64.zip"
-    - Invoke-WebRequest "https://nodejs.org/dist/v$env:NODE_VERSION/$zip" -OutFile $zip
-    - if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() -ne $env:NODE_SHA256) { throw "Node.js checksum mismatch" }
-    - Expand-Archive $zip -DestinationPath "$env:CI_PROJECT_DIR\.node"
-    - $env:Path = "$env:CI_PROJECT_DIR\.node\node-v$env:NODE_VERSION-win-x64;$env:Path"
-    - node --version
-    - $pnpmVersion = node -p "require('./package.json').packageManager.split('@')[1]"
-    - npm install --global --no-fund --no-audit "pnpm@$pnpmVersion"
-    - pnpm install --frozen-lockfile
-  script:
-    - pnpm run verify
-
-verify:macos:
-  stage: verify
-  tags: ["${MACOS_RUNNER_TAG}"]
-  allow_failure: true
-  variables:
-    MACOS_RUNNER_TAG: saas-macos-medium-m1
-  parallel:
-    matrix:
-      - NODE_VERSION: "20.18.1"
-        NODE_SHA256: "9e92ce1032455a9cc419fe71e908b27ae477799371b45a0844eedb02279922a4"
-      - NODE_VERSION: "24.22.1"
-        NODE_SHA256: "89c682593d76cd44233fa53b1563264e7de9cbb189cad169135c5b4fadfbc0a7"
-  rules:
-    - if: $SKIP_MACOS == "true"
-      when: never
-    - when: on_success
-  before_script:
-    - NODE_DIST="node-v${NODE_VERSION}-darwin-arm64"
-    - curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/${NODE_DIST}.tar.gz"
-    - echo "${NODE_SHA256}  ${NODE_DIST}.tar.gz" | shasum -a 256 -c -
-    - mkdir -p .node && tar -xzf "${NODE_DIST}.tar.gz" -C .node
-    - export PATH="$CI_PROJECT_DIR/.node/${NODE_DIST}/bin:$PATH"
-    - !reference [.pnpm, before_script]
-  script:
-    - pnpm run verify
-
-# ---- test: dependency and repository checks ------------------------------------------------------
 deps:audit:
   stage: test
   extends: .linux
@@ -158,15 +96,12 @@ deps:licenses:
     paths: [licenses.json]
     expire_in: 1 week
 
-# ---- package: manual, after verification ---------------------------------------------------------
-package:plugin:
+# ---- package: manual, after the tests and dependency checks --------------------------------------
+package:plugin-codex:
   stage: package
   extends: .linux
   needs:
-    - job: verify:linux
-      parallel:
-        matrix:
-          - NODE_VERSION: ["20.18.1", "24.22.1"]
+    - test:node
     - deps:audit
     - deps:lockfile
     - deps:licenses

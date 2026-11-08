@@ -35,7 +35,9 @@ files.set(path.join('src', 'frontend', 'generated', 'contracts.mjs'),
 
 if (check) {
   const stale = [];
-  for (const [file, text] of files) if (await readFile(file, 'utf8').catch(() => null) !== text) stale.push(file);
+  // Line endings are not part of the contract (Windows checkouts may use CRLF).
+  const normalize = value => value?.replace(/\r\n/g, '\n');
+  for (const [file, text] of files) if (normalize(await readFile(file, 'utf8').catch(() => null)) !== text) stale.push(file);
   if (stale.length) { console.error(`Contracts are stale; run \`pnpm run contracts\`:\n  ${stale.join('\n  ')}`); process.exit(1); }
   console.log(`Contracts v${CONTRACT_VERSION} are up to date (${files.size} files).`);
 } else {

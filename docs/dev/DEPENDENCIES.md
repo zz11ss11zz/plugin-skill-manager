@@ -15,12 +15,11 @@ CI runs in two places: GitLab (`.gitlab-ci.yml`, the `origin` remote) and GitHub
 
 | Stage | Jobs | Notes |
 | --- | --- | --- |
-| verify | `verify:linux`, `verify:windows`, `verify:macos` × Node 20.18.1 / 24.22.1 | `pnpm run verify`. Windows/macOS download the pinned Node.js and check its SHA-256; they are `allow_failure` until their runners are confirmed. Set `SKIP_WINDOWS` / `SKIP_MACOS` to `true` when no runner exists. |
-| test | `deps:audit`, `deps:lockfile`, `deps:licenses`, GitLab SAST, secret detection | High/critical advisories, `pnpm dedupe --check`, production licenses against the allowlist in `scripts/check-licenses.mjs`. |
-| package | `package:plugin` | Manual, on every branch, tag and merge request pipeline. Available after Linux verification and the dependency checks pass; the bundle is kept as an artifact for one week. |
+| test | `test:node`, `deps:audit`, `deps:lockfile`, `deps:licenses`, GitLab SAST, secret detection | `test:node` builds the dashboard and runs every `test/**/*.test.mjs` (Node 24.22.1) with a JUnit report for the Tests tab. High/critical advisories, `pnpm dedupe --check`, production licenses against the allowlist in `scripts/check-licenses.mjs`. |
+| package | `package:plugin-codex` | Manual, on every branch, tag and merge request pipeline. Available after `test:node` and the dependency checks pass; the bundle is kept as an artifact for one week. |
 
-Updating Node.js in CI means changing the version and both SHA-256 values in `.gitlab-ci.yml`
-(from `https://nodejs.org/dist/v<version>/SHASUMS256.txt`) and the Docker image tag.
+Contract, architecture and type checks are not part of the GitLab pipeline; `pnpm run verify` runs them locally.
+GitHub Actions still runs `pnpm run verify` on Windows, macOS and Linux.
 
 ## Supply-chain blocks (`pnpm-workspace.yaml`)
 
