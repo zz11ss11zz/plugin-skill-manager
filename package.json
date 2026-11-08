@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Inventory plugins and Skills, track usage, and identify redundancy for user-approved cleanup.",
+  "packageManager": "pnpm@12.15.0",
   "engines": {
     "node": ">=20.18"
   },
@@ -11,16 +12,24 @@
     "build": "node scripts/build.mjs",
     "start": "node src/server.mjs",
     "doctor": "node scripts/doctor.mjs",
-    "test": "npm run build && node scripts/test.mjs",
+    "contracts": "node scripts/contracts.mjs",
+    "contracts:check": "node scripts/contracts.mjs --check",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node scripts/build.mjs && node scripts/test.mjs",
+    "verify": "node scripts/contracts.mjs --check && node scripts/check-architecture.mjs && tsc -p tsconfig.json && node scripts/build.mjs && node scripts/test.mjs",
     "setup:check": "node scripts/setup.mjs check",
     "setup:install": "node scripts/setup.mjs install",
     "setup:uninstall": "node scripts/setup.mjs uninstall",
-    "build:plugin": "npm run build && node scripts/build-plugin.mjs",
-    "build:marketplace": "npm run build && node scripts/build-marketplace.mjs",
-    "build:distribution": "npm run build && node scripts/build-distribution.mjs"
+    "build:plugin": "node scripts/build.mjs && node scripts/build-plugin.mjs",
+    "build:marketplace": "node scripts/build.mjs && node scripts/build-marketplace.mjs",
+    "build:distribution": "node scripts/build.mjs && node scripts/build-distribution.mjs"
   },
   "files": [
     "src",
+    "config",
+    "contracts",
+    "assets",
     "scripts",
     "test",
     "docs",
@@ -32,12 +41,17 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@modelcontextprotocol/ext-apps": "1.7.5",
-    "@modelcontextprotocol/sdk": "1.32.1",
-    "acorn": "8.19.0",
-    "esbuild": "0.28.2",
-    "yaml": "2.9.1",
-    "zod": "4.6.7"
+    "@modelcontextprotocol/ext-apps": "catalog:",
+    "@modelcontextprotocol/sdk": "catalog:",
+    "acorn": "catalog:",
+    "smol-toml": "catalog:",
+    "yaml": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "esbuild": "catalog:",
+    "typescript": "catalog:"
   },
   "license": "Apache-2.0"
 }

@@ -4,15 +4,20 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
         node: ['20.18.1', '24']
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      # Installs the pnpm version pinned in package.json#packageManager.
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
-      - run: npm ci --ignore-scripts
-      - run: npm test
+          cache: pnpm
+      # The lockfile is authoritative; supply-chain policy lives in pnpm-workspace.yaml.
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run verify
