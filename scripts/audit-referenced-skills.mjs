@@ -2,8 +2,8 @@
 import {readFile,writeFile,mkdir,mkdtemp,rm} from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import {scanInventory} from '../src/inventory.mjs';
-import {redundancyReport} from '../src/redundancy.mjs';
+import {scanInventory} from '../src/backend/adapters/hosts/codex/skill-source.mjs';
+import { redundancyReportWithDefaults as redundancyReport } from '../src/backend/container.mjs';
 const source=JSON.parse(await readFile(process.argv[2],'utf8')),output=path.resolve(process.argv[3]);
 const root=await mkdtemp(path.join(os.tmpdir(),'public-skill-audit-'));
 try{

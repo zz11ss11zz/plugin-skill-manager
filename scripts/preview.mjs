@@ -7,12 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { createServer } from '../src/server.mjs';
-import { ArchiveManager } from '../src/archive.mjs';
-import { UsageIndex } from '../src/usage-index.mjs';
-import { SkillNotes } from '../src/skill-notes.mjs';
-import { Adoptions } from '../src/adoptions.mjs';
-import { PluginCalls } from '../src/plugin-calls.mjs';
+import { createServer } from '../src/backend/inbound/mcp/server.mjs';
+import { ArchiveManager } from '../src/backend/adapters/skill-files/archive.mjs';
+import { UsageIndex } from '../src/backend/adapters/hosts/codex/usage-index.mjs';
+import { SkillNotes } from '../src/backend/adapters/storage/json-file/skill-notes.mjs';
+import { Adoptions } from '../src/backend/adapters/storage/json-file/adoptions.mjs';
+import { PluginCalls } from '../src/backend/adapters/storage/json-file/plugin-calls.mjs';
 
 const temporary = await mkdtemp(path.join(os.tmpdir(), 'skill-manager-ui-'));
 const roots = { skills: path.join(temporary, 'skills'), cache: path.join(temporary, 'cache') };

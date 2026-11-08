@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { publishDataDirectory } from '../src/data-migration.mjs';
+import { publishDataDirectory } from '../src/backend/adapters/storage/json-file/migration.mjs';
 test('Windows publication retries only a transient denial with absent destination and stops at its bound', async () => {
   let attempts = 0;
   const denied = Object.assign(new Error('busy'), {code:'EPERM'});

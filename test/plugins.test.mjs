@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePluginList, parseInstalledPlugins, applyPluginStatus, localPluginIcon } from '../src/plugins.mjs';
+import { parsePluginList, parseInstalledPlugins, applyPluginStatus, localPluginIcon } from '../src/backend/adapters/hosts/codex/plugin-registry.mjs';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';

@@ -11,8 +11,8 @@ const chrome = process.env.CHROME_PATH;
 if (!chrome) throw new Error('Set CHROME_PATH to a local Chromium executable');
 const output = path.resolve(process.argv[2] || 'work/health-ui');
 await mkdir(output, { recursive: true });
-const template = await readFile(new URL('../src/dashboard.html', import.meta.url), 'utf8');
-const modulePath = fileURLToPath(new URL('../src/health-ui.mjs', import.meta.url));
+const template = await readFile(new URL('../src/frontend/index.html', import.meta.url), 'utf8');
+const modulePath = fileURLToPath(new URL('../src/frontend/views/health.view.mjs', import.meta.url));
 const report = { version: 1, status: 'unknown', checkedAt: '2026-10-30T12:00:00.000Z', checks: [
   { status: 'ok', title: { zh: 'Node.js 运行环境', en: 'Node.js runtime' }, message: { zh: '要求 Node.js 20.18 或更高版本。', en: 'Node.js 20.18 or newer is required.' } },
   { status: 'info', title: { zh: '自动采集设置', en: 'Automatic capture settings' }, message: { zh: '自动采集已关闭，已有记录仍保留。', en: 'Automatic capture is off; existing records are preserved.' } },

@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {mkdtemp, mkdir, writeFile, rm} from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import {scanInventory} from '../src/inventory.mjs';
-import {redundancyReport} from '../src/redundancy.mjs';
+import {scanInventory} from '../src/backend/adapters/hosts/codex/skill-source.mjs';
+import { redundancyReportWithDefaults as redundancyReport } from '../src/backend/container.mjs';
 
 async function fixture(t, count=2) {
   const root=await mkdtemp(path.join(os.tmpdir(),'redundancy-'));

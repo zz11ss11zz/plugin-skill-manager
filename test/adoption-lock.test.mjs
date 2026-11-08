@@ -5,12 +5,12 @@ import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import os from 'node:os';
 import path from 'node:path';
-import {Adoptions} from '../src/adoptions.mjs';
-import {acquireAdoptionLock} from '../src/adoption-lock.mjs';
+import {Adoptions} from '../src/backend/adapters/storage/json-file/adoptions.mjs';
+import {acquireAdoptionLock} from '../src/backend/adapters/storage/json-file/lock.mjs';
 
 const inventory=[{id:'a',name:'demo',source:'用户技能',fingerprint:'abc'}];
 const args={id:'lock-batch-00000001',skills:['demo']};
-const adoptionModule=JSON.stringify(new URL('../src/adoptions.mjs',import.meta.url).href);
+const adoptionModule=JSON.stringify(new URL('../src/backend/adapters/storage/json-file/adoptions.mjs',import.meta.url).href);
 function child(file, body) {
   const code=`import {Adoptions} from ${adoptionModule}; const ledger=new Adoptions(${JSON.stringify(file)}); const inventory=${JSON.stringify(inventory)}; const args=${JSON.stringify(args)}; ${body}`;
   const process=spawn(globalThis.process.execPath,['--input-type=module','-e',code],{stdio:['ignore','pipe','pipe'],windowsHide:true});

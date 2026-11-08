@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, appendFile, readFile, rm, mkdir } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { readUsageFile, UsageIndex } from '../src/usage-index.mjs';
+import { readUsageFile, UsageIndex } from '../src/backend/adapters/hosts/codex/usage-index.mjs';
 const row = (id, marker = 'demo') => JSON.stringify({ type: 'response_item', timestamp: '2026-01-01T00:00:00Z', payload: { type: 'message', id, role: 'user', content: [{ type: 'input_text', text: `private full prose 中文 $${marker}` }] } });
 const skills = [{ id: 'demo', name: 'demo', path: '/skills/demo/SKILL.md' }];
 

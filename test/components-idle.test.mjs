@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import {mkdtemp,mkdir,writeFile,rm,symlink} from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import {scanInventory} from '../src/inventory.mjs';
-import {redundancyReport} from '../src/redundancy.mjs';
-import {Presence} from '../src/presence.mjs';
-import {inactivityReport,monthCutoff} from '../src/inactivity.mjs';
+import {scanInventory} from '../src/backend/adapters/hosts/codex/skill-source.mjs';
+import { redundancyReportWithDefaults as redundancyReport } from '../src/backend/container.mjs';
+import {Presence} from '../src/backend/adapters/storage/json-file/presence.mjs';
+import {inactivityReport,monthCutoff} from '../src/backend/domain/redundancy/inactivity.mjs';
 
 test('same-installation components are not mutual candidates, but remain comparable to external installations',async t=>{
   const dir=await mkdtemp(path.join(os.tmpdir(),'components-'));t.after(()=>rm(dir,{recursive:true,force:true}));

@@ -7,8 +7,8 @@ import path from 'node:path';
 import os from 'node:os';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
-import {scanInventory} from '../src/inventory.mjs';
-import {redundancyReport} from '../src/redundancy.mjs';
+import {scanInventory} from '../src/backend/adapters/hosts/codex/skill-source.mjs';
+import { redundancyReportWithDefaults as redundancyReport } from '../src/backend/container.mjs';
 
 const chrome=process.env.CHROME_PATH;
 if(!chrome)throw new Error('Set CHROME_PATH to Chromium');
@@ -30,8 +30,8 @@ try{
   const drawingInventory={...inventory,redundancy:{...inventory.redundancy,skills:[drawing]}};
   // Replace temporary fixture paths only in the display evidence.
   for(const g of inventory.redundancy.skills)for(const m of g.members)m.path=`C:/Synthetic/Skills/${path.basename(path.dirname(m.path))}/SKILL.md`;
-  const template=await readFile(new URL('../src/dashboard.html',import.meta.url),'utf8');
-  const modulePath=fileURLToPath(new URL('../src/management-ui.mjs',import.meta.url));
+  const template=await readFile(new URL('../src/frontend/index.html',import.meta.url),'utf8');
+  const modulePath=fileURLToPath(new URL('../src/frontend/views/management.view.mjs',import.meta.url));
   const results=[];
   for(const [locale,width,dark,kind]of [['zh',1100,false,'skills'],['en',1100,true,'skills'],['zh',380,false,'skills'],['en',1100,false,'plugins'],['zh',380,false,'idle-plugins'],['en',1100,false,'idle-plugins'],['zh',1100,false,'drawing'],['zh',380,false,'drawing'],['en',1100,true,'drawing']]){
     const name=`${locale}-${width}-${dark?'dark':'light'}-${kind}`;

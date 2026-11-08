@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, readdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { initializeData } from '../src/data-migration.mjs';
-import { dataDirectory } from '../src/data-path.mjs';
-import { SkillNotes } from '../src/skill-notes.mjs';
-import { Adoptions } from '../src/adoptions.mjs';
-import { PluginCalls } from '../src/plugin-calls.mjs';
-import { UsageIndex } from '../src/usage-index.mjs';
+import { initializeData } from '../src/backend/adapters/storage/json-file/migration.mjs';
+import { dataDirectory } from '../src/backend/adapters/storage/json-file/data-path.mjs';
+import { SkillNotes } from '../src/backend/adapters/storage/json-file/skill-notes.mjs';
+import { Adoptions } from '../src/backend/adapters/storage/json-file/adoptions.mjs';
+import { PluginCalls } from '../src/backend/adapters/storage/json-file/plugin-calls.mjs';
+import { UsageIndex } from '../src/backend/adapters/hosts/codex/usage-index.mjs';
 
 async function fixture(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'manager-data-'));
