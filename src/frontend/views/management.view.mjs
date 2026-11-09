@@ -1,7 +1,31 @@
 // View: renders the management ViewModel (src/frontend/viewmodels/management.vm.mjs) and forwards
 // events to it. Localized wording lives here; state, commands and filtering live in the ViewModel.
+import * as collection from './collection.mjs';
 export function createManagementPanel(root, vm, initialLocale = 'zh') {
   let locale = initialLocale;
+  let snapshot, scanError = '', request = 0;
+  function renderCollectionPicker() {
+    const label = el('label', text('查看本地技能库目录', 'Inspect a local Skill collection'));
+    const input = el('input');
+    input.type = 'file';
+    input.setAttribute('webkitdirectory', '');
+    input.addEventListener('change', async () => {
+      if (!input.files?.length) return;
+      const id = ++request;
+      try {
+        const result = await collection.readCollection(input.files);
+        if (id !== request) return;
+        snapshot = result; scanError = '';
+      } catch (error) {
+        if (id !== request) return;
+        scanError = String(error.message || error);
+      }
+      render();
+    });
+    label.append(input); body.append(label);
+    if (scanError) body.append(el('p', scanError));
+    if (snapshot) body.append(collection.renderCollection(snapshot, S().data, el, text));
+  }
   const S = () => vm.state;
   const errorText = (error, fallback) => error?.message || fallback;
   function renderCheck() {
@@ -57,7 +81,7 @@ export function createManagementPanel(root, vm, initialLocale = 'zh') {
     count.textContent = search ? text(`显示 ${matches.length} / ${category.length} 个 Skill 文件`, `Showing ${matches.length} of ${category.length} Skill ${category.length === 1 ? 'file' : 'files'}`) : text(`${matches.length} 个 Skill 文件`, `${matches.length} Skill ${matches.length === 1 ? 'file' : 'files'}`);
     for (const skill of matches) {
       const item = el('li'), heading = el('h3', skill.name), meta = el('p', sourceLabel(skill.source), 'manager-meta');
-      item.append(heading, meta, el('p', skill.description));
+      item.append(heading, meta, el('p', skill.description), el('p', collection.adoptionEvidence([skill.id], data?.adoptions, text).label, 'manager-meta'));
       const details = el('details'); details.append(el('summary', text('来源与备注', 'Source and notes')), el('p', skill.path));
       if (skill.owner) details.append(el('p', `${skill.owner.name} / ${skill.owner.version} / ${skill.owner.marketplace}`));
       details.append(el('p', skill.owner ? skill.pluginStatus?.enabled === true ? text('同版本插件已安装并启用；当前会话是否加载未知。', 'Matching plugin installed and enabled; current-chat loading is unknown.') : text('插件缓存候选；安装或启用状态未确认。', 'Cached plugin candidate; installation or enablement is unconfirmed.') : text('本地文件存在；当前会话是否加载未知。', 'Local file exists; current-chat loading is unknown.')));
@@ -316,6 +340,7 @@ export function createManagementPanel(root, vm, initialLocale = 'zh') {
     if (inventoryKind === 'plugins') { renderPlugins(); return; }
     renderPlan();
     renderSources();
+    renderCollectionPicker();
     const searchLabel = el('label', text('搜索技能', 'Search skills'), 'inventory-search'), input = el('input');
     input.type = 'search'; input.value = search; searchLabel.append(input);
     input.placeholder = text('名称、说明或路径', 'Name, description or path');
