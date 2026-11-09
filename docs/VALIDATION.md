@@ -611,3 +611,15 @@
 - Synchronizes private 0.4.15–0.4.18 source changes with GitHub and prepares matching distribution assets. Release checks are recorded after execution.
 
 - Release-candidate checks: 111 default tests passed with zero failures; the opt-in isolated CLI test separately passed (112 total). Nine Chromium redundancy checks passed. Complete distribution 0.4.19 built successfully.
+
+## 2026-11-04 Bilingual observation UI simplification
+
+- Removed the observation status and standalone span/active-day caption from the shared Chinese/English activity view; retained the no-record list and collapsed counting explanation.
+- Reused the ranking icon renderer for observation rows, including dark icons and image-error text fallback. No inventory identities or usage calculations changed.
+- Targeted activity UI regression passed, including both locales and no-record image fallback. Full npm test: 111 passed, zero failed, one opt-in test skipped; local build completed. Installed account plugin and native-host visual rendering were not updated or verified in this change.
+
+## 2026-11-09 v0.5.0 integration
+
+- Compared the local 0.4.21 source with GitLab main before !30 (d31b97e4). Ported its activity UI and plugin display-name changes and regression tests into the architecture merged at 9ffba17e.
+- Windows, Node 24.22.1 and pnpm 12.15.0: frozen install passed lockfile policy checks. With SKILL_MANAGER_TEST_CODEX=1, pnpm run verify passed contracts, architecture, JSDoc checks and all 124 tests with zero skips.
+- Built dist/distribution-0.5.0 with pnpm run build:distribution. Package tests exercised both manifests and the bundled stdio MCP service outside the source tree.

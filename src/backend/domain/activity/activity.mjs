@@ -46,7 +46,7 @@ export function activityView(inventory, kind, year, metric = 'reads', range = {}
   const registry = inventory.pluginRegistry?.plugins || [];
   const pluginName = id => id.split('@')[0].replaceAll('-', '_');
   if (metric === 'calls' && kind === 'plugins') for (const plugin of registry) {
-    entities.set(plugin.id, {id:plugin.id,name:plugin.id.split('@')[0],detail:plugin.id.split('@')[1] || '',total:0,allSignals:0,eligibleZero:true,uncertain:false});
+    entities.set(plugin.id, {id:plugin.id,name:plugin.displayName?.trim() || plugin.id.split('@')[0],detail:plugin.id.split('@')[1] || '',total:0,allSignals:0,eligibleZero:true,uncertain:false});
   }
   if (metric === 'calls' && kind === 'plugins') for (const plugin of inventory.usage?.catalog || []) {
     const matches = registry.filter(p => pluginName(p.id) === pluginName(plugin.id));

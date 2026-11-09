@@ -99,7 +99,7 @@ node install.mjs uninstall
 
 ## Environment health
 
-The v0.4.19 source, private account plugin and complete download packages are synchronized. Includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**, grouped redundancy reports, installation-unit boundaries and packaged assessment principles. Functional-candidate retrieval still uses lexical/task clues and requires review; shared auxiliary steps alone do not establish redundancy. The screenshot above was captured with v0.4.14. See [validation](docs/VALIDATION.md) for verified behavior and limits.
+This GitLab source is v0.5.0. The GitHub download linked above is v0.4.19. See the [v0.5.0 integration notes](docs/releases/v0.5.0.md). Includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**, grouped redundancy reports, installation-unit boundaries and packaged assessment principles. Functional-candidate retrieval still uses lexical/task clues and requires review; shared auxiliary steps alone do not establish redundancy. The screenshot above was captured with v0.4.14. See [validation](docs/VALIDATION.md) for verified behavior and limits.
 
 ## Demo and feedback
 

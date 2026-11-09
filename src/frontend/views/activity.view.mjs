@@ -8,6 +8,26 @@ export function createActivityPanel(root, locale = 'zh', checkInventory, vm) {
   let current;
   const detail = entry => entry.historical ? t("{0}（已不在当前清单）", t(entry.detail)) : t(entry.detail);
   const after = promise => Promise.resolve(promise).then(() => render());
+  const entryBadge = entry => {
+    const badge = node('span', entry.name.slice(0, 2).toUpperCase(), 'activity-avatar');
+    if (vm.state.kind === 'plugins') {
+      const visual = activityIcon(entry, current.pluginRegistry?.plugins, current.managerIcon);
+      if (safeActivityIcon(visual.icon)) {
+        const fallback = node('span', badge.textContent);
+        badge.textContent = ''; badge.append(fallback); badge.classList.add('plugin-icon');
+        if (visual.openai) badge.setAttribute('data-openai-mark', 'true');
+        const image = node('img'); image.alt = ''; image.loading = 'lazy'; image.referrerPolicy = 'no-referrer';
+        image.addEventListener('load', () => { fallback.hidden = true; });
+        image.addEventListener('error', () => { image.hidden = true; fallback.hidden = false; });
+        image.src = visual.icon;
+        if (safeActivityIcon(visual.iconDark)) {
+          const picture = node('picture'), dark = node('source'); dark.media = '(prefers-color-scheme: dark)'; dark.srcset = visual.iconDark;
+          picture.append(dark, image); badge.append(picture);
+        } else badge.append(image);
+      }
+    }
+    return badge;
+  };
   const heading = node('div', undefined, 'activity-heading');
   const title = node('h2', t("插件工具调用"));
   const tabs = node('div', undefined, 'activity-tabs'); tabs.setAttribute('aria-label', t("活动类型"));
@@ -259,23 +279,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory, vm) {
       const section = node('section'); section.append(node('h3', title));
       const list = node('ol', undefined, 'activity-ranking');
       for (const entry of entries) {
-        const item = node('li'), badge = node('span', entry.name.slice(0, 2).toUpperCase(), 'activity-avatar'), copy = node('div');
-        if (kind === 'plugins') {
-          const visual = activityIcon(entry, current.pluginRegistry?.plugins, current.managerIcon);
-          if (safeActivityIcon(visual.icon)) {
-            const fallback = node('span', badge.textContent);
-            badge.textContent = ''; badge.append(fallback); badge.classList.add('plugin-icon');
-            if (visual.openai) badge.setAttribute('data-openai-mark', 'true');
-            const image = node('img'); image.alt = ''; image.loading = 'lazy'; image.referrerPolicy = 'no-referrer';
-            image.addEventListener('load', () => { fallback.hidden = true; });
-            image.addEventListener('error', () => { image.hidden = true; fallback.hidden = false; });
-            image.src = visual.icon;
-            if (safeActivityIcon(visual.iconDark)) {
-              const picture = node('picture'), dark = node('source'); dark.media = '(prefers-color-scheme: dark)'; dark.srcset = visual.iconDark;
-              picture.append(dark, image); badge.append(picture);
-            } else badge.append(image);
-          }
-        }
+        const item = node('li'), badge = entryBadge(entry), copy = node('div');
         copy.append(node('strong', entry.name), node('span', detail(entry), 'ranking-detail'));
         item.append(badge, copy, node('span', t("{0} 次", entry.total), 'ranking-count')); list.append(item);
       }
@@ -287,7 +291,6 @@ export function createActivityPanel(root, locale = 'zh', checkInventory, vm) {
     const reviewHeading = node('div', undefined, 'observation-heading');
     reviewHeading.append(node('h3', t("低频使用观察")));
     review.append(reviewHeading);
-    const state = !rankingView.ready ? t("统计暂不可读取") : observation.incomplete ? t("待核验") : observation.mature ? t("低频候选") : t("观察中");
     const checkStatus = node('p', '', 'observation-feedback'); checkStatus.setAttribute('role','status');
     if (checkInventory) {
       const check = node('button', t("核对清单"), 'observation-check'); check.type = 'button';
@@ -304,8 +307,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory, vm) {
       });
       reviewHeading.append(check);
     }
-    review.append(checkStatus, node('p', state, 'observation-state'));
-    if (rankingView.ready) review.append(node('p', t(observation.mature ? "观察 {0} 天 · 活跃 {1} 天" : "观察 {0}/14 天 · 活跃 {1}/5 天", observation.observedDays, observation.activeDays), 'activity-caption'));
+    review.append(checkStatus);
     const addList = (heading, entries, zero) => {
       const details = node('details'), summary = node('summary', heading);
       const search = node('input'); search.type = 'search'; search.placeholder = t("搜索名称或来源"); search.setAttribute('aria-label', heading + ' · ' + t("搜索名称或来源"));
@@ -317,7 +319,7 @@ export function createActivityPanel(root, locale = 'zh', checkInventory, vm) {
         for (const entry of matches) {
           const item = node('li'), copy = node('div');
           copy.append(node('strong', entry.name), node('span', detail(entry), 'ranking-detail'));
-          item.append(copy, node('span', zero ? t("所选范围无记录") : t("{0} 次 · {1} 天 · 最近 {2}",entry.total,entry.activeDays,entry.lastUsed), 'ranking-detail'));
+          item.append(entryBadge(entry), copy, node('span', zero ? t("所选范围无记录") : t("{0} 次 · {1} 天 · 最近 {2}",entry.total,entry.activeDays,entry.lastUsed), 'ranking-detail'));
           list.append(item);
         }
         if (!matches.length) list.append(node('li', t("没有匹配项目。")));
@@ -327,7 +329,6 @@ export function createActivityPanel(root, locale = 'zh', checkInventory, vm) {
     };
     if (observation.mature) addList(t("低频 · {0} 项",observation.low.length),observation.low,false);
     if (rankingView.ready && rankingView.coverage.hasOverlap) addList(t("无记录 · {0} 项",observation.zero.length),observation.zero,true);
-    else if (rankingView.ready) review.append(node('p',t("所选日期无统计覆盖"),'activity-note'));
     review.append(node('p', t("无记录不代表未使用。"), 'activity-note'));
     const rules = node('details', undefined, 'observation-rules');
     rules.append(node('summary', t("统计说明")));
