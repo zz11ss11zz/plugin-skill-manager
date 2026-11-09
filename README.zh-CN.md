@@ -60,20 +60,20 @@
 
 已验证环境为 Windows，需要 Node.js 20.18+ 和 PATH 中可用的 Codex CLI。本项目为独立开源项目，不是 OpenAI 官方产品，尚未上架官方插件目录。
 
-下载 [v0.4.19 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.4.19/plugin-skill-manager-0.4.19-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 `install.mjs` 的目录打开 PowerShell：
+下载 [v0.5.0 完整插件 ZIP](https://github.com/zz11ss11zz/plugin-skill-manager/releases/download/v0.5.0/plugin-skill-manager-0.5.0-plugin.zip)，核对 Release 中的校验值，解压到固定目录。在含 `install.mjs` 的目录打开 PowerShell：
 
 ```powershell
 node install.mjs install
 node install.mjs check
 ```
 
-检查结果应显示已安装并启用的 0.4.19 插件，且注册来源匹配。重开 Codex，再让助手打开 Plugin & Skill Manager 或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
+检查结果应显示已安装并启用的 0.5.0 插件，且注册来源匹配。重开 Codex，再让助手打开 Plugin & Skill Manager 或运行本插件的 setup Skill。包内已经包含服务、界面与两个配套 Skill，无需 npm 安装或构建；保留解压目录。
 
 各版本回归与安装结果见验收记录。浏览器管理交互通过；原生桌面交互仍未完整验证。详见[验收记录](docs/VALIDATION.md)、[已知限制](docs/KNOWN_LIMITATIONS.md)和[升级与卸载](docs/DISTRIBUTION.md)。开发者仍可选择[源码安装](docs/LOCAL_SETUP.md)。
 
 ## 官方目录状态
 
-Release 页另提供 **v0.4.19 桌面提交 ZIP**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的完整安装 ZIP。
+Release 页另提供 **v0.5.0 桌面提交 ZIP**，根目录包含 manifest 与本地 MCP 服务。门户上传请使用该包，不要上传带安装器的完整安装 ZIP。
 
 截至 2026-10-27，**0.3.1 草稿已上传**，尚未提交审核、获批或发布。当时门户提示暂不接受更多 skills-only 提交，本地 MCP 服务的识别与准入仍待确认。GitHub 发布包可手动安装；保存草稿不等于官方上架。
 
@@ -101,9 +101,9 @@ node install.mjs uninstall
 
 ## 环境诊断
 
-已发布的 v0.4.19 包包含 **[统一环境诊断](docs/ENVIRONMENT_HEALTH.md)**：可在界面手动检查依赖、安装、数据和采集状态；也可独立运行 `node scripts/doctor.mjs`，中文输出使用 `--zh`。单项失败仍返回其余结果并提供处理建议。
+已发布的 v0.5.0 包包含 **[统一环境诊断](docs/ENVIRONMENT_HEALTH.md)**：可在界面手动检查依赖、安装、数据和采集状态；也可独立运行 `node scripts/doctor.mjs`，中文输出使用 `--zh`。单项失败仍返回其余结果并提供处理建议。
 
-上方截图为 v0.4.14 中文界面（不作为最新版的原生桌面验证）。本仓库源码已更新为 [v0.5.0](docs/releases/v0.5.0.md)，上方 GitHub 下载链接对应 v0.4.19。具体功能及原生桌面验收边界以[验收记录](docs/VALIDATION.md)为准。
+上方截图为 v0.4.14 中文界面（不作为最新版的原生桌面验证）。本仓库源码已更新为 [v0.5.0](docs/releases/v0.5.0.md)，上方 GitHub 下载链接对应 v0.5.0。具体功能及原生桌面验收边界以[验收记录](docs/VALIDATION.md)为准。
 
 ## 演示与反馈
 
