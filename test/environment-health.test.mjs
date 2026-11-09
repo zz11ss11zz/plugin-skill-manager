@@ -6,8 +6,8 @@ import { promisify } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
-import { diagnoseEnvironment, registrationCheck, inspectDirectory, probeCli } from '../src/environment-health.mjs';
-import { queryInstalledPlugins } from '../src/plugins.mjs';
+import { diagnoseEnvironment, registrationCheck, inspectDirectory, probeCli } from '../src/backend/adapters/diagnostics/environment.mjs';
+import { queryInstalledPlugins } from '../src/backend/adapters/hosts/codex/plugin-registry.mjs';
 
 const run = promisify(execFile);
 const fulfilled = value => ({ status: 'fulfilled', value });

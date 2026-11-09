@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { CaptureSettings, CaptureController } from '../src/capture-settings.mjs';
+import { CaptureSettings, CaptureController } from '../src/backend/adapters/storage/json-file/capture-settings.mjs';
 
 test('capture is opt-in, persistent settings override environment and corrupt configuration is preserved', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'capture-config-'));

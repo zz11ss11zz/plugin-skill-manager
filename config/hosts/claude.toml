@@ -1,0 +1,18 @@
+# Claude host defaults — placeholder. The adapter is not implemented yet; these values must be
+# verified against official Claude documentation and a real installation before use.
+
+[host]
+id = "claude"
+home_env = "CLAUDE_CONFIG_DIR"
+home_default = "~/.claude"
+data_subdir = "plugin-skill-manager/data-v1"
+archive_subdir = "plugin-skill-manager/archive"
+
+[host_cli]
+command = "claude"
+
+[redundancy.protected]
+name_prefixes = []
+marketplaces = []
+curated_marketplace = ""
+curated_plugins = []

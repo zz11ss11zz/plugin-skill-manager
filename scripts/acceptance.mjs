@@ -8,11 +8,11 @@ import { promisify } from 'node:util';
 import { createHash } from 'node:crypto';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { scanInventory } from '../src/inventory.mjs';
-import { SkillNotes } from '../src/skill-notes.mjs';
-import { Adoptions } from '../src/adoptions.mjs';
-import { PluginCalls } from '../src/plugin-calls.mjs';
-import { UsageIndex } from '../src/usage-index.mjs';
+import { scanInventory } from '../src/backend/adapters/hosts/codex/skill-source.mjs';
+import { SkillNotes } from '../src/backend/adapters/storage/json-file/skill-notes.mjs';
+import { Adoptions } from '../src/backend/adapters/storage/json-file/adoptions.mjs';
+import { PluginCalls } from '../src/backend/adapters/storage/json-file/plugin-calls.mjs';
+import { UsageIndex } from '../src/backend/adapters/hosts/codex/usage-index.mjs';
 import { listHostSkills } from './host-skills.mjs';
 
 const run = promisify(execFile), repo = fileURLToPath(new URL('..', import.meta.url));

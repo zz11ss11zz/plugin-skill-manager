@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,readFile,writeFile,rm,stat} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {Adoptions} from '../src/adoptions.mjs';
+import {Adoptions} from '../src/backend/adapters/storage/json-file/adoptions.mjs';
 const inventory = [{id:'a',name:'demo',path:'D:/skills/demo/SKILL.md',source:'用户技能',fingerprint:'abc'}];
 test('batch writes preserve repeated adoption, retries are idempotent, conflicts preserve data and restart restores totals', async () => {
   const dir=await mkdtemp(path.join(os.tmpdir(),'adoptions-')), file=path.join(dir,'records.json');

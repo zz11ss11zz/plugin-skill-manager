@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { recordingStatus } from '../src/recording-status.mjs';
+import { recordingStatus } from '../src/backend/adapters/diagnostics/recording-status.mjs';
 
 test('recording status distinguishes empty, recorded and unreadable without writes', async () => {
   const empty = await recordingStatus({ read: async () => ({ batches: {} }) }, { read: async () => ({ calls: [] }) });

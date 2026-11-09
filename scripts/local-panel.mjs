@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {build} from 'esbuild';
 import {Client} from '@modelcontextprotocol/sdk/client/index.js';
 import {InMemoryTransport} from '@modelcontextprotocol/sdk/inMemory.js';
-import {createServer} from '../src/server.mjs';
+import {createServer} from '../src/backend/inbound/mcp/server.mjs';
 const service=createServer();
 const client=new Client({name:'local-readonly-panel',version:'1.0.0'});
 const [a,b]=InMemoryTransport.createLinkedPair();

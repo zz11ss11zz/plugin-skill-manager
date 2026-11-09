@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { UsageParser, aggregateUsage, readCommands, skillReadPaths } from '../src/usage.mjs';
+import { UsageParser, aggregateUsage, readCommands, skillReadPaths } from '../src/backend/adapters/hosts/codex/session-signals.mjs';
 
 const message = (id, text, role = 'user') => ({ type: 'response_item', timestamp: '2026-01-01T00:00:00Z', payload: { type: 'message', id, role, content: [{ type: 'input_text', text }] } });
 const read = (id, cmd) => ({ type: 'response_item', timestamp: '2026-01-01T00:01:00Z', payload: { type: 'function_call', name: 'exec_command', call_id: id, arguments: JSON.stringify({ cmd }) } });

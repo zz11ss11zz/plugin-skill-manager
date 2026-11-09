@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { scanInventory } from '../src/inventory.mjs';
+import { scanInventory } from '../src/backend/adapters/hosts/codex/skill-source.mjs';
 
 test('standalone package builds and serves MCP resources outside the source tree', { timeout: 60000 }, async () => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'skill-plugin-'));
@@ -44,7 +44,7 @@ test('standalone package builds and serves MCP resources outside the source tree
     const listing = manifest.extensions['com.openai'].interface;
     assert.ok(listing.displayName.length <= 30 && listing.shortDescription.length <= 30);
     assert.ok(listing.longDescription.length <= 4000);
-    const expectedIcon = await readFile(path.join(source, 'src/assets/sidebar-wrench.png'));
+    const expectedIcon = await readFile(path.join(source, 'assets/brand/sidebar-wrench.png'));
     for (const reference of [listing.logo, listing.composerIcon]) {
       assert.ok(reference.startsWith('./assets/'));
       assert.deepEqual(await readFile(path.join(root, reference)), expectedIcon);
@@ -76,7 +76,8 @@ test('standalone package builds and serves MCP resources outside the source tree
     await client.connect(transport);
     assert.equal(client.getServerVersion().version, pkg.version);
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 13);
+    assert.deepEqual(tools.map(t => t.name), ['open_skill_manager','check_recording_status','configure_auto_capture','check_plugin_status','generate_redundancy_report','import_usage','query_usage','record_plugin_calls','record_skill_use','save_skill_note','preview_skill_archive','preview_skill_restore','execute_skill_plan','cancel_skill_plan','query_activity_views']);
+    assert.deepEqual(tools.find(t => t.name === 'query_activity_views')._meta.ui.visibility, ['app']);
     const uri = tools[0]._meta.ui.resourceUri;
     const { contents } = await client.readResource({ uri });
     assert.match(contents[0].text, /id="activity-panel"/);

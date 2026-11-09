@@ -1,0 +1,27 @@
+{
+  // Run and Debug view (F5). Breakpoints work in source and test files.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug current test file",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "build dashboard",
+      "runtimeArgs": ["--test", "--test-concurrency=1", "${file}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug all tests",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "build dashboard",
+      "program": "${workspaceFolder}/scripts/test.mjs",
+      "cwd": "${workspaceFolder}",
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

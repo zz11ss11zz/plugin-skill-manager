@@ -8,7 +8,21 @@ const root = path.resolve(process.argv[2] || path.join('dist', `plugin-${pkg.ver
 await mkdir(root); // Fail closed if the destination already exists.
 for (const dir of ['.codex-plugin', 'assets', 'server/src/assets']) await mkdir(path.join(root, dir), { recursive: true });
 const html = await readFile('dist/dashboard.html', 'utf8');
-const embeddedModule = path.resolve('src/bundled-dashboard.mjs');
+const embeddedModule = path.resolve('src/backend/runtime/bundled-dashboard.mjs');
+const locationsModule = path.resolve('src/backend/runtime/locations.mjs');
+const configModule = path.resolve('src/backend/config/files.mjs');
+// Shipped TOML configuration is inlined so the bundle needs no files beside it.
+const configFiles = {};
+for (const entry of await readdir('config', { recursive: true, withFileTypes: true })) {
+  if (!entry.isFile() || !entry.name.endsWith('.toml')) continue;
+  const file = path.join(entry.parentPath ?? entry.path, entry.name);
+  configFiles[path.relative('config', file).split(path.sep).join('/')] = await readFile(file, 'utf8');
+}
+const bundleConfig = `const files = ${JSON.stringify(configFiles)};\nexport function readShippedConfig(relativePath) { return Object.hasOwn(files, relativePath) ? files[relativePath] : null; }`;
+// Inside the bundle every module shares server/src/server.mjs as import.meta.url.
+const bundleLocations = `import { fileURLToPath } from 'node:url';
+const here = new URL('./', import.meta.url);
+export const locations = Object.freeze({ mode: 'bundle', root: fileURLToPath(new URL('../../', here)), entry: fileURLToPath(new URL('server.mjs', here)), dashboardFile: fileURLToPath(new URL('../dist/dashboard.html', here)), legacyDataDir: fileURLToPath(new URL('../.local', here)), configDir: fileURLToPath(new URL('../config/', here)), brandAsset: name => new URL('assets/' + name, here) });`;
 const bundle = await build({
   entryPoints: ['src/server.mjs'], outfile: path.join(root, 'server/src/server.mjs'),
   bundle: true, platform: 'node', target: 'node20', format: 'esm', metafile: true,
@@ -18,6 +32,8 @@ const bundle = await build({
       if (file !== embeddedModule) return;
       return { contents: `export const bundledDashboard = ${JSON.stringify(html)};`, loader: 'js' };
     });
+    builder.onLoad({ filter: /locations\.mjs$/ }, ({ path: file }) => file === locationsModule ? { contents: bundleLocations, loader: 'js' } : undefined);
+    builder.onLoad({ filter: /files\.mjs$/ }, ({ path: file }) => file === configModule ? { contents: bundleConfig, loader: 'js' } : undefined);
   } }],
 });
 const manifest = {
@@ -41,8 +57,8 @@ const { $schema, extensions, ...identity } = manifest;
 const { interface: listing, ...settings } = extensions['com.openai'];
 const legacy = { ...identity, skills: './skills', interface: listing, extensions: { 'com.openai': settings } };
 for (const [name, data] of [['plugin.json', manifest], ['.codex-plugin/plugin.json', legacy], ['mcp.json', mcp]]) await writeFile(path.join(root, name), JSON.stringify(data, null, 2) + '\n');
-for (const dest of ['assets/icon.png', 'assets/plugin-skill-manager-wrench.png', 'server/src/assets/orbit-color.png']) await copyFile('src/assets/orbit-color.png', path.join(root, dest));
-await copyFile('src/assets/sidebar-wrench.png', path.join(root, 'server/src/assets/sidebar-wrench.png'));
+for (const dest of ['assets/icon.png', 'assets/plugin-skill-manager-wrench.png', 'server/src/assets/orbit-color.png']) await copyFile('assets/brand/orbit-color.png', path.join(root, dest));
+await copyFile('assets/brand/sidebar-wrench.png', path.join(root, 'server/src/assets/sidebar-wrench.png'));
 const dependencies = new Set(Object.keys(bundle.metafile.inputs).flatMap(file => {
   const match = file.replaceAll('\\', '/').match(/^(.*node_modules\/(?:@[^/]+\/)?[^/]+)\//);
   return match ? [match[1]] : [];

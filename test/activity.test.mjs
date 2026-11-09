@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { summarizeActivity, activityView, activityCoverage, calendarDays } from '../src/activity.mjs';
-import { aggregateUsage } from '../src/usage.mjs';
+import { summarizeActivity, activityView, activityCoverage, calendarDays } from '../src/backend/domain/activity/activity.mjs';
+import { aggregateUsage } from '../src/backend/adapters/hosts/codex/session-signals.mjs';
 const skill = (id, owner) => ({ id, name: id, path: `/skills/${id}/SKILL.md`, source: '用户技能', owner });
 const coverage = { from: '2026-01-01T00:00:00Z', to: '2026-12-31T23:59:59Z', pendingBytes: 0, issues: [] };
 

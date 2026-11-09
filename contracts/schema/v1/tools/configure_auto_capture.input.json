@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "intervalSeconds": {
+      "default": 10,
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 3600
+    }
+  },
+  "required": [
+    "enabled"
+  ],
+  "additionalProperties": false
+}

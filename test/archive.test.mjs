@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, rm, rmdir, symlink } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import { ArchiveManager, moveDirectory } from '../src/archive.mjs';
-import { scanInventory } from '../src/inventory.mjs';
+import { ArchiveManager, moveDirectory } from '../src/backend/adapters/skill-files/archive.mjs';
+import { scanInventory } from '../src/backend/adapters/hosts/codex/skill-source.mjs';
 
 async function fixture() {
   const temp = await mkdtemp(path.join(os.tmpdir(), 'skill-archive-'));

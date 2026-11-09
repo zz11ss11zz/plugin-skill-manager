@@ -6,7 +6,7 @@ import path from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { publishDashboard, registerDashboard } from '../src/dashboard-resource.mjs';
+import { publishDashboard, registerDashboard } from '../src/backend/inbound/mcp/resources/dashboard.mjs';
 
 test('existing and new sessions read each other’s immutable UI builds after an upgrade', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'manager-ui-revisions-'));
