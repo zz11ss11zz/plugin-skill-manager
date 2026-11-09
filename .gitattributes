@@ -1,0 +1,10 @@
+# Check out text files with LF on every platform. Generated contracts are compared byte for byte,
+# and Windows Git would otherwise convert them to CRLF (core.autocrlf).
+* text=auto eol=lf
+
+# Binary assets: never convert.
+*.png binary
+*.jpg binary
+*.ico binary
+*.zip binary
+*.mcpb binary

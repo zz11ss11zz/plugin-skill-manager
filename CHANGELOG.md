@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 — 2026-11-09
+
+- Integrates the local 0.4.20–0.4.21 activity panel changes. Plugin display names, icons and text fallbacks now appear in low-use lists. The bilingual panel keeps the detailed counting rules in its disclosure.
+
+- Layered source tree: `src/backend` (inbound MCP router/controllers, application services, pure domain, ports, adapters) and `src/frontend` (MVVM). Frontend and backend share no code; they meet at generated, versioned JSON Schema contracts in `contracts/schema/v1`.
+- Activity rankings, coverage and low-use observation are computed by the backend and served to the dashboard through the app-only tool `query_activity_views`.
+- New tool `generate_redundancy_report`; `check_plugin_status` with `includeReport` is a deprecated alias. Tool names, inputs and messages are otherwise unchanged.
+- TOML configuration (`config/`) with layered user/environment overrides and schema validation; thresholds, limits, protected plugins and the task vocabulary are no longer hard-coded.
+- Host and platform adapters: Codex host; win32, darwin and linux platform adapters with capability flags. Fixed macOS data-directory checks rejecting the system `/var` link.
+- Dependencies managed with pnpm: catalog versions, frozen lockfile, 7-day release age, trust-downgrade refusal and an install-script allowlist. CI runs on Windows, macOS and Linux.
+- Added architecture rule checks, contract staleness checks and JSDoc type checking (`pnpm run verify`).
+
 
 ## 0.4.19 — 2026-11-02
 

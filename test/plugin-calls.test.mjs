@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {mkdtemp,readFile,writeFile,rm} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {PluginCalls} from '../src/plugin-calls.mjs';
-import {Adoptions} from '../src/adoptions.mjs';
-import {activityView} from '../src/activity.mjs';
+import {PluginCalls} from '../src/backend/adapters/storage/json-file/plugin-calls.mjs';
+import {Adoptions} from '../src/backend/adapters/storage/json-file/adoptions.mjs';
+import {activityView} from '../src/backend/domain/activity/activity.mjs';
 
 test('plugin calls stay independent, deduplicate invocation IDs and preserve conflicts atomically',async()=>{
   const root=await mkdtemp(path.join(os.tmpdir(),'plugin-calls-'));

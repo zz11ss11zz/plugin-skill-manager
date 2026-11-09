@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { SkillNotes } from '../src/skill-notes.mjs';
+import { SkillNotes } from '../src/backend/adapters/storage/json-file/skill-notes.mjs';
 const input = { id: 'a'.repeat(64), fingerprint: 'b'.repeat(64), note: '低频：月度使用，保留。', retain: true, expectedRevision: 0 };
 test('notes persist, use revision checks and can clear without resetting the revision', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'skill-notes-'));

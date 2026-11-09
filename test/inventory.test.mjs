@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { scanInventory } from '../src/inventory.mjs';
+import { scanInventory } from '../src/backend/adapters/hosts/codex/skill-source.mjs';
 
 test('Chinese paths, nested examples, conflicting names, old caches and invalid manifests', async () => {
   const temp = await mkdtemp(path.join(os.tmpdir(), 'skill-manager-'));

@@ -1,0 +1,75 @@
+# Plugin & Skill Manager — default configuration.
+#
+# Layers, lowest to highest precedence:
+#   1. config/default.toml                (this file, shipped with the package)
+#   2. config/hosts/<host>.toml           (selected AI host)
+#   3. config/platforms/<platform>.toml   (optional, selected operating system)
+#   4. user file: <user config dir>/plugin-skill-manager/config.toml
+#        Windows: %APPDATA%   macOS: ~/Library/Application Support   Linux: $XDG_CONFIG_HOME or ~/.config
+#   5. environment: PSM__<SECTION>__<KEY>=value   (e.g. PSM__CAPTURE__INTERVAL_SECONDS=30)
+#      legacy aliases CODEX_SKILL_MANAGER_* keep working.
+# Every merged result is validated by src/backend/config/schema.mjs; an invalid value stops startup
+# with the offending key and layer.
+
+[app]
+host = "auto"                     # auto | codex | claude
+locale = "auto"                   # auto | en | zh
+
+[paths]
+data_dir = ""                     # empty = host default (codex: $CODEX_HOME/skill-manager/data-v1)
+
+[features]
+# Force-disable a capability even when the host and platform support it.
+archive = true
+tool_events = true
+dashboard = true
+
+[host_cli]
+command = ""                      # empty = host default executable
+timeout_ms = 10000
+max_output_bytes = 8388608
+probe_timeout_ms = 3000
+
+[capture]
+enabled = false                   # default when no saved capture settings exist
+interval_seconds = 10
+interval_min_seconds = 5
+interval_max_seconds = 3600
+
+[storage.limits]                  # bytes
+ledger = 33554432                 # adoptions / plugin calls
+capture_index = 67108864
+presence = 4194304
+skill_file = 1048576
+archive = 52428800
+
+[dashboard]
+plugin_status_cache_seconds = 60
+
+[components]
+max_depth = 6
+max_visited = 5000
+max_components = 500
+max_total_bytes = 8388608
+max_file_bytes = 1048576
+ignored_dirs = ["\\..*", "node_modules", "tests?", "fixtures?", "examples?", "evals?", "audits?", "results?", "dist", "build", "assets", "scripts", "__pycache__"]
+
+[redundancy]
+default_days = 90
+allowed_days = [30, 60, 90]
+max_directories_scanned = 40
+max_groups = 50
+max_members_per_group = 20
+max_differences = 100
+max_relations = 50
+max_dependency_hints = 20
+max_plugin_groups = 50
+
+[redundancy.overlap]
+min_shared_terms = 3
+min_jaccard = 0.30
+max_compared = 500
+max_description_chars = 8000
+max_terms = 500
+max_shared_terms_shown = 12
+max_pairs_shown = 50

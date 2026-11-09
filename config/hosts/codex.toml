@@ -1,0 +1,18 @@
+# Codex host defaults. Only host-specific values belong here.
+
+[host]
+id = "codex"
+home_env = "CODEX_HOME"           # environment variable that overrides the home directory
+home_default = "~/.codex"
+data_subdir = "skill-manager/data-v1"
+archive_subdir = "skill-manager-archive"
+
+[host_cli]
+command = "codex"
+
+[redundancy.protected]
+# Official/bundled entries never become redundancy candidates.
+name_prefixes = ["openai"]
+marketplaces = ["openai-bundled", "openai-primary-runtime"]
+curated_marketplace = "openai-curated-remote"
+curated_plugins = ["google-drive", "notion", "pages", "plugin-creator", "plugin-management", "sites", "work-pets", "openai-templates"]

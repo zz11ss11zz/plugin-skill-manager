@@ -1,0 +1,49 @@
+# Bilingual task vocabulary used as a retrieval clue for functional-overlap candidates.
+# A shared task is never proof of equivalence. Patterns are case-insensitive JavaScript regular
+# expressions. `label` is how the dashboard names the shared task. Add [[task]] entries for your
+# own domains.
+
+[[task]]
+id = "manuscript-writing"
+pattern = 'manuscript.*(?:draft|writ)|(?:draft|writ).*manuscript|academic paper writing|论文写作|章节起草'
+label = { zh = "论文写作", en = "Manuscript writing" }
+
+[[task]]
+id = "peer-review"
+pattern = 'peer.review|mock.review|manuscript review|模拟审稿|投稿前自审|论文审稿'
+label = { zh = "论文审稿", en = "Manuscript review" }
+
+[[task]]
+id = "literature-search"
+pattern = 'literature (?:search|discovery)|search literature|systematic literature|文献检索|文献发现'
+label = { zh = "文献检索", en = "Literature search" }
+
+[[task]]
+id = "reference-verification"
+pattern = 'citation.check|verify.*(?:citation|reference)|(?:citation|reference).*verif|引文核对|参考文献.*(?:验证|校验)|逐条.*验证'
+label = { zh = "引用核验", en = "Reference verification" }
+
+[[task]]
+id = "paper-reading"
+pattern = 'deep.reading|single.paper comprehension|paper.xray|论文精读|精读论文'
+label = { zh = "论文精读", en = "Paper reading" }
+
+[[task]]
+id = "translation"
+pattern = 'translat|全文翻译|学术翻译|逐页翻译'
+label = { zh = "论文翻译", en = "Translation" }
+
+[[task]]
+id = "statistical-review"
+pattern = 'statistical (?:report|interpret|analysis)|统计审查|统计方法|统计分析'
+label = { zh = "统计审查", en = "Statistical review" }
+
+[[task]]
+id = "scientific-figures"
+pattern = 'scientific (?:figure|plot)|manuscript.*figure|科研绘图|论文配图'
+label = { zh = "科研绘图", en = "Scientific plotting" }
+
+[[task]]
+id = "review-response"
+pattern = 'responses? to peer review|rebuttal|审稿意见回复|逐点回复'
+label = { zh = "审稿回复", en = "Review response" }

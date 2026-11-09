@@ -13,3 +13,6 @@ work/
 .env.*
 !.env.example
 *.inspect.ndjson
+
+# GitLab CI pnpm store cache
+.pnpm-store/

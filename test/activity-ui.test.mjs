@@ -2,9 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {activityIcon,safeActivityIcon} from '../src/activity-icons.mjs';
-import {translator} from '../src/i18n.mjs';
-import {activityView,calendarDays,activityToday,recentActivity} from '../src/activity.mjs';
+import {activityIcon,safeActivityIcon} from '../src/frontend/assets/activity-icons.mjs';
+import {translator} from '../src/frontend/i18n/i18n.mjs';
+import {calendarDays} from '../src/frontend/format/calendar.mjs';
+import {createActivityViewModel} from '../src/frontend/viewmodels/activity.vm.mjs';
+import {activityViews} from '../src/backend/domain/activity/views.mjs';
 
 test('panel switches plugin calls and skill adoptions without mixing or mislabelling',async()=>{
   const elements=[];
@@ -17,21 +19,27 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
     addEventListener(event,fn){this.listeners[event]=fn;}
     checkValidity(){return true;}
   }
-  const source=(await readFile(new URL('../src/activity-ui.mjs',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace('export function','function');
-  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},activityView,calendarDays,activityToday,recentActivity,translator,activityIcon,safeActivityIcon});
+  const source=(await readFile(new URL('../src/frontend/views/activity.view.mjs',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace('export function','function');
+  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},calendarDays,translator,activityIcon,safeActivityIcon});
   vm.runInContext(source+'\nglobalThis.createPanel=createActivityPanel;',context);
   let checkedInventory;
-  const render=context.createPanel(new Element('root'),'zh',async()=>checkedInventory || {isError:true});
+  // The backend is emulated by the domain view builder over the inventory it last received.
+  let serverInventory;
+  const model=createActivityViewModel({loadViews:async requests=>activityViews(serverInventory,requests)});
+  const check=async()=>{const r=checkedInventory || {isError:true};if(!r.isError)serverInventory=r.structuredContent.inventoryScope==='management'?{...serverInventory,...r.structuredContent}:r.structuredContent;return r;};
+  const panel=context.createPanel(new Element('root'),'zh',check,model);
+  const render=async inventory=>{serverInventory=inventory;await panel(inventory);};
+  render.setLocale=panel.setLocale;
   const date=new Date().toISOString().slice(0,10);
   const summary={catalog:[{id:'github',name:'github',detail:'独立插件工具调用记录'}],activity:{timeZone:'UTC',days:[{date,entries:[{id:'github',calls:2}]}]},coverage:{from:date+'T00:00:00Z',to:new Date().toISOString()},period:{}};
-  render({skills:[{id:'skill-a',name:'example',source:'test'}],pluginCalls:summary,adoptions:{...summary,catalog:[],activity:{timeZone:'UTC',days:[{date,entries:[{id:'skill-a',adoptions:1}]}]}}});
+  await render({skills:[{id:'skill-a',name:'example',source:'test'}],pluginCalls:summary,adoptions:{...summary,catalog:[],activity:{timeZone:'UTC',days:[{date,entries:[{id:'skill-a',adoptions:1}]}]}}});
   assert.equal(elements.filter(e=>e.tag==='select').length,1); // Year only.
   const caption=elements.find(e=>e.tag==='p'&&e.className==='activity-caption');
   assert.equal(caption.hidden,true);
   assert.equal(caption.textContent,'');
   assert.ok(elements.some(e=>e.tag==='h2'&&e.textContent==='插件工具调用'));
   assert.ok(elements.some(e=>e.tag==='p'&&e.textContent?.includes('2 次工具调用尝试')));
-  elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
+  await elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
   assert.equal(elements.filter(e=>e.tag==='select').length,1);
   assert.ok(elements.some(e=>e.tag==='h2'&&e.textContent==='助手报告的 Skill 采用'));
   assert.equal(caption.hidden,true);
@@ -44,9 +52,9 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   assert.equal(daily.hidden,false);
   assert.equal(daily.children.find(e=>e.className==='entity-grid').children.length,1);
   assert.match(daily.children.find(e=>e.className==='entity-grid').children[0].title,/example.*1 次采用/);
-  daily.children.find(e=>e.className==='entity-grid').children[0].listeners.focus();
+  await daily.children.find(e=>e.className==='entity-grid').children[0].listeners.focus();
   assert.match(daily.children.find(e=>e.className==='activity-tooltip').textContent,/example.*1 次采用/);
-  elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
+  await elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
   assert.equal(daily.hidden,true,'Switching metrics clears stale daily rankings');
   calendarCells().find(e=>e.title?.startsWith(date)).listeners.click();
   assert.match(daily.children.find(e=>e.className==='entity-grid').children[0].title,/github.*2 次工具调用尝试/);
@@ -73,15 +81,15 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   const visibleText=e=>[e.textContent||'',...e.children.map(visibleText)].join(' ');
   const [from,to]=elements.filter(e=>e.tag==='input');
   const excludedDay=date.endsWith('01-01') ? `${date.slice(0,4)}-01-02` : `${date.slice(0,4)}-01-01`;
-  from.value=excludedDay; to.value=excludedDay; from.listeners.change();
+  from.value=excludedDay; to.value=excludedDay; await from.listeners.change();
   assert.ok(!visibleText(ranking).includes('2 次'), 'Top 5 must use the same selected range as the grid');
   assert.ok(visibleText(ranking).includes('当前范围没有符合条件的项目。'));
-  from.value=date; to.value=date; from.listeners.change();
+  from.value=date; to.value=date; await from.listeners.change();
   assert.ok(visibleText(ranking).includes('2 次'));
-  from.value=`${date.slice(0,4)}-12-31`; to.value=`${date.slice(0,4)}-01-01`; from.listeners.change();
+  from.value=`${date.slice(0,4)}-12-31`; to.value=`${date.slice(0,4)}-01-01`; await from.listeners.change();
   assert.equal(ranking.hidden,true);
-  from.value=date; to.value=date; from.listeners.change();
-  render({skills:[],pluginCalls:null,adoptions:null});
+  from.value=date; to.value=date; await from.listeners.change();
+  await render({skills:[],pluginCalls:null,adoptions:null});
   assert.equal(caption.hidden,false);
   assert.ok(elements.some(e=>e.textContent==='插件调用记录暂不可读取。'));
   assert.equal(elements.find(e=>e.className==='entity-panel').children[1].textContent,'统计暂不可读取，不将失败当作零。');
@@ -90,12 +98,12 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   assert.equal(daily.children.find(e=>e.className==='activity-tooltip').textContent,'统计暂不可读取，不将失败当作零。');
 
   const year=date.slice(0,4), dayA=`${year}-01-01`, dayB=`${year}-01-02`;
-  render({skills:[{id:'a',name:'Alpha',source:'test'},{id:'b',name:'Beta',source:'test'}],pluginCalls:summary,
+  await render({skills:[{id:'a',name:'Alpha',source:'test'},{id:'b',name:'Beta',source:'test'}],pluginCalls:summary,
     adoptions:{catalog:[],coverage:{from:`${dayA}T00:00:00Z`,to:new Date().toISOString()},activity:{timeZone:'UTC',days:[
       {date:dayA,entries:[{id:'a',adoptions:3},{id:'b',adoptions:1}]},
       {date:dayB,entries:[{id:'b',adoptions:5}]}
     ]}}});
-  elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
+  await elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
   const inputsBefore=[from.value,to.value];
   calendarCells().find(e=>e.title?.startsWith(dayA)).listeners.mouseenter();
   assert.match(daily.children.find(e=>e.className==='entity-grid').children[0].title,/Alpha.*3 次采用/);
@@ -112,42 +120,42 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   calendarCells().find(e=>e.title?.startsWith(dayA)).listeners.focus();
   assert.match(daily.children.find(e=>e.className==='entity-grid').children[0].title,/3 adoptions/);
   const dayButton=day=>calendarCells().find(e=>e.title?.startsWith(day));
-  dayButton(dayA).listeners.click();
+  await dayButton(dayA).listeners.click();
   assert.equal(dayButton(dayA).attributes['aria-pressed'],'true');
   assert.ok(dayButton(dayA).style.boxShadow);
-  dayButton(dayB).listeners.mouseenter();
-  dayButton(dayB).listeners.focus();
+  await dayButton(dayB).listeners.mouseenter();
+  await dayButton(dayB).listeners.focus();
   assert.match(daily.children.find(e=>e.className==='entity-grid').children[0].title,/Alpha.*3 adoptions/,'Hover and focus cannot replace the pinned date');
-  daily.children.find(e=>e.className==='entity-grid').children[0].listeners.mouseenter();
+  await daily.children.find(e=>e.className==='entity-grid').children[0].listeners.mouseenter();
   assert.match(daily.children.find(e=>e.className==='activity-tooltip').textContent,/Alpha.*3 adoptions/);
-  from.listeners.change();
+  await from.listeners.change();
   assert.equal(daily.hidden,false,'Range changes preserve the pinned date');
   assert.equal(dayButton(dayA).attributes['aria-pressed'],'true');
   render.setLocale('zh');
   assert.match(daily.children.find(e=>e.className==='entity-grid').children[0].title,/Alpha.*3 次采用/);
   assert.ok(elements.some(e=>e.textContent?.includes('已固定；')));
-  dayButton(dayB).listeners.click();
+  await dayButton(dayB).listeners.click();
   assert.equal(dayButton(dayA).attributes['aria-pressed'],'false');
   assert.equal(dayButton(dayB).attributes['aria-pressed'],'true');
   assert.match(daily.children.find(e=>e.className==='entity-grid').children[0].title,/Beta.*5 次采用/);
-  dayButton(dayB).listeners.click();
+  await dayButton(dayB).listeners.click();
   assert.equal(dayButton(dayB).attributes['aria-pressed'],'false');
   assert.equal(dayButton(dayB).style.boxShadow,'');
-  dayButton(dayA).listeners.mouseenter();
+  await dayButton(dayA).listeners.mouseenter();
   assert.match(daily.children.find(e=>e.className==='entity-grid').children[0].title,/Alpha.*3 次采用/,'Clicking the pinned date again restores hover');
-  dayButton(dayA).listeners.click();
-  elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
+  await dayButton(dayA).listeners.click();
+  await elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
   assert.equal(daily.hidden,true);
   assert.ok(calendarCells().filter(e=>e.tag==='button').every(e=>e.attributes['aria-pressed']==='false'));
-  dayButton(dayA).listeners.click();
+  await dayButton(dayA).listeners.click();
   const yearSelect=elements.find(e=>e.tag==='select');
-  yearSelect.value=String(Number(year)-1); yearSelect.listeners.change();
+  yearSelect.value=String(Number(year)-1); await yearSelect.listeners.change();
   assert.equal(daily.hidden,true,'Changing year clears the pin');
-  yearSelect.value=year; yearSelect.listeners.change();
+  yearSelect.value=year; await yearSelect.listeners.change();
   const zeroInventory={skills:Array.from({length:9},(_,i)=>({id:`zero-${i}`,name:`zero-${i}`,source:'test'})),adoptions:{coverage:{from:`${year}-01-01T00:00:00Z`,to:`${year}-01-02T23:59:59Z`},activity:{days:[]}},pluginCalls:summary};
-  render(zeroInventory);
-  elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
-  from.value=`${year}-01-01`; to.value=`${year}-12-31`; from.listeners.change();
+  await render(zeroInventory);
+  await elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
+  from.value=`${year}-01-01`; to.value=`${year}-12-31`; await from.listeners.change();
   let review=ranking.children.at(-1);
   assert.ok(!review.children.some(e=>e.className==='observation-state' || e.className==='activity-caption'));
   const rules=review.children.find(e=>e.className==='observation-rules');
@@ -162,10 +170,10 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   let details=review.children.find(e=>e.tag==='details');
   assert.equal(details.children[0].textContent,'无记录 · 9 项');
   assert.equal(details.children[2].children.length,9);
-  details.children[1].value='zero-8'; details.children[1].listeners.input();
+  details.children[1].value='zero-8'; await details.children[1].listeners.input();
   assert.equal(details.children[2].children.length,1);
   assert.match(visibleText(details.children[2]),/zero-8/);
-  details.children[1].value='missing'; details.children[1].listeners.input();
+  details.children[1].value='missing'; await details.children[1].listeners.input();
   assert.match(visibleText(details.children[2]),/没有匹配项目/);
   await review.children[0].children.find(e=>e.tag==='button').listeners.click();
   assert.match(visibleText(review),/核对失败/);
@@ -173,7 +181,7 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   await review.children[0].children.find(e=>e.tag==='button').listeners.click();
   review=ranking.children.at(-1);
   assert.match(visibleText(review),/无记录 · 9 项/,'partial inventory response preserves existing activity coverage');
-  elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
+  await elements.find(e=>e.tag==='button'&&e.textContent==='插件').listeners.click();
   review=ranking.children.at(-1);
   assert.match(visibleText(review),/已确认清单 1 项/);
   const zeroBadge=review.children.find(e=>e.tag==='details').children[2].children[0].children[0];
@@ -194,7 +202,7 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   render.setLocale('zh');
   const host = {...summary, source:'host-event', coverage:{...summary.coverage,complete:false}};
   const reports = {...summary,source:'assistant-report',activity:{...summary.activity,days:[{date,entries:[{id:'github',calls:9}]}]}};
-  render({skills:[],pluginCalls:{...host,sources:{'host-event':host,'assistant-report':reports}},captureStatus:{enabled:true,coverage:{checkedAt:'2026-10-28T02:00:00Z',pendingBytes:12,issues:[{}],malformedLines:1},lastError:'test failure'}});
+  await render({skills:[],pluginCalls:{...host,sources:{'host-event':host,'assistant-report':reports}},captureStatus:{enabled:true,coverage:{checkedAt:'2026-10-28T02:00:00Z',pendingBytes:12,issues:[{}],malformedLines:1},lastError:'test failure'}});
   const quality=elements.find(e=>e.className==='activity-quality');
   const sources=elements.find(e=>e.className==='activity-tabs source-tabs');
   assert.equal(quality.hidden,true);
@@ -204,16 +212,16 @@ test('panel switches plugin calls and skill adoptions without mixing or mislabel
   assert.ok(sources.children.every(e=>e.tag==='button'));
   const metricValues=()=>elements.find(e=>e.className==='activity-metrics').children.map(e=>visibleText(e));
   assert.match(metricValues()[0],/2/);
-  elements.find(e=>e.tag==='button'&&e.textContent==='助手主动上报').listeners.click();
+  await elements.find(e=>e.tag==='button'&&e.textContent==='助手主动上报').listeners.click();
   assert.match(metricValues()[0],/9/);
   assert.equal(quality.hidden,true);
   assert.equal(quality.children.length,0);
   assert.equal(daily.hidden,true,'Source switching clears date selection');
   render.setLocale('en'); assert.match(visibleText(sources),/Host auto-capture.*Assistant reports/);
   assert.ok(!/[\u3400-\u9fff]/.test(visibleText(sources)));
-  elements.find(e=>e.tag==='button'&&e.textContent==='Host auto-capture').listeners.click();
+  await elements.find(e=>e.tag==='button'&&e.textContent==='Host auto-capture').listeners.click();
   assert.match(metricValues()[0],/2/);
-  elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
+  await elements.find(e=>e.tag==='button'&&e.textContent==='Skill').listeners.click();
   assert.equal(sources.hidden,true);
   assert.equal(quality.hidden,false);
   assert.match(visibleText(quality),/Source: assistant reports/);

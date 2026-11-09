@@ -7,8 +7,10 @@ import path from 'node:path';
 import os from 'node:os';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
-import {scanInventory} from '../src/inventory.mjs';
-import {redundancyReport} from '../src/redundancy.mjs';
+import {scanInventory} from '../src/backend/adapters/hosts/codex/skill-source.mjs';
+import { redundancyReportWithDefaults as redundancyReport } from '../src/backend/container.mjs';
+import { createGuidance } from '../src/backend/domain/redundancy/guidance.mjs';
+import { testConfig } from '../test/helpers/config.mjs';
 
 const chrome=process.env.CHROME_PATH;
 if(!chrome)throw new Error('Set CHROME_PATH to Chromium');
@@ -27,19 +29,24 @@ try{
   const idleInventory={...inventory,redundancy:await redundancyReport(inventory,{now:Date.parse('2026-10-30T12:00:00Z'),adoptions:{activity:{days:[]}},calls:{catalog:[],activity:{days:[]}},presence:{observe:async keys=>Object.fromEntries(keys.map(k=>[k,'2026-08-01T00:00:00Z']))}})};
   const sample=inventory.redundancy.skills[0];
   const drawing={...sample,id:'drawing-demo',types:['overlap'],directoryEqual:false,members:['scientific-visualization','matplotlib','plotting-demo'].map((name,i)=>({...sample.members[0],id:'drawing-'+i,name,path:`C:/Synthetic/Skills/${name}/SKILL.md`,declaredAuthor:'Example maintainer',description:'Scientific figure implementation and visual review.'})),totalMembers:3,relations:[{type:'overlap',ids:['drawing-0','drawing-1','drawing-2'],sharedTerms:['scientific-figures']}],retained:[]};
+  // The backend attaches guidance from the shipped configuration; the hand-built group gets the same.
+  const config=testConfig(),advise=createGuidance(config.redundancy.overlap.tasks,config.redundancy.guidance);
+  drawing.members=drawing.members.map(m=>({...m,purpose:advise.purpose(m)}));drawing.guidance=advise.forGroup(drawing);
   const drawingInventory={...inventory,redundancy:{...inventory.redundancy,skills:[drawing]}};
   // Replace temporary fixture paths only in the display evidence.
   for(const g of inventory.redundancy.skills)for(const m of g.members)m.path=`C:/Synthetic/Skills/${path.basename(path.dirname(m.path))}/SKILL.md`;
-  const template=await readFile(new URL('../src/dashboard.html',import.meta.url),'utf8');
-  const modulePath=fileURLToPath(new URL('../src/management-ui.mjs',import.meta.url));
+  const template=await readFile(new URL('../src/frontend/index.html',import.meta.url),'utf8');
+  const modulePath=fileURLToPath(new URL('../src/frontend/views/management.view.mjs',import.meta.url));
+  const modelPath=fileURLToPath(new URL('../src/frontend/viewmodels/management.vm.mjs',import.meta.url));
   const results=[];
   for(const [locale,width,dark,kind]of [['zh',1100,false,'skills'],['en',1100,true,'skills'],['zh',380,false,'skills'],['en',1100,false,'plugins'],['zh',380,false,'idle-plugins'],['en',1100,false,'idle-plugins'],['zh',1100,false,'drawing'],['zh',380,false,'drawing'],['en',1100,true,'drawing']]){
     const name=`${locale}-${width}-${dark?'dark':'light'}-${kind}`;
     const source=`import {createManagementPanel} from ${JSON.stringify(modulePath)};
+      import {createManagementViewModel} from ${JSON.stringify(modelPath)};
       const inventory=${JSON.stringify(kind==='idle-plugins'?idleInventory:kind==='drawing'?drawingInventory:inventory)};
       const locale=${JSON.stringify(locale)},kind=${JSON.stringify(kind)};
       const root=document.querySelector('#workspace-panel');
-      const update=createManagementPanel(root,async()=>({structuredContent:inventory}),()=>{},locale);update(inventory);
+      const update=createManagementPanel(root,createManagementViewModel({callTool:async()=>({structuredContent:inventory})}),locale);update(inventory);
       const click=(zh,en)=>{const b=[...root.querySelectorAll('button')].find(e=>e.textContent===(locale==='en'?en:zh));if(!b)throw new Error('Missing button '+en);b.click();};
       const wait=()=>new Promise(r=>setTimeout(r,0));
       async function run(){

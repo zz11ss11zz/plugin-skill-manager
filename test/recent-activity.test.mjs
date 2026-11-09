@@ -2,9 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {activityIcon,safeActivityIcon} from '../src/activity-icons.mjs';
-import {translator} from '../src/i18n.mjs';
-import {activityView,calendarDays,activityToday,recentActivity} from '../src/activity.mjs';
+import {activityIcon,safeActivityIcon} from '../src/frontend/assets/activity-icons.mjs';
+import {translator} from '../src/frontend/i18n/i18n.mjs';
+import {calendarDays} from '../src/frontend/format/calendar.mjs';
+import {createActivityViewModel} from '../src/frontend/viewmodels/activity.vm.mjs';
+import {activityViews} from '../src/backend/domain/activity/views.mjs';
+import {recentActivity,activityToday} from '../src/backend/domain/activity/activity.mjs';
 
 test('recent activity uses ledger timezone, inclusive 30 days and separates adoption totals',()=>{
   const now=Date.parse('2026-10-27T17:00:00Z');
@@ -40,16 +43,20 @@ test('bars and calendar share pinned dates, hover stays informational and back r
     dispatchEvent(event){this.listeners[event.type]?.(event);}
     focus(){this.listeners.focus?.();}
   }
-  const source=(await readFile(new URL('../src/activity-ui.mjs',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace('export function','function');
-  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},activityView,calendarDays,activityToday,recentActivity,translator,Event,activityIcon,safeActivityIcon});
+  const source=(await readFile(new URL('../src/frontend/views/activity.view.mjs',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace('export function','function');
+  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},calendarDays,translator,Event,activityIcon,safeActivityIcon});
   vm.runInContext(source+'\nglobalThis.createPanel=createActivityPanel;',context);
-  const root=new Element('root'),render=context.createPanel(root,'zh');
+  let serverInventory;
+  const model=createActivityViewModel({loadViews:async requests=>activityViews(serverInventory,requests)});
+  const root=new Element('root'),panel=context.createPanel(root,'zh',undefined,model);
+  const render=async inventory=>{serverInventory=inventory;await panel(inventory);};
+  render.setLocale=panel.setLocale;
   const today=new Date().toISOString().slice(0,10),prior=new Date(Date.parse(today)-86400000).toISOString().slice(0,10);
   const usage={catalog:[{id:'github',name:'GitHub',detail:'fixture'},{id:'notes',name:'Notes',detail:'fixture'}],coverage:{from:prior+'T00:00:00Z',to:new Date().toISOString()},activity:{timeZone:'UTC',days:[
     {date:prior,entries:[{id:'github',calls:2}]},
     {date:today,entries:[{id:'notes',calls:3},{id:'github',calls:1}]}
   ]}};
-  render({skills:[],pluginCalls:usage});
+  await render({skills:[],pluginCalls:usage});
   const all=e=>[e,...e.children.flatMap(all)];
   const find=c=>all(root).find(e=>e.className===c);
   const bar=date=>find('recent-plot').children.find(e=>e.title.startsWith(date));
@@ -57,31 +64,31 @@ test('bars and calendar share pinned dates, hover stays informational and back r
   const text=e=>[e.textContent||'',...e.children.map(text)].join(' ');
   assert.equal(find('activity-metrics').children[0].children[1].textContent,'6');
   assert.equal(bar(today).title,cell(today).title);
-  bar(today).listeners.mouseenter();
+  await bar(today).listeners.mouseenter();
   assert.match(find('activity-tooltip').textContent,/4 次工具调用尝试/);
   assert.equal(find('entity-panel').hidden,false);
-  bar(today).listeners.click();
+  await bar(today).listeners.click();
   assert.equal(bar(today).attributes['aria-pressed'],'true');assert.equal(cell(today).attributes['aria-pressed'],'true');
   assert.equal(find('entity-panel').hidden,true);assert.equal(find('activity-rankings').hidden,true);
   assert.match(text(find('daily-heading')),new RegExp(today));
   const list=find('activity-ranking daily-list');
   assert.match(text(list.children[0]),/Notes.*3 次/);assert.match(text(list.children[1]),/GitHub.*1 次/);
   if(prior.startsWith(today.slice(0,4))){
-    bar(prior).listeners.mouseenter();
+    await bar(prior).listeners.mouseenter();
     assert.match(find('activity-tooltip').textContent,/2 次工具调用尝试/);
     assert.match(text(find('daily-heading')),new RegExp(today),'hover cannot replace a pinned daily ranking');
-    cell(prior).listeners.click();
+    await cell(prior).listeners.click();
     assert.equal(bar(prior).attributes['aria-pressed'],'true');assert.equal(bar(today).attributes['aria-pressed'],'false');
   }
   render.setLocale('en');
   assert.equal(find('clear-day').textContent,'Back to all');
-  find('clear-day').listeners.click();
+  await find('clear-day').listeners.click();
   assert.equal(find('daily-ranking').hidden,true);assert.equal(find('entity-panel').hidden,false);
   assert.ok(find('recent-plot').children.every(e=>e.attributes['aria-pressed']==='false'));
   const unknown=find('recent-plot').children.find(e=>e.className.includes('bar-unknown'));
   if(unknown){assert.match(unknown.title,/activity is unknown/);assert.doesNotMatch(unknown.title,/: 0/);}
   const future=new Date(Date.parse(today)+86400000).toISOString().slice(0,10);
   if(future.startsWith(today.slice(0,4))){assert.match(cell(future).className,/heat-future/);assert.match(cell(future).title,/Future date/);}
-  render({skills:[],pluginCalls:null});
+  await render({skills:[],pluginCalls:null});
   assert.equal(find('activity-metrics').children[0].children[1].textContent,'—','unreadable data is never rendered as zero');
 });

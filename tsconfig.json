@@ -1,0 +1,30 @@
+{
+  // Type-checks JavaScript via JSDoc; nothing is emitted. Layers are added to "include" as their
+  // JSDoc coverage is completed (docs/dev/ARCHITECTURE.md → Type checking).
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"]
+  },
+  "include": [
+    "src/backend/domain/**/*.mjs",
+    "src/backend/ports/**/*.mjs",
+    "src/backend/contracts/**/*.mjs",
+    "src/backend/config/**/*.mjs",
+    "src/backend/application/**/*.mjs",
+    "src/frontend/api/**/*.mjs",
+    "src/frontend/state/**/*.mjs",
+    "src/frontend/viewmodels/**/*.mjs",
+    "src/frontend/format/**/*.mjs",
+    "src/frontend/generated/**/*.mjs"
+  ]
+}

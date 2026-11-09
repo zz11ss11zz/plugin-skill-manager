@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, appendFile, rename, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { AutoCapture, CallParser } from '../src/auto-capture.mjs';
-import { PluginCalls } from '../src/plugin-calls.mjs';
+import { AutoCapture, CallParser } from '../src/backend/adapters/hosts/codex/auto-capture.mjs';
+import { PluginCalls } from '../src/backend/adapters/storage/json-file/plugin-calls.mjs';
 const event = (id, tool = 'github.fetch_file') => ({ type:'event_msg',timestamp:'2026-10-27T12:00:01Z',payload:{type:'item_completed',started_at_ms:Date.parse('2026-10-27T12:00:00Z'),item:{type:'McpToolCall',id,server:'codex_apps',tool,status:'failed',arguments:{secret:'PRIVATE_ARGUMENT'},result:{text:'PRIVATE_RESULT'}}}});
 test('only real host MCP events count, never prose, wrapper plans or tool outputs',()=>{
   const parser=new CallParser();
