@@ -1,6 +1,6 @@
 # 项目记忆：非 OpenAI 官方渠道推广规划
 
-更新：2026-10-30（Asia/Shanghai）。对象：Plugin & Skill Manager，开发者 Zishen Wang，公开仓库 `zz11ss11zz/plugin-skill-manager`。
+更新：2026-10-30。对象：Plugin & Skill Manager，开发者 Zishen Wang，公开仓库 `zz11ss11zz/plugin-skill-manager`。
 
 本页承接用户“继续推进插件知名度，除 OpenAI 官方认证外，整理规划表写入项目记忆”的要求。目标是让有大量插件与 Skills 的本地 Codex 用户发现项目、成功安装并提供真实反馈。OpenAI 官方认证、公共目录审批与 Support 跟进不在本表内，也不是开展这些工作的前置条件。
 
