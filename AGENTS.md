@@ -4,11 +4,7 @@
 
 2026-10-30 非 OpenAI 官方渠道的知名度与推广工作，先读 docs/PROJECT_MEMORY.md 的四周规划及 docs/distribution/THIRD_PARTY_STATUS.md 的实际状态；后续从规划表下一未完成项接续。agentskill.sh 保持用户指定的暂停，发布与外联依相应授权执行，不把规划记成已执行。
 
-2026-10-26 后续工作按 docs/PUBLIC_RELEASE_PLAN.md 的六阶段顺序执行；用户已明确授权推进并由 Agent 验证。下方旧版本计划与历史节点保留为来源记录，新阶段状态以该计划及实际验收记录为准。
-
-后续开发先阅读 docs/V0.1.0_PLAN.md、docs/ROADMAP.md 和 docs/VALIDATION.md，以实际文件和最新验收记录为准。
-
-按 v0.1.0 计划推进。每到 M1–M6 节点，在当前聊天主动提醒用户检查，给出具体版本、步骤、预期结果及自动验证结果；将用户反馈记录到 docs/VALIDATION.md 并更新计划状态。未回复不得标为通过，独立工作可以继续。不要把协议/合成测试声称为真实宿主验收。
+v0.5.0 之后的开发以 docs/ROADMAP.md 为当前规划入口，完成情况写入 docs/VALIDATION.md。docs/PUBLIC_RELEASE_PLAN.md 和 docs/V0.1.0_PLAN.md 保留早期里程碑和发布记录。
 
 2026-10-23 用户补充授权：由 Agent 完成测试，测试通过即接受，无需再要求用户亲自操作或重复确认。后续节点由 Agent 尽可能执行验收并记录方式、结果和边界；无法执行或失败的项目如实保留，不能用本授权把它们改记为通过。
 

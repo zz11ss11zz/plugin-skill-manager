@@ -17,6 +17,8 @@
 
 [English](README.md) | **中文** · [下载安装](docs/DISTRIBUTION.md) · [最新 Release](https://github.com/zz11ss11zz/plugin-skill-manager/releases/latest) · [Glama 目录](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
 
+[后续开发规划](docs/ROADMAP.md) · [推广方向与范围](docs/PROJECT_MEMORY.md)
+
 ![v0.4.14 中文活动面板：1,504 次真实调用记录，涵盖 15 个活跃日期和 8 个工具服务](docs/media/current-20261102/activity-zh.png)
 
 ## 能帮你做什么
