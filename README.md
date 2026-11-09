@@ -17,6 +17,8 @@ A local activity dashboard for Codex: calendar heatmaps, date-filtered rankings,
 
 **English** | [中文](README.zh-CN.md) · [Install](docs/DISTRIBUTION.md) · [Latest release](https://github.com/zz11ss11zz/plugin-skill-manager/releases/latest) · [Glama directory](https://glama.ai/mcp/servers/zz11ss11zz/plugin-skill-manager) · [Apache-2.0](LICENSE)
 
+[Development roadmap](docs/ROADMAP.en.md) · [Outreach priorities and scope](docs/OUTREACH.en.md)
+
 ![v0.4.14 English activity dashboard showing 1,504 real recorded call attempts across 15 days and 8 tool services](docs/media/current-20261102/activity-en.png)
 
 ## What it helps you do
