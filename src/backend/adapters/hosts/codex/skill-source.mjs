@@ -48,7 +48,7 @@ export async function scanInventory(roots = defaultRoots()) {
       id: digest(path.resolve(file)), path: file,
       name: meta.name || path.basename(dir), description: meta.description || '元数据无效，请查看扫描问题。',
       source, state: owner ? '缓存候选，安装/启用状态未核实' : '本地存在，启用状态未核实',
-      fingerprint: digest(raw), owner, evidence: '本地 SKILL.md 文件',
+      fingerprint: digest(raw), entryFingerprint: digest(raw.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').trimEnd()), owner, evidence: '本地 SKILL.md 文件',
       declaredAuthor: typeof (meta.metadata?.['skill-author'] ?? meta.metadata?.author ?? meta.author) === 'string' ? (meta.metadata?.['skill-author'] ?? meta.metadata?.author ?? meta.author).slice(0,160) : null,
     });
   }
