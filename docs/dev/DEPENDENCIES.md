@@ -10,8 +10,7 @@ Every version is written once, in the `catalog:` of `pnpm-workspace.yaml`. `pack
 it with `"catalog:"`. Versions are exact; `pnpm-lock.yaml` is committed and CI installs with
 `pnpm install --frozen-lockfile`.
 
-CI runs in two places: GitLab (`.gitlab-ci.yml`, the `origin` remote) and GitHub Actions
-(`.github/workflows/test.yml`). The GitLab pipeline:
+CI runs on GitLab (`.gitlab-ci.yml`, the `origin` remote). The pipeline:
 
 | Stage | Jobs | Depends on |
 | --- | --- | --- |

@@ -42,6 +42,6 @@ Choose `--skill setup` separately for recording diagnostics. Avoid installing ev
 3. 若找不到 MCP 工具，按 [本地配置](../LOCAL_SETUP.md) 检查服务；不要用虚构统计代替。 / If MCP tools are missing, check the [local setup](../LOCAL_SETUP.md); do not invent activity.
 4. 无记录时显示未知或尚无记录；安装不会补造历史，也不会自动授权后台采集。 / Missing records are unknown history. Installation does not fabricate past activity or authorize background collection.
 
-CLI 文件安装通过不代表已在原生宿主验收，也不代表目录收录。具体实测范围见 [验证记录](THIRD_PARTY_VALIDATION.md)。
+CLI 文件安装通过不代表已在原生宿主验收，也不代表目录收录。
 
 References checked 2026-10-30: [skills CLI](https://www.skills.sh/docs/cli), [skills directory](https://www.skills.sh/docs).

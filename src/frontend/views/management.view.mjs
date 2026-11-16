@@ -79,6 +79,9 @@ export function createManagementPanel(root, vm, initialLocale = 'zh') {
     list.replaceChildren();
     const { data, search, plan } = S(), { category, matches } = vm.skillMatches();
     count.textContent = search ? text(`显示 ${matches.length} / ${category.length} 个 Skill 文件`, `Showing ${matches.length} of ${category.length} Skill ${category.length === 1 ? 'file' : 'files'}`) : text(`${matches.length} 个 Skill 文件`, `${matches.length} Skill ${matches.length === 1 ? 'file' : 'files'}`);
+    // Coverage limits apply to the whole ledger: state them once beside the count, not on each row.
+    const note = collection.coverageNote(data?.adoptions, text);
+    if (note) count.textContent += ' · ' + note;
     for (const skill of matches) {
       const item = el('li'), heading = el('h3', skill.name), meta = el('p', sourceLabel(skill.source), 'manager-meta');
       item.append(heading, meta, el('p', skill.description), el('p', collection.adoptionEvidence([skill.id], data?.adoptions, text).label, 'manager-meta'));
