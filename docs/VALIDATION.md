@@ -354,7 +354,7 @@
 - 浏览器 AppBridge + 真实合成 MCP 服务六项检查通过：独立管理入口及搜索/备注；并发备注冲突拒绝覆盖且可放弃草稿重读；预览取消不移动；确认归档和恢复；360px 窄屏无横向溢出；只读接入状态。页面错误为零。复现脚本：`scripts/acceptance-ui.mjs`。
 - 英文和中文分别产生六个真实 UI 状态与 WebM 演示序列；两份视频经 Chrome 解码并播放，尺寸均为 1100×1100。素材保留“合成数据/浏览器”标签，使用示例路径别名。不是原生桌面录屏，也不是模型完成全部审核提示的证据。参见 `docs/media/v020/`。
 - 新图标为内置 ImageGen 生成的 1254×1254 RGBA PNG，约 1 MiB，alpha 范围 0–255；符合方形、透明和文件容量检查。提示词与来源见 ICON.md。
-- 当前工具禁用原生应用控制，未验证最新桌面全局入口、应用重启、宿主语言传播和新旧聊天 setup。没有请求组织 allowlist、提交身份或代作政策声明。官方审核材料准备与实际审核状态分别记录在 SUBMISSION.md。
+- 当前工具禁用原生应用控制，未验证最新桌面全局入口、应用重启、宿主语言传播和新旧聊天 setup。没有请求组织 allowlist、提交身份或代作政策声明。
 - 本地详细证据：`v020-tests-final.log`、`v020-installer-entry.log`、`v020-final-targeted.log`、`v020-media-validation.json`、隔离 distribution-Hk2Skw 结果。公开文档不附带真实用户配置或账本。
 
 ### 公开 Release 下载与最终边界
@@ -409,7 +409,7 @@
 - Seven isolated 0.3.0 installation lifecycle checks passed: install, app-server discovery, cached MCP/UI/restart, explicit relocation, data retention, uninstall and reinstall.
 - Seven isolated legacy 0.2.0 to renamed 0.3.0 lifecycle checks passed. Existing legacy identity blocked simultaneous install; uninstalling the old registration then installing the renamed package retained the synthetic plugin-call ledger across restart and reinstallation.
 - Extended acceptance-distribution.mjs to test legacy identity transitions using the actual previous package name. All test records were synthetic and CODEX_HOME was isolated. Native desktop interaction was not exercised.
-- Official portal observation in Chrome and a fallback in-app browser timed out before form inspection or upload. No official submission occurred; organization eligibility and native review evidence remain open (SUBMISSION.md).
+- Official portal observation in Chrome and a fallback in-app browser timed out before form inspection or upload. No official submission occurred; organization eligibility and native review evidence remain open.
 
 ## 2026-10-26 v0.3.1 compact bilingual observation panel
 
@@ -476,7 +476,7 @@
 
 ## 2026-10-28 v0.4.1 activity evidence and inventory refresh
 
-- Host events and assistant reports have separate totals, calendars and rankings; host events are the API/UI default. Exact-ID corroboration preserves report timestamps; unrelated IDs are never guessed to match. Skill adoption is explicitly assistant-reported. See DATA_ACCURACY.md and releases/v0.4.1.md for API changes and limits.
+- Host events and assistant reports have separate totals, calendars and rankings; host events are the API/UI default. Exact-ID corroboration preserves report timestamps; unrelated IDs are never guessed to match. Skill adoption is explicitly assistant-reported. See DATA_ACCURACY.md and the 0.4.1 release notes in CHANGELOG.md for API changes and limits.
 - Earlier v0.4.1 validation: 74 tests passed with isolated CLI checks enabled; bilingual synthetic-browser checks covered source separation, daily selection, keyboard behavior, both themes, 360px layout and Manage navigation. Seven isolated 0.4.0-to-0.4.1 lifecycle checks passed. These precede the latest inventory layout and refresh changes and are not native-sidebar acceptance.
 - Plugins and Skills now share filter-button and search layout. Refresh uses the official app-server plugin/installed endpoint (including remote-origin installs), skips unrelated activity scans and keeps navigation/search usable. Manage suspends full activity polling. Inventory-only results merge without discarding activity data.
 - Packaged local MCP refresh measured 1,891 ms for 28 plugins and 67 Skill files; standalone file scan was about 100 ms. The old marketplace query did not finish during observation and was stopped. No speedup ratio or native frame-rate claim is made.

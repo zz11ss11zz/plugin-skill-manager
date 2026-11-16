@@ -28,6 +28,9 @@
           },
           "source": {
             "type": "string"
+          },
+          "entryFingerprint": {
+            "type": "string"
           }
         },
         "required": [

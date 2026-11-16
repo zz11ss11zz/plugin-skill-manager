@@ -50,7 +50,10 @@ export const inputs = {
 // Output envelopes: the discriminating fields every client may rely on. Inner documents stay open
 // (passthrough) so additive changes are compatible within a contract version.
 const inventory = z.object({
-  mode: z.literal('inventory'), scannedAt: z.string(), skills: z.array(z.object({ id: z.string(), name: z.string(), path: z.string(), fingerprint: z.string(), source: z.string() }).passthrough()),
+  mode: z.literal('inventory'), scannedAt: z.string(), skills: z.array(z.object({ id: z.string(), name: z.string(), path: z.string(), fingerprint: z.string(), source: z.string(),
+    // SHA-256 of SKILL.md after stripping a BOM, normalizing CRLF and trimming trailing whitespace; the
+    // dashboard's collection view computes the same digest to match local instances.
+    entryFingerprint: z.string().optional() }).passthrough()),
   issues: z.array(z.object({ path: z.string(), reason: z.string() }).passthrough()), inventoryScope: z.literal('management').optional(),
 }).passthrough();
 const plan = z.object({ mode: z.literal('management-plan'), plan: z.object({ token: z.string(), title: z.string(), impact: z.string() }).passthrough() }).passthrough();

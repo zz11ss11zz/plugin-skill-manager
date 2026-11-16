@@ -77,7 +77,7 @@ The **v0.5.0 desktop submission ZIP** is available separately on the release pag
 
 ## Optional: companion Skill
 
-For third-party Skill directories, see the [bilingual listing kit](docs/distribution/THIRD_PARTY_LISTING.md), [dependency-aware installation guide](docs/distribution/THIRD_PARTY_INSTALL.md), and [verification status](docs/distribution/THIRD_PARTY_VALIDATION.md). Preparing these materials does not itself indicate a submitted or approved listing; see [channel status](docs/distribution/THIRD_PARTY_STATUS.md) for actual progress.
+For third-party Skill directories, see the [dependency-aware installation guide](docs/distribution/THIRD_PARTY_INSTALL.md).
 
 The complete plugin already includes these Skills. For the alternative source/MCP route, install the companion instructions from your downloaded source into your chosen project. The pinned skills CLI requires **Node.js 22.20+**, independently of the manager's Node requirement:
 
@@ -99,7 +99,7 @@ node install.mjs uninstall
 
 ## Environment health
 
-The v0.5.0 source and complete plugin download share the same version. See the [v0.5.0 integration notes](docs/releases/v0.5.0.md). Includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**, grouped redundancy reports, installation-unit boundaries and packaged assessment principles. Functional-candidate retrieval still uses lexical/task clues and requires review; shared auxiliary steps alone do not establish redundancy. The screenshot above was captured with v0.4.14. See [validation](docs/VALIDATION.md) for verified behavior and limits.
+The v0.5.0 source and complete plugin download share the same version. See the [v0.5.0 integration notes](CHANGELOG.md#050--2026-11-09). Includes **[Environment health](docs/ENVIRONMENT_HEALTH.md)**, grouped redundancy reports, installation-unit boundaries and packaged assessment principles. Functional-candidate retrieval still uses lexical/task clues and requires review; shared auxiliary steps alone do not establish redundancy. The screenshot above was captured with v0.4.14. See [validation](docs/VALIDATION.md) for verified behavior and limits.
 
 ## Demo and feedback
 

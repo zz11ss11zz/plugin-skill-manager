@@ -1,6 +1,7 @@
 import { build } from 'esbuild';
 import { mkdir, readFile, writeFile, copyFile, readdir, cp } from 'node:fs/promises';
 import path from 'node:path';
+import { releaseNotes } from './release-notes.mjs';
 
 // A fresh directory avoids retaining private state from an earlier test run.
 const pkg = JSON.parse(await readFile('package.json', 'utf8'));
@@ -44,7 +45,7 @@ const manifest = {
   extensions: { 'com.openai': {
     onboardingSkill: './skills/setup/SKILL.md',
     interface: JSON.parse(await readFile('packaging/interface.json', 'utf8')),
-    publication: { release_notes: (await readFile(`docs/releases/v${pkg.version}.md`, 'utf8')).trim() },
+    publication: { release_notes: releaseNotes(await readFile('CHANGELOG.md', 'utf8'), pkg.version) },
   } },
 };
 const cases = JSON.parse(await readFile('packaging/review-cases.json', 'utf8'));

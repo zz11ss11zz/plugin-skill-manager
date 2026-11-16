@@ -13,7 +13,10 @@ assert.equal(hash(await readFile(installed)),hash(await readFile(process.argv[2]
 const client=new Client({name:'redundancy-acceptance',version:'1'});
 const transport=new StdioClientTransport({command:process.execPath,args:[installed],stderr:'pipe'});
 try{
-  await client.connect(transport);assert.equal(client.getServerVersion().version,version);assert.deepEqual((await client.listTools()).tools.map(tool => tool.name).sort(), routes.map(route => route.name).sort());
+  await client.connect(transport);assert.equal(client.getServerVersion().version,version);
+  // mountRoutes skips routes whose `requires` capabilities are missing on this host, so the listed
+  // tools are a subset of `routes`: all known, and every capability-free route must be present.
+  const listed=(await client.listTools()).tools.map(tool => tool.name);assert.ok(listed.every(name => routes.some(route => route.name === name)), 'unknown tool listed');for (const route of routes) if (!route.requires?.length) assert.ok(listed.includes(route.name), 'missing ' + route.name);
   const r=await client.callTool({name:'check_plugin_status',arguments:{includeReport:true,days:30}});assert.ok(!r.isError);const report=r.structuredContent.redundancy;
   const calculator=report.inactivity.plugins.find(p=>p.name==='2+2 Calculator');assert.ok(calculator);assert.ok(calculator.firstSeen);assert.equal(calculator.state,'insufficient-history');
   assert.equal(report.scope.presenceAvailable,true);

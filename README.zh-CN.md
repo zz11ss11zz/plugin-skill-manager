@@ -79,7 +79,7 @@ Release 页另提供 **v0.5.0 桌面提交 ZIP**，根目录包含 manifest 与�
 
 ## 安装配套 Skill（可选）
 
-第三方 Skill 目录的[中英文收录材料](docs/distribution/THIRD_PARTY_LISTING.md)、[依赖与安装说明](docs/distribution/THIRD_PARTY_INSTALL.md)及[验证状态](docs/distribution/THIRD_PARTY_VALIDATION.md)已单独整理。材料准备本身不代表已提交或获得收录；各渠道实际进展见[渠道状态](docs/distribution/THIRD_PARTY_STATUS.md)。
+第三方 Skill 目录的安装方式见[依赖与安装说明](docs/distribution/THIRD_PARTY_INSTALL.md)。
 
 完整插件已包含配套 Skill，无需重复安装。本节适用于替代的源码/MCP 安装路径：将下载源码中的配套指令安装到希望使用的项目。固定版本的 skills CLI 需要 **Node.js 22.20+**，独立于管理器自身的 Node 要求：
 
@@ -103,7 +103,7 @@ node install.mjs uninstall
 
 已发布的 v0.5.0 包包含 **[统一环境诊断](docs/ENVIRONMENT_HEALTH.md)**：可在界面手动检查依赖、安装、数据和采集状态；也可独立运行 `node scripts/doctor.mjs`，中文输出使用 `--zh`。单项失败仍返回其余结果并提供处理建议。
 
-上方截图为 v0.4.14 中文界面（不作为最新版的原生桌面验证）。本仓库源码已更新为 [v0.5.0](docs/releases/v0.5.0.md)，上方 GitHub 下载链接对应 v0.5.0。具体功能及原生桌面验收边界以[验收记录](docs/VALIDATION.md)为准。
+上方截图为 v0.4.14 中文界面（不作为最新版的原生桌面验证）。本仓库源码已更新为 [v0.5.0](CHANGELOG.md#050--2026-11-09)，上方 GitHub 下载链接对应 v0.5.0。具体功能及原生桌面验收边界以[验收记录](docs/VALIDATION.md)为准。
 
 ## 演示与反馈
 

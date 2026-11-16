@@ -16,7 +16,7 @@ To reproduce with your own sanitized aggregate snapshot, build the application a
 
 ## v0.4.0 browser screenshots — 2026-10-28
 
-The Chinese README retains v040/activity-zh.png; the English v040/activity-en.png is historical. These are actual browser renders with synthetic fixtures, including recorded summaries, daily bars and the annual teal calendar. Navigation is Activity/Manage only. Reproduce with scripts/demo.mjs and scripts/acceptance-activity.mjs; see docs/releases/v0.4.0.md and v040/capture.json. Dark/narrow/daily-selected browser states were also checked. These are not native Codex screenshots.
+The Chinese README retains v040/activity-zh.png; the English v040/activity-en.png is historical. These are actual browser renders with synthetic fixtures, including recorded summaries, daily bars and the annual teal calendar. Navigation is Activity/Manage only. Reproduce with scripts/demo.mjs and scripts/acceptance-activity.mjs; see the 0.4.0 release notes in CHANGELOG.md and v040/capture.json. Dark/narrow/daily-selected browser states were also checked. These are not native Codex screenshots.
 
 ## Historical v0.3.2 demo — 2026-10-27
 

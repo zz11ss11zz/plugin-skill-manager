@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { scanInventory } from '../src/backend/adapters/hosts/codex/skill-source.mjs';
+import { releaseNotes } from '../scripts/release-notes.mjs';
 
 test('standalone package builds and serves MCP resources outside the source tree', { timeout: 60000 }, async () => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'skill-plugin-'));
@@ -34,7 +35,7 @@ test('standalone package builds and serves MCP resources outside the source tree
     assert.equal(manifest.description, pkg.description);
     assert.deepEqual(legacy.interface, manifest.extensions['com.openai'].interface);
     assert.deepEqual(legacy.extensions['com.openai'].publication, manifest.extensions['com.openai'].publication);
-    assert.equal(manifest.extensions['com.openai'].publication.release_notes, (await readFile(path.join(source, `docs/releases/v${pkg.version}.md`), 'utf8')).trim());
+    assert.equal(manifest.extensions['com.openai'].publication.release_notes, releaseNotes(await readFile(path.join(source, 'CHANGELOG.md'), 'utf8'), pkg.version));
     for (const [output, input] of [['README.md', 'PLUGIN_TESTING.md'], ['README.zh-CN.md', 'PLUGIN_TESTING.zh-CN.md']]) {
       assert.equal(await readFile(path.join(root, output), 'utf8'), await readFile(path.join(source, 'docs', input), 'utf8'));
     }
